@@ -2,551 +2,775 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
-  <meta name="theme-color" content="#0b0d13" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SUPER PIXEL BROS - 5 STAGES EDITION</title>
+  <meta name="description" content="HTML5 Canvas와 순수 JavaScript로 제작된 슈퍼 마리오 스타일 5스테이지 2D 횡스크롤 플랫포머 웹 게임" />
+  <meta name="theme-color" content="#111827" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="DINO 66M" />
-  <meta name="description" content="기원전 6,600만 년 중생대 공룡 진화부터 부활한 백골 티렉스의 인류 역사·초미래 질주까지 담은 2부작 아케이드 게임 (준성 만듬)" />
-  <meta property="og:title" content="DINO: 66,000,000 — 2부작 대서사시" />
-  <meta property="og:description" content="PC 및 모바일 완벽 호환! 기원전 6,600만 년에서 머나먼 미래까지 달리는 티렉스 대서사시" />
+  <meta property="og:title" content="SUPER PIXEL BROS - 5 STAGES EDITION" />
+  <meta property="og:description" content="외부 에셋 없이 즉시 실행되는 5스테이지 레트로 2D 플랫포머 웹 게임" />
   <meta property="og:type" content="website" />
-  <title>DINO: 66,000,000 — 2부작 대서사시 (중생대 공룡 & 부활한 백골 티렉스)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23dc2626'/%3E%3Ccircle cx='16' cy='16' r='10' fill='%23ffffff'/%3E%3Ctext x='16' y='21' font-family='monospace' font-size='15' font-weight='bold' text-anchor='middle' fill='%23dc2626'%3EM%3C/text%3E%3C/svg%3E" />
   <style>
     :root {
-      --pixel-font: 'Press Start 2P', monospace;
-      --retro-sans: 'VT323', monospace;
-      /* Updated by syncAppViewport() so embedded/in-app mobile browsers use their real visible height. */
-      --app-height: 100vh;
+      --bg-dark: #0f172a;
+      --panel-bg: #1e293b;
+      --accent-gold: #fbbf24;
+      --accent-red: #ef4444;
+      --accent-green: #22c55e;
+      --text-light: #f8fafc;
+      --retro-font: 'Courier New', 'Consolas', 'Malgun Gothic', monospace;
     }
-    html {
-      width: 100%;
-      min-height: 100%;
-      background-color: #0d0f14;
-      overflow-x: clip;
-      -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
-    }
-    *, *::before, *::after {
+
+    * {
       box-sizing: border-box;
-    }
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #0d0f14;
-      color: #e5e7eb;
       margin: 0;
-      min-width: 0;
+      padding: 0;
       user-select: none;
       -webkit-user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+      color: var(--text-light);
+      font-family: var(--retro-font);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
       overflow-x: hidden;
     }
-    .pixel-font { font-family: var(--pixel-font); }
-    .retro-mono { font-family: var(--retro-sans); }
-    #canvasContainer {
-      aspect-ratio: 800 / 320;
+
+    .game-shell {
       width: 100%;
-      max-width: 880px;
-      background-color: #181c26;
-      transition: height 0.15s ease;
+      max-width: 960px;
+      background: #111827;
+      border: 4px solid #334155;
+      border-radius: 14px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
-    /* ===================================================================== */
-    /* MOBILE LINK / EMBED LAYOUT */
-    /* ===================================================================== */
-    body.mode-mobile {
-      width: 100%;
-      height: auto;
-      min-height: var(--app-height);
-      max-height: none;
-      overflow-x: hidden;
-      overflow-y: auto;
-      overscroll-behavior: auto;
-      padding: 4px 8px !important;
-      justify-content: flex-start;
+
+    .top-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 10px;
+      background: #1e293b;
+      border: 2px solid #475569;
+      border-radius: 8px;
     }
-    body.mode-mobile header {
-      max-width: 100% !important;
-      padding-bottom: 3px !important;
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-weight: 900;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      color: var(--accent-gold);
+      text-shadow: 2px 2px 0 #000;
     }
-    body.mode-mobile main {
-      max-width: 100% !important;
-      flex: 0 0 auto;
-      min-height: 0;
-      width: 100%;
-      gap: 4px !important;
-      padding: 0 !important;
+
+    .stage-selector {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
     }
-    body.mode-mobile #timelineBarCard {
-      padding: 3px 10px !important;
-      border-radius: 0.5rem !important;
-      gap: 2px !important;
+
+    .stage-btn {
+      background: #0f172a;
+      color: #cbd5e1;
+      border: 2px solid #475569;
+      border-radius: 5px;
+      padding: 4px 8px;
+      font-family: var(--retro-font);
+      font-size: 0.76rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.12s ease;
     }
-    body.mode-mobile #eraLabelsGrid {
-      display: none !important; /* Save vertical height in landscape so canvas fills screen */
+
+    .stage-btn:hover {
+      background: #334155;
+      color: #fff;
     }
-    /* Keep the entire game and its controls in the page's normal scroll flow.
-       This is essential inside GitHub previews and other embedded webviews. */
-    body.mode-mobile #canvasContainer {
-      aspect-ratio: 800 / 320;
-      width: 100%;
-      max-width: 100%;
-      flex: 0 0 auto;
-      min-height: 0;
-      max-height: none;
-      border-radius: 0.65rem;
+
+    .stage-btn.active {
+      background: #dc2626;
+      color: #fff;
+      border-color: #fca5a5;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
     }
-    body.mode-mobile #gameCanvas {
-      /* A vertical swipe on the game can scroll the containing GitHub page. */
-      touch-action: pan-y;
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
     }
-    /*
-       A shared link often opens inside an in-app browser that cannot lock the
-       device orientation. Keep the game playable in portrait instead of
-       cropping it or trapping the player behind the rotate-screen overlay.
-    */
-    @media (max-width: 767px) and (orientation: portrait) {
-      body.mode-mobile #mobileArcadePad {
-        margin-top: 4px;
-      }
+
+    .retro-btn {
+      background: #334155;
+      color: #f8fafc;
+      border: 2px solid #64748b;
+      border-bottom-width: 4px;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-family: var(--retro-font);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.08s ease, background 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
-    /* Dedicated non-overlapping button deck space below the game screen */
-    body.mode-mobile #mobileArcadePad {
+
+    .retro-btn:hover {
+      background: #475569;
+      border-color: #94a3b8;
+    }
+
+    .retro-btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+
+    .retro-btn.primary {
+      background: #d97706;
+      border-color: #fde68a;
+      border-bottom-color: #92400e;
+      color: #fff;
+    }
+
+    .retro-btn.primary:hover {
+      background: #f59e0b;
+    }
+
+    .retro-btn.success {
+      background: #16a34a;
+      border-color: #86efac;
+      border-bottom-color: #14532d;
+      color: #fff;
+    }
+
+    .retro-btn.success:hover {
+      background: #22c55e;
+    }
+
+    .canvas-stage {
       position: relative;
       width: 100%;
-      flex-shrink: 0;
-      padding-top: 2px;
-      z-index: 20;
+      aspect-ratio: 800 / 450;
+      background: #5c94fc;
+      border: 3px solid #000;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.35);
     }
-    /* Floating Cheat Drawer in Mobile Landscape */
-    body.mode-mobile #cheatPanelWrapper {
-      position: fixed;
-      top: 40px;
-      left: 12px;
-      right: 12px;
-      z-index: 40;
-      background: rgba(15, 23, 42, 0.96) !important;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
-    }
-    #gameCanvas {
-      image-rendering: -moz-crisp-edges;
-      image-rendering: -webkit-crisp-edges;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
+
+    canvas {
       display: block;
       width: 100%;
       height: 100%;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
     }
-    .crt-scanlines {
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.14) 50%);
-      background-size: 100% 4px;
-    }
-    .key-cap {
-      display: inline-flex;
+
+    /* 오버레이 모달 (게임 오버 / 스테이지 클리어) */
+    .overlay-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(9, 13, 22, 0.8);
+      backdrop-filter: blur(2px);
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 0.12rem 0.4rem;
-      font-family: var(--pixel-font);
-      font-size: 0.6rem;
-      background: #1f2430;
-      border: 1px solid #374151;
+      padding: 20px;
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .overlay-modal.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #111827;
+      border: 4px solid var(--accent-gold);
+      border-radius: 12px;
+      padding: 22px 28px;
+      text-align: center;
+      max-width: 460px;
+      width: 92%;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+    }
+
+    .modal-card.gameover {
+      border-color: var(--accent-red);
+    }
+
+    .modal-card.clear {
+      border-color: var(--accent-green);
+    }
+
+    .modal-title {
+      font-size: 1.85rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      text-shadow: 3px 3px 0 #000;
+    }
+
+    .modal-card.gameover .modal-title {
+      color: #f87171;
+    }
+
+    .modal-card.clear .modal-title {
+      color: #4ade80;
+    }
+
+    .modal-subtitle {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+      line-height: 1.45;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 18px;
+    }
+
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: #94a3b8;
+    }
+
+    .stat-val {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--accent-gold);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .modal-btn {
+      font-size: 0.95rem;
+      padding: 9px 18px;
+    }
+
+    /* 모바일 및 터치 컨트롤러 */
+    .controls-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.76rem;
+      color: #cbd5e1;
+    }
+
+    .key-guide {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .key-cap {
+      display: inline-block;
+      background: #0f172a;
+      color: #fbbf24;
+      border: 1px solid #64748b;
       border-bottom-width: 3px;
-      border-radius: 0.35rem;
-      color: #f3f4f6;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-weight: 800;
+      font-size: 0.72rem;
+      margin-right: 3px;
     }
-    .touch-pad-btn {
+
+    .touch-controls {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-top: 4px;
+    }
+
+    .dpad-group, .action-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .touch-btn {
+      width: 54px;
+      height: 46px;
+      background: #334155;
+      color: #fff;
+      border: 2px solid #94a3b8;
+      border-bottom-width: 4px;
+      border-radius: 10px;
+      font-family: var(--retro-font);
+      font-size: 0.92rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
       touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-touch-callout: none;
-      user-select: none;
-      transition: transform 0.06s ease, background-color 0.1s ease, box-shadow 0.1s ease;
     }
-    .touch-pad-btn:active, .touch-pad-btn.is-pressed {
-      transform: translateY(2px) scale(0.95);
+
+    .touch-btn.fire-btn {
+      width: 92px;
+      background: #ea580c;
+      border-color: #fdba74;
+      border-bottom-color: #9a3412;
     }
-    @keyframes phoneRotateAnim {
-      0%, 15% { transform: rotate(0deg); }
-      50%, 85% { transform: rotate(-90deg); }
-      100% { transform: rotate(0deg); }
+
+    .touch-btn.jump-btn {
+      width: 104px;
+      background: #dc2626;
+      border-color: #fca5a5;
+      border-bottom-color: #7f1d1d;
     }
-    .animate-phone-rotate {
-      animation: phoneRotateAnim 2.4s ease-in-out infinite;
+
+    .touch-btn:active, .touch-btn.active {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+      filter: brightness(1.2);
     }
-    body.mode-mobile .mobile-hide-clutter {
-      display: none !important;
+
+    /* 디바이스 배지 및 게임 설명 요약 바 */
+    .device-pill {
+      background: #0284c7;
+      color: #fff;
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid #7dd3fc;
+      font-weight: 800;
+      text-shadow: none;
     }
-    body.mode-mobile #pcControlPanel {
-      display: none !important;
+
+    .game-info-banner {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      color: #e2e8f0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      line-height: 1.45;
     }
-    body.mode-pc #mobileArcadePad {
-      display: none !important;
+
+    .game-info-highlights {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
     }
-    body.mode-pc #mobileTopUtilityBtns {
-      display: none !important;
+
+    .info-tag {
+      background: #0f172a;
+      color: #fde047;
+      border: 1px solid #475569;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-weight: 800;
+      font-size: 0.72rem;
+      margin-right: 4px;
     }
-    body.mode-mobile #cheatPanelWrapper.mobile-collapsed {
-      display: none !important;
+
+    /* 모바일 세로 화면일 때 가로 회전 권장 안내 배너 (캔버스를 가리지 않고 상단에 표시) */
+    .rotate-notice {
+      display: none;
+      background: linear-gradient(90deg, #b45309, #d97706);
+      color: #fff;
+      border: 2px solid #fde68a;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* 메인 플레이 영역: 캔버스와 좌우/하단 컨트롤러를 분리해 캐릭터를 절대 가리지 않는 구조 */
+    .play-viewport {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .touch-wing {
+      display: none;
+    }
+
+    /* 게임 설명(가이드) 모달 스타일 */
+    .guide-modal-card {
+      background: #111827;
+      border: 4px solid #38bdf8;
+      border-radius: 12px;
+      padding: 18px 22px;
+      text-align: left;
+      max-width: 580px;
+      width: 95%;
+      max-height: 92%;
+      overflow-y: auto;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9);
+      color: #f8fafc;
+    }
+
+    .guide-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #334155;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+
+    .guide-modal-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #fde047;
+    }
+
+    .guide-section {
+      margin-bottom: 10px;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+
+    .guide-section strong {
+      color: #38bdf8;
+    }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .guide-box {
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    /* PC 환경 (마우스/키보드 기준): 터치패드 숨김 */
+    @media (min-width: 900px) and (pointer: fine) {
+      .touch-controls {
+        display: none;
+      }
+      .touch-controls.force-show {
+        display: flex;
+      }
+    }
+
+    /* 모바일 세로 화면: 가로 회전 안내 배너 표시 & 캔버스 아래 독립 컨트롤러 도크 배치 */
+    @media (max-width: 899px) and (orientation: portrait) {
+      .rotate-notice {
+        display: flex;
+      }
+      .key-guide {
+        display: none;
+      }
+    }
+
+    /* ★ 핵심: 모바일 가로(Landscape) 모드 — 휴대용 콘솔(Switch/SteamDeck) 스타일 좌·우 베젤 분리 레이아웃!
+       터치 버튼이 게임 화면(Canvas) 바깥 좌·우 날개 영역에 배치되어 캐릭터와 지형을 단 1픽셀도 가리지 않음! */
+    @media (max-width: 960px) and (orientation: landscape) {
+      body {
+        padding: 4px;
+      }
+      .game-shell {
+        padding: 6px 8px;
+        gap: 6px;
+        max-width: 100vw;
+      }
+      .top-toolbar {
+        padding: 4px 8px;
+      }
+      .game-info-banner {
+        display: none;
+      }
+      .play-viewport {
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: center;
+        gap: 8px;
+      }
+      .canvas-stage {
+        flex: 1 1 auto;
+        max-height: calc(100vh - 68px);
+        width: auto;
+      }
+      .controls-footer {
+        display: none;
+      }
+      .touch-wing {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        background: #1e293b;
+        border: 2px solid #475569;
+        border-radius: 10px;
+        padding: 10px 6px;
+        min-width: 118px;
+        gap: 10px;
+      }
+      .wing-label {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: auto;
+      }
+      .wing-dpad {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        width: 100%;
+      }
+      .wing-dpad .touch-btn.down-wide {
+        grid-column: span 2;
+        width: 100%;
+        height: 40px;
+        background: #0284c7;
+        border-color: #7dd3fc;
+      }
+      .wing-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+      }
+      .wing-actions .touch-btn {
+        width: 100%;
+        height: 54px;
+      }
+    }
+
+    /* 수동으로 터치패드 강제 표시를 켰을 때 하단 컨트롤러 도크 활성화 */
+    .controls-footer.force-show-footer {
+      display: flex !important;
+    }
+    .touch-controls.force-show {
+      display: flex !important;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-1.5 sm:p-4 bg-gradient-to-b from-[#0b0d13] via-[#121620] to-[#0b0d13]">
-
-  <!-- ===================================================================== -->
-  <!-- PORTRAIT ORIENTATION LOCK OVERLAY (모바일 세로 상태일 때 가로 회전 유도) -->
-  <!-- ===================================================================== -->
-  <div id="portraitLockOverlay" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center select-none">
-    <div class="w-20 h-20 rounded-3xl bg-amber-500/15 border-2 border-amber-400/60 flex items-center justify-center mb-5 shadow-2xl">
-      <svg class="w-11 h-11 text-amber-400 animate-phone-rotate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
-        <line x1="12" y1="18" x2="12.01" y2="18" />
-      </svg>
-    </div>
-    <h2 class="pixel-font text-sm sm:text-base text-amber-400 mb-2 tracking-wide">
-      가로 모드 전용 게임입니다
-    </h2>
-    <p class="text-xs sm:text-sm text-slate-300 max-w-xs leading-relaxed mb-5">
-      넓고 쾌적한 시야와 양손 엄지 조작을 위해<br />
-      <strong class="text-cyan-300">스마트폰을 가로(Landscape)로 돌려주세요!</strong>
-    </p>
-    <button id="lockLandscapeBtn" type="button" class="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-extrabold text-xs shadow-lg active:scale-95 transition flex items-center gap-2">
-      <span>⛶ 전체화면 &amp; 가로모드 자동 전환</span>
-    </button>
-  </div>
-
-  <!-- Slim Top Header Bar (Ultra-compact in Mobile Landscape; small diagonal upper-right rotate icon!) -->
-  <header class="w-full max-w-[880px] flex items-center justify-between gap-2 pb-1 border-b border-slate-800/80">
-    <div class="flex items-center gap-2 min-w-0">
-      <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm bg-amber-500 animate-pulse shrink-0"></div>
-      <h1 class="pixel-font text-[10px] sm:text-sm md:text-base tracking-wider text-amber-400 truncate">
-        DINO: 66,000,000
-      </h1>
-      <span id="bgmTrackBadge" class="hidden lg:inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded bg-slate-800/90 border border-slate-700 text-emerald-300 font-medium">
-        <span>🎵</span>
-        <span id="bgmTrackName">BGM: 대기 중</span>
-      </span>
-    </div>
-
-    <!-- Diagonal Upper-Right Compact Icon Controls -->
-    <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
-      <!-- Hidden legacy elements so automated feature checks remain 100% satisfied -->
-      <span id="deviceEnvBadge" class="hidden">💻 PC 환경 감지됨</span>
-      <span id="eraBadge" class="hidden">STAGE 1: TRIASSIC</span>
-      <button id="deviceModeBtn" type="button" class="hidden"><span id="deviceModeIcon">📱</span><span id="deviceModeLabel">모바일키 전환</span></button>
-      <button id="deployModalBtn" type="button" class="hidden"><span>🚀</span><span>배포·공유</span></button>
-      <button id="mobileRestartBtn" type="button" class="hidden">🔄 처음부터</button><div id="mobileCheatToggleRow" class="hidden"></div>
-
-      <!-- Mobile Landscape Quick Utility Chips (Invincible & Time-Warp Drawer Toggle) -->
-      <div id="mobileTopUtilityBtns" class="flex items-center gap-1">
-        <button id="mobileInvincibleBtn" type="button" class="h-7 px-2 rounded-lg bg-indigo-950/90 border border-indigo-600/70 text-indigo-200 text-[10px] font-bold flex items-center gap-1 shadow">
-          🛡️ 무적: OFF
+<body>
+  <div class="game-shell">
+    <!-- 상단 툴바 및 5개 스테이지 선택기 -->
+    <div class="top-toolbar">
+      <div class="brand-title">
+        <span>SUPER PIXEL BROS</span>
+        <span id="deviceModeBadge" class="device-pill">💻 PC 키보드 모드</span>
+        <div class="stage-selector" role="group" aria-label="스테이지 선택">
+          <button id="btnStage1" class="stage-btn active" type="button">1-1 초원</button>
+          <button id="btnStage2" class="stage-btn" type="button">1-2 지하동굴</button>
+          <button id="btnStage3" class="stage-btn" type="button">1-3 구름고원</button>
+          <button id="btnStage4" class="stage-btn" type="button">1-4 사막유적</button>
+          <button id="btnStage5" class="stage-btn" type="button">1-5 쿠파성채</button>
+        </div>
+      </div>
+      <div class="toolbar-actions">
+        <button id="btnGuide" class="retro-btn" type="button" title="게임 설명 및 공략 보기 (단축키 H)">
+          📖 게임 설명
         </button>
-        <button id="toggleMobileCheatDrawerBtn" type="button" class="h-7 px-2 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 text-[10px] font-bold flex items-center gap-1 shadow">
-          <span>⚡ 시대 타임워프 열기</span>
-          <span id="cheatDrawerArrow">▼</span>
+        <button id="btnFullscreen" class="retro-btn" type="button" title="전체화면 및 모바일 가로 고정 전환 (단축키 F)">
+          ⛶ 전체화면
+        </button>
+        <button id="btnToggleTouch" class="retro-btn" type="button" title="화면 터치 버튼 표시 전환">
+          🎮 터치패드 표시
+        </button>
+        <button id="btnMute" class="retro-btn" type="button" title="효과음 켜기/끄기">
+          🔊 사운드: ON
+        </button>
+        <button id="btnRestartTop" class="retro-btn primary" type="button" title="처음부터 다시 시작 (단축키 R)">
+          🔄 재시작 (R)
         </button>
       </div>
-
-      <!-- Small Rotate/Restart Icon at Upper-Right Diagonal Corner (Requirement 2) -->
-      <button id="topCornerResetBtn" type="button" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-800/90 hover:bg-slate-700 active:scale-95 text-amber-300 border border-slate-700 transition flex items-center justify-center shadow" title="처음부터 다시 시작 (R)">
-        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
-          <path d="M3 3v5h5" />
-        </svg>
-      </button>
-
-      <!-- Help / Intro Guide Button (?) -->
-      <button id="openGuideBtn" type="button" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-800/90 hover:bg-slate-700 active:scale-95 text-cyan-300 border border-slate-700 transition flex items-center justify-center text-xs font-bold shadow" title="게임 설명 보기">
-        ?
-      </button>
-
-      <!-- Fullscreen Icon Button -->
-      <button id="fullscreenBtn" type="button" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-semibold bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center justify-center" title="전체화면 전환">
-        ⛶
-      </button>
-
-      <!-- Sound Mute Button -->
-      <button id="muteBtn" type="button" class="h-7 sm:h-8 px-2 rounded-lg text-xs font-semibold bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1" title="사운드 켜기/끄기 (M)">
-        <span id="muteIcon">🔊</span>
-        <span id="muteLabel" class="hidden sm:inline">SOUND ON</span>
-      </button>
     </div>
-  </header>
 
-  <!-- Main Stage Container (In Mobile Landscape, fills 100% of remaining viewport height!) -->
-  <main class="w-full max-w-[880px] flex-1 flex flex-col items-center justify-between gap-2 py-1">
-    
-    <!-- Progression Timeline Bar (Ultra-slim in Mobile Landscape) -->
-    <div id="timelineBarCard" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-2.5 py-1.5 flex flex-col gap-1 shrink-0">
-      <div class="flex justify-between items-center text-[10px] sm:text-xs font-medium text-slate-400 gap-2">
-        <span id="phaseTitleText" class="text-amber-300 font-semibold truncate">[1부 · 1-A] 초기 트라이아스기 (0~500) — "생존의 시작"</span>
-        <span id="scoreProgressLabel" class="pixel-font text-[9px] sm:text-[10px] text-slate-200 shrink-0">0000 / 8000 PTS</span>
-      </div>
-      <div class="relative w-full h-2 sm:h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
-        <div class="absolute top-0 bottom-0 left-[12.5%] w-px bg-slate-700 z-10" title="1,000점: 쥐라기"></div>
-        <div class="absolute top-0 bottom-0 left-[25.0%] w-px bg-slate-700 z-10" title="2,000점: 백악기"></div>
-        <div class="absolute top-0 bottom-0 left-[37.5%] w-px bg-rose-700 z-10" title="3,000점: 대멸종(고사목·쓰러진 나무)"></div>
-        <div class="absolute top-0 bottom-0 left-[50.0%] w-0.5 bg-amber-400 z-10" title="4,000점: 1부 흙속 매장 엔딩 & 2부 땅파기 각성!"></div>
-        <div class="absolute top-0 bottom-0 left-[62.5%] w-px bg-cyan-700 z-10" title="5,000점: 고대 문명 & 중세/산업혁명"></div>
-        <div class="absolute top-0 bottom-0 left-[75.0%] w-px bg-indigo-600 z-10" title="6,000점: 현대 도시(은행·전광판·랜드마크)"></div>
-        <div class="absolute top-0 bottom-0 left-[87.5%] w-px bg-fuchsia-600 z-10" title="7,000점: 초미래(UFO 보스 레이저전 & 추격 포위)"></div>
-        <div id="timelineFill" class="h-full bg-gradient-to-r from-amber-400 via-emerald-400 via-rose-500 via-cyan-400 to-fuchsia-500 transition-all duration-100" style="width: 0%;"></div>
-      </div>
-      <div id="eraLabelsGrid" class="grid grid-cols-8 text-[9px] sm:text-[10px] text-slate-400 pt-0.5 text-center font-medium">
-        <div class="text-amber-400 truncate">1.트라이</div>
-        <div class="text-emerald-400 truncate">2.쥐라기</div>
-        <div class="text-sky-400 truncate">3.백악기</div>
-        <div class="text-rose-400 truncate">4.대멸종</div>
-        <div class="text-stone-300 truncate">5.구석기</div>
-        <div class="text-yellow-300 truncate">6.고대중세</div>
-        <div class="text-blue-400 truncate">7.현대도시</div>
-        <div class="text-fuchsia-400 truncate">8.초미래</div>
+    <!-- 모바일 세로 상태일 때 가로 모드를 안내하는 배너 (캐릭터 화면을 가리지 않음) -->
+    <div id="rotateNoticeBar" class="rotate-notice">
+      <span>📱 모바일에서는 스마트폰을 가로(Landscape)로 돌리거나 [⛶ 전체화면]을 누르면 좌·우 전용 패드로 캐릭터를 가리지 않고 쾌적하게 플레이할 수 있습니다!</span>
+    </div>
+
+    <!-- PC & 모바일 공통 한 줄 핵심 게임 설명 바 -->
+    <div class="game-info-banner">
+      <div class="game-info-highlights">
+        <span><span class="info-tag">목표</span>5개 테마 월드(초원·동굴·구름·사막·용암성)를 돌파해 오른쪽 끝 깃대에 도달하세요! (목숨 3개)</span>
+        <span><span class="info-tag">아이템</span>[?] 블록 타격 시 슈퍼버섯(성장)·파이어플라워(불꽃탄환)·무적스타·1UP 등장</span>
+        <span><span class="info-tag">비밀배관</span>SECRET PIPE 위에서 아래(▼/S)를 누르면 지하 보너스 룸 진입</span>
       </div>
     </div>
 
-    <!-- Expanded Canvas Wrapper (Fills full landscape screen on mobile!) -->
-    <div id="canvasContainer" class="relative w-full rounded-xl overflow-hidden border-2 border-slate-700/80 shadow-2xl flex-1">
-      <canvas id="gameCanvas" width="800" height="300"></canvas>
-      <div class="crt-scanlines pointer-events-none absolute inset-0"></div>
+    <!-- 메인 플레이 뷰포트: 모바일 가로 모드에서는 좌·우 사이드 독이 활성화되어 게임 화면과 캐릭터를 절대 가리지 않음 -->
+    <div class="play-viewport">
+      <!-- 모바일 가로 전용 좌측 방향키 베젤 (화면 외곽 배치) -->
+      <div class="touch-wing left-wing" aria-label="모바일 가로 좌측 이동 패드">
+        <span class="wing-label">MOVE / PIPE</span>
+        <div class="wing-dpad">
+          <button id="btnWingLeft" class="touch-btn" type="button" aria-label="왼쪽 이동">◀</button>
+          <button id="btnWingRight" class="touch-btn" type="button" aria-label="오른쪽 이동">▶</button>
+          <button id="btnWingDown" class="touch-btn down-wide" type="button" aria-label="배관 진입">▼ PIPE</button>
+        </div>
+      </div>
 
-      <!-- ================================================================= -->
-      <!-- PRE-GAME BRIEFING OVERLAY (가로 화면에도 꽉 차게 들어오는 설명 창) -->
-      <!-- ================================================================= -->
-      <div id="introGuideOverlay" class="absolute inset-0 z-30 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-3">
-        <div class="w-full max-w-[540px] bg-slate-900/95 border-2 border-amber-400/80 rounded-2xl px-3.5 py-2.5 sm:p-4 shadow-2xl text-slate-100 flex flex-col gap-2">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
-            <div class="flex items-center gap-1.5">
-              <span class="text-sm sm:text-base">🦖</span>
-              <h2 class="pixel-font text-[10px] sm:text-xs text-amber-400">DINO : 66,000,000 — 게임 설명</h2>
-            </div>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">2부작 대서사시 (8,000점)</span>
-          </div>
+      <!-- 800x450 비율 고정 게임 캔버스 스테이지 -->
+      <div class="canvas-stage" id="canvasContainer">
+        <canvas id="gameCanvas" width="800" height="450"></canvas>
 
-          <!-- Wide 2-Column Story & Controls Grid (Fits low-height mobile landscape cleanly!) -->
-          <div class="grid grid-cols-2 gap-2 text-[10px] sm:text-xs">
-            <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2">
-              <div class="font-bold text-amber-300 mb-0.5">🌋 1부 : 중생대 진화 (0~4,000)</div>
-              <p class="text-slate-300 leading-tight">원시 공룡에서 티렉스로 진화하며 대멸종 소행성 충돌까지 생존!</p>
-            </div>
-            <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2">
-              <div class="font-bold text-cyan-300 mb-0.5">🦴 2부 : 부활한 백골 (4,000~8,000)</div>
-              <p class="text-slate-300 leading-tight">땅속 화석에서 깨어나 인류 역사·초미래 UFO 보스전을 돌파!</p>
-            </div>
-          </div>
-
-          <!-- Controls Summary with Custom Icons -->
-          <div class="grid grid-cols-2 gap-2 text-[10px] sm:text-xs bg-slate-950/70 border border-slate-800/90 rounded-xl p-1.5 sm:p-2">
-            <div class="flex items-center gap-2">
-              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-cyan-500/20 border border-cyan-400/60 flex items-center justify-center shrink-0 text-cyan-300">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 5v14" />
-                  <path d="m19 12-7 7-7-7" />
-                  <path d="M5 3h14" />
-                </svg>
+        <!-- 클리어 / 게임 오버 오버레이 모달 -->
+        <div id="overlayModal" class="overlay-modal" role="dialog" aria-modal="true">
+          <div id="modalCard" class="modal-card">
+            <div id="modalTitle" class="modal-title">STAGE CLEAR!</div>
+            <p id="modalSubtitle" class="modal-subtitle">축하합니다! 스테이지를 완벽히 클리어했습니다.</p>
+            <div class="stats-grid">
+              <div class="stat-box">
+                <span class="stat-label">FINAL SCORE</span>
+                <span id="modalScore" class="stat-val">000000</span>
               </div>
-              <div>
-                <div class="font-bold text-cyan-200">숙이기 <span class="text-[9px] text-slate-400">(좌측 버튼 / ↓)</span></div>
-                <div class="text-[9px] sm:text-[10px] text-slate-400">익룡·비행체·상단 레이저 회피</div>
+              <div class="stat-box">
+                <span class="stat-label">COINS</span>
+                <span id="modalCoins" class="stat-val">00</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-label">TIME LEFT</span>
+                <span id="modalTime" class="stat-val">000</span>
               </div>
             </div>
-            <div class="flex items-center gap-2">
-              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500/20 border border-amber-400/60 flex items-center justify-center shrink-0 text-amber-300">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 19V5" />
-                  <path d="m5 12 7-7 7 7" />
-                  <path d="M7 21h10" />
-                </svg>
-              </div>
-              <div>
-                <div class="font-bold text-amber-200">점프 <span class="text-[9px] text-slate-400">(우측 버튼 / SPACE)</span></div>
-                <div class="text-[9px] sm:text-[10px] text-slate-400">지상 장애물·하단 레이저 회피</div>
-              </div>
+            <div class="modal-actions">
+              <button id="btnModalNext" class="retro-btn success modal-btn" type="button" style="display: none;">
+                다음 스테이지 (N)
+              </button>
+              <button id="btnModalRestart" class="retro-btn primary modal-btn" type="button">
+                ▶ 다시 시작하기 (R)
+              </button>
             </div>
           </div>
+        </div>
 
-          <button id="startIntroBtn" type="button" class="w-full py-2 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs sm:text-sm shadow-lg transition transform active:scale-98 flex items-center justify-center gap-2">
-            <span>▶ 게임 시작하기</span>
-            <span class="text-[10px] font-semibold opacity-80">(터치 또는 SPACE)</span>
-          </button>
+        <!-- PC & 모바일 공통 게임 설명(가이드) 오버레이 모달 -->
+        <div id="guideModal" class="overlay-modal" role="dialog" aria-modal="true">
+          <div class="guide-modal-card">
+            <div class="guide-modal-header">
+              <span class="guide-modal-title">📖 SUPER PIXEL BROS 게임 설명 (PC & 모바일 공통)</span>
+              <button id="btnCloseGuide" class="retro-btn primary" type="button">닫기 ✕</button>
+            </div>
+            <div class="guide-section">
+              <strong>1. 게임 개요 및 승리 조건</strong><br />
+              총 <strong>5개의 테마 스테이지(1-1 초원 ~ 1-5 쿠파 성채)</strong>로 구성된 횡스크롤 액션 플랫포머입니다. 총 <strong>3개의 목숨(LIVES)</strong>이 주어지며, 스테이지 중간의 <strong>CHECK 깃발</strong>을 지나면 부활 위치가 저장됩니다. 각 스테이지 오른쪽 끝의 <strong>깃대(Flagpole)</strong>를 잡으면 클리어됩니다!
+            </div>
+            <div class="guide-grid">
+              <div class="guide-box guide-section">
+                <strong>2. 조작 방법 (PC 키보드)</strong><br />
+                • <b>좌우 이동</b>: 방향키 ◀/▶ 또는 A/D<br />
+                • <b>가변 점프</b>: Space / W / ▲ (길게 누를수록 높이 점프)<br />
+                • <b>배관 진입</b>: 토관 위에서 ▼ 또는 S<br />
+                • <b>불꽃 탄환</b>: Z / Shift / X (파이어 상태)<br />
+                • <b>스테이지 선택</b>: 숫자키 1~5 / 재시작 R
+              </div>
+              <div class="guide-box guide-section">
+                <strong>3. 조작 방법 (모바일 가로 기준)</strong><br />
+                • <b>화면 가림 제로(0%) 설계</b>: 캐릭터와 지형을 가리지 않도록 게임 화면 바깥(좌·우 베젤 또는 하단 도크)에 전용 패드가 배치됩니다.<br />
+                • <b>좌측 패드</b>: ◀/▶ 이동 및 ▼ PIPE(배관 진입)<br />
+                • <b>우측 패드</b>: JUMP ▲(점프) 및 FIRE 🔥(불꽃 발사)
+              </div>
+            </div>
+            <div class="guide-section" style="margin-top: 8px; margin-bottom: 0;">
+              <strong>4. 아이템 및 몬스터 핵심 공략</strong><br />
+              • <b>파워업 아이템</b>: [?] 블록을 치면 <b>슈퍼 버섯</b>(크기 성장·일반 벽돌 파괴), <b>파이어 플라워</b>(통통 튀는 불꽃 탄환 발사), <b>무적 스타</b>(일시 무적), <b>1-UP 버섯</b>(목숨 +1)이 등장합니다.<br />
+              • <b>몬스터 상성</b>: 굼바·엉금엉금·날개 엉금엉금은 위에서 밟아서 제압하며, 등껍질을 차면 경로상의 적을 연쇄 처치합니다. 단, <b>1-2 딱정벌레</b>는 파이어볼에 면역이므로 밟아야 하고, <b>1-4·1-5 가시돌이</b>는 등 가시 때문에 밟으면 다치므로 파이어볼이나 등껍질로 처치하세요!
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Stage 1 Buried Ending Overlay Button (To Awaken Skeleton & Dig Out to Stage 2) -->
-      <div id="buriedOverlay" class="hidden absolute inset-x-0 bottom-3 flex justify-center items-center gap-3 z-20">
-        <button id="awakenStage2Btn" type="button" class="pixel-font text-[10px] sm:text-xs px-4 py-2 rounded bg-rose-600/40 hover:bg-rose-500/60 text-amber-200 border border-amber-400 shadow-lg backdrop-blur-sm transition transform hover:scale-105 animate-pulse">
-          [ SPACE / CLICK : 뼈다귀 티렉스 눈뜨고 흙 파헤치며 2스테이지 시작! ]
-        </button>
-      </div>
-
-      <!-- Final Epilogue Interactive Rewind Button Overlay -->
-      <div id="epilogueOverlay" class="hidden absolute inset-x-0 bottom-3 flex justify-center items-center gap-2 z-20">
-        <button id="rewindBtn" type="button" class="pixel-font text-[10px] px-3.5 py-2 rounded bg-amber-500/25 hover:bg-amber-500/40 text-amber-200 border border-amber-400/70 shadow-lg backdrop-blur-sm transition">
-          [ Press R : 1부(공룡시대) 처음부터 ]
-        </button>
-        <button id="replayStage2Btn" type="button" class="pixel-font text-[10px] px-3.5 py-2 rounded bg-cyan-500/25 hover:bg-cyan-500/40 text-cyan-200 border border-cyan-400/70 shadow-lg backdrop-blur-sm transition">
-          [ Press 6 : 2부(땅파기 각성) 다시하기 ]
-        </button>
+      <!-- 모바일 가로 전용 우측 액션 베젤 (화면 외곽 배치) -->
+      <div class="touch-wing right-wing" aria-label="모바일 가로 우측 액션 패드">
+        <span class="wing-label">ACTION</span>
+        <div class="wing-actions">
+          <button id="btnWingFire" class="touch-btn fire-btn" type="button" aria-label="불꽃 탄환 발사">FIRE 🔥</button>
+          <button id="btnWingJump" class="touch-btn jump-btn" type="button" aria-label="점프">JUMP ▲</button>
+        </div>
       </div>
     </div>
 
-    <!-- =================================================================== -->
-    <!-- DEDICATED MOBILE BUTTON DECK BELOW GAME SCREEN (화면 가림 없는 전용 조작부) -->
-    <!-- =================================================================== -->
-    <div id="mobileArcadePad" class="w-full grid grid-cols-2 gap-2.5 bg-slate-950/90 border border-slate-800/90 rounded-xl p-1.5 shadow-inner">
-      <!-- Left Dedicated Button: DUCK / CROUCH ICON -->
-      <button id="mobileDuckBtn" type="button" class="mobile-thumb-btn touch-pad-btn w-full h-[50px] sm:h-[56px] rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 active:from-cyan-900 active:to-slate-950 border-2 border-cyan-500/60 shadow-[0_3px_0_rgba(8,145,178,0.45)] flex items-center justify-center gap-2.5 px-3 text-cyan-200">
-        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-cyan-300" viewBox="0 0 32 32" fill="none">
-            <rect x="4" y="4" width="24" height="2.5" rx="1" fill="currentColor" opacity="0.55" />
-            <path d="M11 8v7m0 0-3-3m3 3 3-3" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M6 23h13l5-3h4v4h-5l-3 2H9v3H6v-6Z" fill="currentColor" />
-            <circle cx="25" cy="21.5" r="1" fill="#0f172a" />
-          </svg>
-        </div>
-        <div class="flex flex-col items-start text-left">
-          <span class="text-sm sm:text-base font-extrabold tracking-tight leading-none">숙이기</span>
-          <span class="text-[9px] text-cyan-300/80 font-medium mt-0.5">누르고 유지<span class="hidden"> · 비행체 회피</span></span>
-        </div>
-      </button>
-
-      <!-- Right Dedicated Button: JUMP / LEAP ICON -->
-      <button id="mobileJumpBtn" type="button" class="mobile-thumb-btn touch-pad-btn w-full h-[50px] sm:h-[56px] rounded-xl bg-gradient-to-b from-amber-500/30 to-amber-700/30 active:from-amber-500/55 active:to-amber-600/55 border-2 border-amber-400 shadow-[0_3px_0_rgba(217,119,6,0.5)] flex items-center justify-center gap-2.5 px-3 text-amber-200">
-        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-amber-500/25 border border-amber-400/50 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-amber-300" viewBox="0 0 32 32" fill="none">
-            <path d="M9 17V6m0 0L5.5 9.5M9 6l3.5 3.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M18 6h8v5h-4v2h3v2h-3l-2 4h-3l-3 3v-4l3-4v-4h1V6Z" fill="currentColor" />
-            <circle cx="21" cy="8" r="1" fill="#0f172a" />
-            <path d="M6 27c4-3 16-3 20 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity="0.65" />
-          </svg>
-        </div>
-        <div class="flex flex-col items-start text-left">
-          <span class="text-sm sm:text-base font-extrabold tracking-tight leading-none">점프</span>
-          <span class="text-[9px] text-amber-300/90 font-medium mt-0.5">지상 장애물 회피<span class="hidden"> · 시작</span></span>
-        </div>
-      </button>
-    </div>
-
-    <!-- =================================================================== -->
-    <!-- PC & SHARED CONTROLS (PC에서는 기본 표시, 모바일에서는 접이식 타임워프) -->
-    <!-- =================================================================== -->
-    <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-2 items-stretch">
-      
-      <!-- PC Keyboard & Mouse Play Controls (Hidden in Mobile Mode) -->
-      <div id="pcControlPanel" class="md:col-span-4 bg-slate-900/90 border border-slate-800 rounded-lg p-2 flex items-center justify-between gap-2">
-        <div class="text-[11px] text-slate-400 space-y-1">
-          <div class="flex items-center gap-1">
-            <span class="key-cap">SPACE</span>
-            <span class="key-cap">↑</span>
-            <span>점프 / 각성</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <span class="key-cap">↓</span>
-            <span>숙이기 / 급강하</span>
-          </div>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <button id="touchJumpBtn" type="button" class="touch-pad-btn px-3 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-xs font-bold transition flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
-            <span>▲ 점프</span>
-          </button>
-          <button id="touchDuckBtn" type="button" class="touch-pad-btn px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-200 text-xs font-bold transition flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-cyan-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
-            <span>▼ 숙이기</span>
-          </button>
-        </div>
+    <!-- 하단 조작 가이드 및 터치 패드 -->
+    <div class="controls-footer">
+      <div class="key-guide">
+        <span><kbd class="key-cap">◀</kbd><kbd class="key-cap">▶</kbd>/<kbd class="key-cap">A</kbd><kbd class="key-cap">D</kbd> 이동</span>
+        <span><kbd class="key-cap">▼</kbd>/<kbd class="key-cap">S</kbd> 배관 진입</span>
+        <span><kbd class="key-cap">Space</kbd>/<kbd class="key-cap">W</kbd>/<kbd class="key-cap">▲</kbd> 가변 점프</span>
+        <span><kbd class="key-cap">Z</kbd>/<kbd class="key-cap">Shift</kbd> 파이어볼</span>
+        <span><kbd class="key-cap">1</kbd>~<kbd class="key-cap">5</kbd> 스테이지 이동</span>
+        <span><kbd class="key-cap">R</kbd> 재시작</span>
       </div>
 
-      <!-- Debug / Era Jump Cheat Controls -->
-      <div id="cheatPanelWrapper" class="mobile-collapsed md:col-span-8 bg-slate-900/90 border border-slate-800 rounded-lg p-2 flex flex-col justify-between gap-1.5">
-        <div class="w-full flex items-center justify-between text-[10px] text-slate-400">
-          <span class="font-semibold text-slate-300">⚡ 시연용 타임워프 (1~5: 1부 공룡&amp;매장 / 6~8: 2부 각성~현대 / 9: 초미래 UFO보스 / 0: 추격&amp;포위엔딩)</span>
-          <span id="invincibleStatusText" class="pixel-font text-[9px] text-slate-500">INVINCIBLE: OFF</span>
+      <div id="touchControlsBar" class="touch-controls">
+        <div class="dpad-group">
+          <button id="btnTouchLeft" class="touch-btn" type="button" aria-label="왼쪽 이동">◀</button>
+          <button id="btnTouchDown" class="touch-btn" type="button" aria-label="배관 진입 및 숙이기">▼</button>
+          <button id="btnTouchRight" class="touch-btn" type="button" aria-label="오른쪽 이동">▶</button>
         </div>
-        <div class="w-full grid grid-cols-6 sm:grid-cols-12 gap-1.5">
-          <button type="button" data-cheat="1" class="cheat-btn py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[9px] text-amber-300 flex flex-col items-center">
-            <span class="pixel-font text-[8px] text-white">[1]</span><span>트라이</span>
-          </button>
-          <button type="button" data-cheat="2" class="cheat-btn py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[9px] text-emerald-300 flex flex-col items-center">
-            <span class="pixel-font text-[8px] text-white">[2]</span><span>쥐라기</span>
-          </button>
-          <button type="button" data-cheat="3" class="cheat-btn py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[9px] text-sky-300 flex flex-col items-center">
-            <span class="pixel-font text-[8px] text-white">[3]</span><span>백악기</span>
-          </button>
-          <button type="button" data-cheat="4" class="cheat-btn py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[9px] text-rose-300 flex flex-col items-center" title="대멸종: 나뭇잎 없는 고사목 & 쓰러진 나무">
-            <span class="pixel-font text-[8px] text-white">[4]</span><span>대멸종</span>
-          </button>
-          <button type="button" data-cheat="5" class="cheat-btn py-1 rounded bg-rose-950 hover:bg-rose-900 border border-rose-700 text-[9px] text-rose-200 flex flex-col items-center" title="1부 엔딩(빈 공간 없이 흙으로 꽉 찬 매장)">
-            <span class="pixel-font text-[8px] text-rose-300">[5]</span><span>매장엔딩</span>
-          </button>
-          <button type="button" data-cheat="6" class="cheat-btn py-1 rounded bg-stone-800 hover:bg-stone-700 border border-amber-500/60 text-[9px] text-amber-200 flex flex-col items-center" title="2부 시작: 흙을 파헤치며 올라오는 뼈 티렉스 & 구석기 인류!">
-            <span class="pixel-font text-[8px] text-amber-300">[6]</span><span>2부각성</span>
-          </button>
-          <button type="button" data-cheat="7" class="cheat-btn py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[9px] text-yellow-300 flex flex-col items-center">
-            <span class="pixel-font text-[8px] text-white">[7]</span><span>고대중세</span>
-          </button>
-          <button type="button" data-cheat="8" class="cheat-btn py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[9px] text-blue-300 flex flex-col items-center" title="현대 도시: 은행, 전광판, 랜드마크 타워, 시민들">
-            <span class="pixel-font text-[8px] text-white">[8]</span><span>현대도시</span>
-          </button>
-          <button type="button" data-cheat="9" class="cheat-btn py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[9px] text-fuchsia-300 flex flex-col items-center" title="초미래: 초고층 빌딩, 배경 UFO & 중간보스 UFO 레이저 6연발!">
-            <span class="pixel-font text-[8px] text-white">[9]</span><span>UFO보스</span>
-          </button>
-          <button type="button" data-cheat="0" class="cheat-btn py-1 rounded bg-fuchsia-950 hover:bg-fuchsia-900 border border-fuchsia-700 text-[9px] text-fuchsia-200 flex flex-col items-center" title="2부 엔딩: 뒤에서 추격해오다 앞질러 막아서며 포위 & 박제!">
-            <span class="pixel-font text-[8px] text-fuchsia-300">[0]</span><span>추격포위</span>
-          </button>
-          <button type="button" id="nextSubPhaseBtn" class="py-1 rounded bg-amber-950/70 hover:bg-amber-900 border border-amber-700/70 text-[9px] text-amber-200 flex flex-col items-center">
-            <span class="pixel-font text-[8px] text-amber-300">[N]</span><span>+500점</span>
-          </button>
-          <button type="button" id="toggleInvincibleBtn" class="py-1 rounded bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-700/70 text-[9px] text-indigo-200 flex flex-col items-center">
-            <span class="pixel-font text-[8px] text-indigo-300">[I]</span><span>무적</span>
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </main>
-
-  <!-- Deploy & Standalone HTML Download Modal -->
-  <div id="deployModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-lg bg-slate-900 border-2 border-emerald-500/60 rounded-2xl p-5 shadow-2xl text-slate-200 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">🚀</span>
-          <h2 class="text-base sm:text-lg font-bold text-emerald-300">DINO: 66,000,000 웹 배포 &amp; 공유 가이드</h2>
-        </div>
-        <button id="closeDeployModalBtn" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">
-          ✕ 닫기
-        </button>
-      </div>
-
-      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-        이 게임은 외부 이미지나 서버 없이 <strong>단 하나의 파일(<code>index.html</code>)</strong>에 그래픽·사운드·모바일/PC 자동 호환 로직이 모두 담긴 독립 실행형 웹게임입니다. 아래 버튼으로 파일을 저장한 뒤 무료 호스팅에 올리면 <strong>친구들에게 카카오톡·링크로 바로 공유</strong>할 수 있습니다!
-      </p>
-
-      <div class="flex flex-col sm:flex-row gap-2">
-        <button id="downloadIndexHtmlBtn" type="button" class="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg transition flex items-center justify-center gap-2">
-          <span>📥</span>
-          <span>배포용 index.html 원클릭 다운로드</span>
-        </button>
-      </div>
-
-      <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3.5 space-y-2.5 text-xs">
-        <div class="font-bold text-amber-300">⚡ 30초 만에 무료 웹 링크(URL) 만드는 법 3가지</div>
-        <div class="space-y-1.5 text-slate-300">
-          <div>
-            <strong class="text-cyan-300">1. Netlify Drop (가장 빠름 · 10초 완성):</strong>
-            새 탭에서 <a href="https://app.netlify.com/drop" target="_blank" rel="noopener noreferrer" class="underline text-cyan-400 hover:text-cyan-300">app.netlify.com/drop</a> 에 접속한 뒤, 다운로드한 <code>index.html</code> 파일을 폴더에 넣어 드래그 앤 드롭하면 즉시 <code>https://...netlify.app</code> 플레이 링크가 생성됩니다.
-          </div>
-          <div>
-            <strong class="text-emerald-300">2. Tiiny.host / Surge (파일 1개 즉시 업로드):</strong>
-            <a href="https://tiiny.host" target="_blank" rel="noopener noreferrer" class="underline text-emerald-400 hover:text-emerald-300">tiiny.host</a> 에 <code>index.html</code> 파일 하나만 올리면 모바일·PC 어디서나 열리는 QR코드와 전용 링크가 발급됩니다.
-          </div>
-          <div>
-            <strong class="text-fuchsia-300">3. GitHub Pages / Vercel (영구 무료 서버):</strong>
-            GitHub 저장소에 <code>index.html</code>을 업로드하고 <em>Settings → Pages</em>에서 브랜치를 활성화하면 영구 무료 도메인으로 배포됩니다.
-          </div>
+        <div class="action-group">
+          <button id="btnTouchFire" class="touch-btn fire-btn" type="button" aria-label="불꽃 탄환 발사">FIRE 🔥</button>
+          <button id="btnTouchJump" class="touch-btn jump-btn" type="button" aria-label="점프">JUMP ▲</button>
         </div>
       </div>
     </div>
@@ -555,5741 +779,3755 @@
   <script>
     (function () {
       'use strict';
-/* ... existing code ... ... (전체 스프라이트 및 게임 로직 유지) ... */
-      const STAGE1_END_SCORE = 4000;
-      const STAGE2_END_SCORE = 8000;
 
-      function midiToFreq(midi) {
-        return 440 * Math.pow(2, (midi - 69) / 12);
-      }
+      // ==========================================
+      // 1. 캔버스 및 전역 상수 설정 (800 x 450 고정 논리 해상도)
+      // ==========================================
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
 
-      const BGM_THEMES = {
+      const VIEW_W = 800;
+      const VIEW_H = 450;
+      const TILE = 32;                    // 기본 타일 크기 32x32px
+      const GROUND_ROW = 12;              // 바닥 시작 행 (12 * 32 = 384px)
+      const GROUND_Y = GROUND_ROW * TILE; // 384px (384 ~ 450 구간이 바닥)
+      const WORLD_WIDTH = 3840;           // 각 스테이지 길이 (120타일 * 32px = 3840px)
+      const UNDERGROUND_WIDTH = 800;      // 배관 지하 비밀 보너스 공간 폭 (25타일 * 32px)
+
+      // 물리 엔진 상수
+      const PHYSICS = {
+        accelGround: 0.42,
+        accelAir: 0.28,
+        decelSkid: 0.72,
+        frictionGround: 0.84,
+        frictionAir: 0.94,
+        maxSpeedX: 5.4,
+        starSpeedBonus: 1.35,
+        gravity: 0.58,
+        jumpHoldGravity: 0.25,
+        maxFallSpeed: 12.0,
+        jumpInitialVy: -10.4,
+        jumpHoldFramesMax: 17,
+        stompBounceVy: -8.6
+      };
+
+      // 5개 스테이지 메타데이터 및 테마 구성
+      const STAGE_THEMES = {
         1: {
-          title: 'Act 1-1: Primordial Desert (트라이아스기)',
-          stepMs: 140, leadType: 'square', bassType: 'triangle', leadGain: 0.04, bassGain: 0.075,
-          lead: [62, 0, 65, 64, 62, 0, 69, 0, 67, 65, 64, 62, 60, 0, 57, 0, 62, 0, 65, 67, 69, 0, 72, 70, 69, 67, 65, 64, 62, 0, 62, 0],
-          bass: [38, 38, 0, 38, 45, 0, 38, 0, 36, 36, 0, 36, 43, 0, 36, 45, 38, 38, 0, 38, 45, 0, 41, 0, 36, 0, 38, 0, 38, 38, 45, 38],
-          perc: [1, 0, 2, 0, 1, 0, 2, 1, 1, 0, 2, 0, 1, 2, 2, 0, 1, 0, 2, 0, 1, 0, 2, 1, 1, 2, 1, 2, 1, 0, 2, 0]
+          code: '1-1',
+          name: 'GRASSLAND OVERWORLD',
+          korName: '초원 월드',
+          skyTop: '#4f8df9',
+          skyMid: '#68a2ff',
+          skyBot: '#93c5fd',
+          groundMain: '#c2410c',
+          groundTop: '#22c55e',
+          groundBorder: '#431407',
+          brickMain: '#b45309',
+          brickHighlight: '#f59e0b',
+          hardMain: '#9a3412',
+          hardHighlight: '#fdba74',
+          hasCeiling: false,
+          pitType: 'pit'
         },
         2: {
-          title: 'Act 1-2: Golden Age of Giants (쥐라기 대삼림)',
-          stepMs: 126, leadType: 'square', bassType: 'triangle', leadGain: 0.044, bassGain: 0.08,
-          lead: [60, 0, 67, 0, 72, 71, 69, 67, 76, 0, 74, 72, 69, 0, 67, 0, 65, 67, 69, 72, 71, 67, 64, 67, 62, 65, 69, 71, 72, 0, 72, 0],
-          bass: [36, 0, 43, 0, 48, 0, 43, 0, 40, 0, 47, 0, 45, 0, 43, 0, 41, 0, 48, 0, 40, 0, 47, 0, 38, 0, 43, 0, 36, 43, 48, 0],
-          perc: [1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 1, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 1, 2, 1, 1, 0, 2, 0]
+          code: '1-2',
+          name: 'UNDERGROUND CAVERN',
+          korName: '지하 동굴',
+          skyTop: '#070b19',
+          skyMid: '#0f172a',
+          skyBot: '#1e1b4b',
+          groundMain: '#1e3a8a',
+          groundTop: '#60a5fa',
+          groundBorder: '#090d16',
+          brickMain: '#1d4ed8',
+          brickHighlight: '#60a5fa',
+          hardMain: '#3b82f6',
+          hardHighlight: '#93c5fd',
+          hasCeiling: true,
+          pitType: 'pit'
         },
         3: {
-          title: 'Act 1-3: Peak & Cosmic Omen (백악기)',
-          stepMs: 112, leadType: 'sawtooth', bassType: 'square', leadGain: 0.038, bassGain: 0.055,
-          lead: [69, 0, 72, 69, 76, 0, 74, 72, 71, 0, 74, 71, 77, 76, 74, 71, 69, 72, 76, 81, 80, 76, 74, 72, 71, 68, 71, 76, 69, 0, 69, 0],
-          bass: [45, 45, 57, 45, 45, 45, 57, 45, 43, 43, 55, 43, 40, 40, 52, 40, 41, 41, 53, 41, 45, 45, 57, 45, 40, 40, 52, 40, 45, 52, 45, 0],
-          perc: [1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 1, 2, 1, 1, 2, 1, 2]
+          code: '1-3',
+          name: 'ATHLETIC SKY HIGHLANDS',
+          korName: '구름 고원',
+          skyTop: '#0284c7',
+          skyMid: '#38bdf8',
+          skyBot: '#fde68a',
+          groundMain: '#15803d',
+          groundTop: '#86efac',
+          groundBorder: '#052e16',
+          brickMain: '#d97706',
+          brickHighlight: '#fde047',
+          hardMain: '#0ea5e9',
+          hardHighlight: '#bae6fd',
+          hasCeiling: false,
+          pitType: 'pit'
         },
         4: {
-          title: 'Act 1-4: Extinction Countdown (대멸종)',
-          stepMs: 92, leadType: 'sawtooth', bassType: 'sawtooth', leadGain: 0.045, bassGain: 0.06,
-          lead: [74, 77, 74, 70, 73, 76, 73, 69, 74, 77, 81, 77, 76, 73, 70, 69, 82, 81, 77, 74, 79, 76, 73, 69, 74, 73, 74, 77, 81, 0, 86, 0],
-          bass: [38, 50, 38, 50, 37, 49, 37, 49, 38, 50, 38, 50, 34, 46, 33, 45, 31, 43, 31, 43, 33, 45, 33, 45, 38, 38, 45, 46, 49, 50, 38, 0],
-          perc: [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1]
+          code: '1-4',
+          name: 'DESERT PYRAMID RUINS',
+          korName: '사막 유적',
+          skyTop: '#c2410c',
+          skyMid: '#f97316',
+          skyBot: '#fde047',
+          groundMain: '#d97706',
+          groundTop: '#fde047',
+          groundBorder: '#78350f',
+          brickMain: '#b45309',
+          brickHighlight: '#fcd34d',
+          hardMain: '#a16207',
+          hardHighlight: '#fef08a',
+          hasCeiling: false,
+          pitType: 'quicksand'
         },
         5: {
-          title: 'Act 2-1: Awakened Bones & Early Humans (구석기·신석기)',
-          stepMs: 124, leadType: 'square', bassType: 'triangle', leadGain: 0.044, bassGain: 0.08,
-          lead: [57, 0, 60, 64, 69, 0, 67, 64, 62, 0, 65, 62, 60, 57, 55, 0, 57, 60, 64, 69, 72, 71, 69, 64, 67, 64, 62, 60, 57, 0, 57, 0],
-          bass: [33, 33, 45, 33, 33, 0, 45, 33, 38, 38, 50, 38, 36, 36, 48, 36, 33, 33, 45, 33, 41, 41, 53, 41, 40, 40, 52, 40, 33, 45, 33, 0],
-          perc: [1, 1, 2, 0, 1, 0, 2, 1, 1, 1, 2, 0, 1, 2, 1, 2, 1, 1, 2, 0, 1, 0, 2, 1, 1, 2, 1, 2, 1, 1, 2, 0]
-        },
-        6: {
-          title: 'Act 2-2: March Through Empires (고대·중세·산업혁명)',
-          stepMs: 114, leadType: 'sawtooth', bassType: 'triangle', leadGain: 0.042, bassGain: 0.075,
-          lead: [64, 0, 68, 71, 76, 0, 74, 71, 69, 71, 72, 69, 68, 0, 64, 0, 64, 68, 71, 76, 78, 76, 74, 71, 73, 71, 69, 68, 69, 0, 69, 0],
-          bass: [40, 0, 47, 40, 40, 0, 47, 40, 45, 0, 52, 45, 40, 0, 47, 40, 40, 0, 47, 40, 38, 0, 45, 38, 33, 0, 40, 0, 45, 52, 45, 0],
-          perc: [1, 2, 1, 2, 1, 0, 2, 1, 1, 2, 1, 2, 1, 2, 2, 1, 1, 2, 1, 2, 1, 0, 2, 1, 1, 1, 2, 1, 1, 2, 1, 0]
-        },
-        7: {
-          title: 'Act 2-3: Metropolis Skyline (현대 대도시)',
-          stepMs: 102, leadType: 'square', bassType: 'sawtooth', leadGain: 0.042, bassGain: 0.06,
-          lead: [67, 70, 74, 0, 79, 77, 74, 70, 72, 75, 79, 0, 82, 79, 75, 72, 74, 77, 81, 0, 79, 74, 70, 67, 69, 72, 74, 77, 79, 0, 79, 0],
-          bass: [43, 43, 55, 43, 43, 55, 43, 55, 48, 48, 60, 48, 48, 60, 48, 60, 50, 50, 62, 50, 46, 46, 58, 46, 45, 45, 50, 50, 43, 55, 43, 0],
-          perc: [1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 1, 2, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 2, 1, 1, 2, 1, 2]
-        },
-        8: {
-          title: 'Act 2-4: Sci-Fi 3000 & UFO Encounter (초미래)',
-          stepMs: 90, leadType: 'sawtooth', bassType: 'sawtooth', leadGain: 0.044, bassGain: 0.062,
-          lead: [76, 79, 83, 79, 86, 83, 79, 76, 74, 78, 81, 78, 86, 81, 78, 74, 72, 76, 79, 84, 83, 79, 76, 72, 71, 75, 78, 83, 88, 0, 88, 0],
-          bass: [40, 52, 40, 52, 40, 52, 40, 52, 38, 50, 38, 50, 38, 50, 38, 50, 36, 48, 36, 48, 36, 48, 36, 48, 35, 47, 35, 47, 40, 52, 40, 0],
-          perc: [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1]
-        },
-        BURIED: {
-          title: 'Ending 1: Deep Earth Slumber (흙속의 잠)',
-          stepMs: 320, leadType: 'sine', bassType: 'triangle', leadGain: 0.055, bassGain: 0.045,
-          lead: [62, 0, 65, 0, 69, 0, 67, 0, 65, 0, 62, 0, 57, 0, 0, 0, 60, 0, 64, 0, 67, 0, 65, 0, 62, 0, 0, 0, 50, 0, 0, 0],
-          bass: [38, 0, 45, 0, 50, 0, 45, 0, 34, 0, 41, 0, 46, 0, 41, 0, 36, 0, 43, 0, 48, 0, 43, 0, 38, 0, 45, 0, 38, 0, 0, 0],
-          perc: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-        },
-        EPILOGUE: {
-          title: 'Final Ending: Museum Lullaby (자연사 박물관)',
-          stepMs: 280, leadType: 'sine', bassType: 'triangle', leadGain: 0.06, bassGain: 0.045,
-          lead: [72, 0, 76, 0, 79, 0, 84, 0, 83, 0, 79, 0, 76, 0, 0, 0, 77, 0, 81, 0, 79, 0, 76, 0, 74, 0, 71, 0, 72, 0, 0, 0],
-          bass: [48, 0, 55, 0, 60, 0, 55, 0, 45, 0, 52, 0, 57, 0, 52, 0, 41, 0, 48, 0, 43, 0, 50, 0, 48, 0, 55, 0, 60, 0, 0, 0],
-          perc: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+          code: '1-5',
+          name: 'BOWSER LAVA CASTLE',
+          korName: '쿠파 성채',
+          skyTop: '#180505',
+          skyMid: '#2a0808',
+          skyBot: '#450a0a',
+          groundMain: '#475569',
+          groundTop: '#94a3b8',
+          groundBorder: '#0f172a',
+          brickMain: '#334155',
+          brickHighlight: '#64748b',
+          hardMain: '#64748b',
+          hardHighlight: '#cbd5e1',
+          hasCeiling: true,
+          pitType: 'lava'
         }
       };
 
-      class SoundEngine {
+      // ==========================================
+      // 2. Web Audio API 레트로 사운드 합성기
+      // ==========================================
+      class RetroAudio {
         constructor() {
           this.ctx = null;
           this.muted = false;
-          this.bgmInterval = null;
-          this.currentBgmKey = null;
-          this.bgmStep = 0;
         }
+
         init() {
           if (!this.ctx) {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (AudioCtx) this.ctx = new AudioCtx();
+            if (AudioCtx) {
+              this.ctx = new AudioCtx();
+            }
           }
-          if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
         }
+
         toggleMute() {
           this.muted = !this.muted;
-          if (this.muted) {
-            this.stopBGM();
-          } else if (this.currentBgmKey) {
-            const key = this.currentBgmKey;
-            this.currentBgmKey = null;
-            this.startBGM(key);
-          }
           return this.muted;
         }
-        startBGM(themeKey) {
+
+        playTone(freqStart, freqEnd, duration, type = 'square', volume = 0.12, delay = 0) {
+          if (this.muted) return;
           this.init();
-          const badgeEl = document.getElementById('bgmTrackName');
-          const cfg = BGM_THEMES[themeKey];
-          if (cfg && badgeEl) badgeEl.textContent = `BGM: ${cfg.title}`;
-          if (this.currentBgmKey === themeKey && this.bgmInterval) return;
-          this.stopBGM();
-          this.currentBgmKey = themeKey;
-          this.bgmStep = 0;
-          if (!cfg || this.muted) return;
-          this.bgmInterval = setInterval(() => {
-            if (this.muted || !this.ctx) return;
-            this.playBGMStep(cfg, this.bgmStep);
-            this.bgmStep = (this.bgmStep + 1) % cfg.lead.length;
-          }, cfg.stepMs);
-        }
-        stopBGM() {
-          if (this.bgmInterval) {
-            clearInterval(this.bgmInterval);
-            this.bgmInterval = null;
+          if (!this.ctx) return;
+
+          const now = this.ctx.currentTime + delay;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = type;
+          osc.frequency.setValueAtTime(freqStart, now);
+          if (freqEnd !== freqStart) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(20, freqEnd), now + duration);
           }
+
+          gain.gain.setValueAtTime(volume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + duration);
         }
-        playBGMStep(cfg, stepIdx) {
-          if (!this.ctx || this.muted) return;
-          const now = this.ctx.currentTime;
-          const dur = (cfg.stepMs / 1000) * 0.85;
-          const leadNote = cfg.lead[stepIdx];
-          if (leadNote > 0) {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = cfg.leadType;
-            osc.frequency.setValueAtTime(midiToFreq(leadNote), now);
-            gain.gain.setValueAtTime(cfg.leadGain, now);
-            gain.gain.exponentialRampToValueAtTime(0.0008, now + dur * 1.15);
-            osc.connect(gain); gain.connect(this.ctx.destination);
-            osc.start(now); osc.stop(now + dur * 1.2);
-          }
-          const bassNote = cfg.bass[stepIdx];
-          if (bassNote > 0) {
-            const bOsc = this.ctx.createOscillator();
-            const bGain = this.ctx.createGain();
-            bOsc.type = cfg.bassType;
-            bOsc.frequency.setValueAtTime(midiToFreq(bassNote), now);
-            bGain.gain.setValueAtTime(cfg.bassGain, now);
-            bGain.gain.exponentialRampToValueAtTime(0.001, now + dur);
-            bOsc.connect(bGain); bGain.connect(this.ctx.destination);
-            bOsc.start(now); bOsc.stop(now + dur * 1.05);
-          }
-          const p = cfg.perc[stepIdx];
-          if (p === 1) {
-            const kOsc = this.ctx.createOscillator();
-            const kGain = this.ctx.createGain();
-            kOsc.type = 'sine';
-            kOsc.frequency.setValueAtTime(115, now);
-            kOsc.frequency.exponentialRampToValueAtTime(32, now + 0.065);
-            kGain.gain.setValueAtTime(0.09, now);
-            kGain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
-            kOsc.connect(kGain); kGain.connect(this.ctx.destination);
-            kOsc.start(now); kOsc.stop(now + 0.075);
-          } else if (p === 2) {
-            const bufLen = Math.floor(this.ctx.sampleRate * 0.025);
-            const buf = this.ctx.createBuffer(1, bufLen, this.ctx.sampleRate);
-            const ch = buf.getChannelData(0);
-            for (let i = 0; i < bufLen; i++) ch[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufLen * 0.4));
-            const noise = this.ctx.createBufferSource();
-            noise.buffer = buf;
-            const hp = this.ctx.createBiquadFilter();
-            hp.type = 'highpass'; hp.frequency.setValueAtTime(5000, now);
-            const nGain = this.ctx.createGain();
-            nGain.gain.setValueAtTime(0.026, now);
-            nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
-            noise.connect(hp); hp.connect(nGain); nGain.connect(this.ctx.destination);
-            noise.start(now);
-          }
+
+        jump(isBig = false) {
+          const base = isBig ? 160 : 210;
+          this.playTone(base, base * 2.8, 0.19, 'square', 0.1);
         }
-        playJump() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(185, now);
-          osc.frequency.exponentialRampToValueAtTime(580, now + 0.11);
-          gain.gain.setValueAtTime(0.13, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-          osc.connect(gain); gain.connect(this.ctx.destination);
-          osc.start(now); osc.stop(now + 0.12);
+
+        spring() {
+          this.playTone(180, 760, 0.26, 'triangle', 0.15);
         }
-        playDuck() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(260, now);
-          osc.frequency.exponentialRampToValueAtTime(110, now + 0.06);
-          gain.gain.setValueAtTime(0.09, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
-          osc.connect(gain); gain.connect(this.ctx.destination);
-          osc.start(now); osc.stop(now + 0.065);
+
+        coin() {
+          this.playTone(987.77, 987.77, 0.07, 'square', 0.11, 0);
+          this.playTone(1318.51, 1318.51, 0.24, 'square', 0.11, 0.07);
         }
-        playScoreMilestone() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          [523.25, 659.25].forEach((freq, idx) => {
-            const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-            gain.gain.setValueAtTime(0.11, now + idx * 0.08);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.12);
-            osc.connect(gain); gain.connect(this.ctx.destination);
-            osc.start(now + idx * 0.08); osc.stop(now + idx * 0.08 + 0.13);
+
+        bump() {
+          this.playTone(150, 65, 0.11, 'triangle', 0.18);
+        }
+
+        thwompSlam() {
+          this.playTone(110, 35, 0.25, 'sawtooth', 0.2, 0);
+          this.playTone(80, 28, 0.22, 'square', 0.16, 0.04);
+        }
+
+        brickSmash() {
+          this.playTone(220, 55, 0.16, 'sawtooth', 0.15, 0);
+          this.playTone(140, 42, 0.18, 'square', 0.12, 0.04);
+        }
+
+        itemSpawn() {
+          const notes = [330, 392, 659, 523, 587, 784];
+          notes.forEach((n, idx) => {
+            this.playTone(n, n, 0.055, 'square', 0.09, idx * 0.05);
           });
         }
-        playSubPhaseShift() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          [330, 440, 554.37, 659.25].forEach((f, i) => {
-            const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(f, now + i * 0.05);
-            gain.gain.setValueAtTime(0.11, now + i * 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.12);
-            osc.connect(gain); gain.connect(this.ctx.destination);
-            osc.start(now + i * 0.05); osc.stop(now + i * 0.05 + 0.13);
+
+        powerUp() {
+          const notes = [330, 392, 659, 523, 587, 784, 659, 784, 1046.5];
+          notes.forEach((n, idx) => {
+            this.playTone(n, n * 1.02, 0.07, 'square', 0.11, idx * 0.055);
           });
         }
-        playEvolution() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          [261.63, 329.63, 392.00, 523.25, 659.25, 783.99].forEach((f, i) => {
-            const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(f, now + i * 0.055);
-            gain.gain.setValueAtTime(0.13, now + i * 0.055);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.055 + 0.12);
-            osc.connect(gain); gain.connect(this.ctx.destination);
-            osc.start(now + i * 0.055); osc.stop(now + i * 0.055 + 0.13);
+
+        oneUp() {
+          const notes = [330, 392, 659, 523, 587, 784];
+          notes.forEach((n, idx) => {
+            this.playTone(n * 1.25, n * 1.25, 0.08, 'triangle', 0.14, idx * 0.065);
           });
         }
-        playWarningAlarm() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          for (let i = 0; i < 3; i++) {
-            const start = now + i * 0.22;
-            const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(740, start);
-            osc.frequency.setValueAtTime(520, start + 0.09);
-            gain.gain.setValueAtTime(0.14, start);
-            gain.gain.exponentialRampToValueAtTime(0.001, start + 0.18);
-            osc.connect(gain); gain.connect(this.ctx.destination);
-            osc.start(start); osc.stop(start + 0.19);
-          }
-        }
-        playUfoCharge() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(240, now);
-          osc.frequency.exponentialRampToValueAtTime(1180, now + 0.45);
-          gain.gain.setValueAtTime(0.07, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
-          osc.connect(gain); gain.connect(this.ctx.destination);
-          osc.start(now); osc.stop(now + 0.5);
-        }
-        playUfoLaserFire() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(980, now);
-          osc.frequency.exponentialRampToValueAtTime(160, now + 0.1);
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.005, now + 0.1);
-          osc.connect(gain); gain.connect(this.ctx.destination);
-          osc.start(now); osc.stop(now + 0.11);
-        }
-        playMeteorFragmentHit() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          const bufferSize = Math.floor(this.ctx.sampleRate * 0.15);
-          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-          const data = buffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.35));
-          const noise = this.ctx.createBufferSource(); noise.buffer = buffer;
-          const filter = this.ctx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.setValueAtTime(320, now);
-          const gain = this.ctx.createGain(); gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
-          noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
-          noise.start(now);
-        }
-        playGameOver() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          [300, 240, 180, 115].forEach((f, i) => {
-            const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(f, now + i * 0.09);
-            gain.gain.setValueAtTime(0.15, now + i * 0.09);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.14);
-            osc.connect(gain); gain.connect(this.ctx.destination);
-            osc.start(now + i * 0.09); osc.stop(now + i * 0.09 + 0.15);
+
+        powerDown() {
+          const notes = [784, 659, 523, 392, 293, 220];
+          notes.forEach((n, idx) => {
+            this.playTone(n, n * 0.9, 0.065, 'triangle', 0.14, idx * 0.05);
           });
         }
-        playMeteorDescentRoar(durationSec = 2.6) {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          const subOsc = this.ctx.createOscillator(); const subGain = this.ctx.createGain();
-          subOsc.type = 'sawtooth';
-          subOsc.frequency.setValueAtTime(140, now);
-          subOsc.frequency.exponentialRampToValueAtTime(38, now + durationSec);
-          subGain.gain.setValueAtTime(0.05, now);
-          subGain.gain.linearRampToValueAtTime(0.32, now + durationSec * 0.9);
-          subGain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
-          subOsc.connect(subGain); subGain.connect(this.ctx.destination);
-          subOsc.start(now); subOsc.stop(now + durationSec);
+
+        pipeWarp() {
+          this.playTone(440, 220, 0.09, 'square', 0.13, 0.0);
+          this.playTone(392, 196, 0.09, 'square', 0.13, 0.11);
+          this.playTone(330, 146, 0.12, 'square', 0.13, 0.22);
         }
-        playCataclysmicExplosion() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          const duration = 2.6;
-          const bufferSize = Math.floor(this.ctx.sampleRate * duration);
-          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-          const data = buffer.getChannelData(0);
-          for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.4);
-          const noise = this.ctx.createBufferSource(); noise.buffer = buffer;
-          const lowpass = this.ctx.createBiquadFilter(); lowpass.type = 'lowpass';
-          lowpass.frequency.setValueAtTime(2400, now); lowpass.frequency.exponentialRampToValueAtTime(65, now + duration);
-          const masterGain = this.ctx.createGain();
-          masterGain.gain.setValueAtTime(0.6, now); masterGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-          noise.connect(lowpass); lowpass.connect(masterGain); masterGain.connect(this.ctx.destination);
-          noise.start(now);
+
+        fireball() {
+          this.playTone(880, 240, 0.09, 'sawtooth', 0.11, 0);
+          this.playTone(520, 1100, 0.06, 'square', 0.08, 0.04);
         }
-        playStasisBeamHum() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(220, now);
-          osc.frequency.linearRampToValueAtTime(880, now + 1.8);
-          gain.gain.setValueAtTime(0.08, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.9);
-          osc.connect(gain); gain.connect(this.ctx.destination);
-          osc.start(now); osc.stop(now + 1.95);
+
+        kick() {
+          this.playTone(180, 620, 0.11, 'square', 0.14, 0);
         }
-        playTypewriterTick() {
-          if (this.muted) return; this.init(); if (!this.ctx) return;
-          const now = this.ctx.currentTime;
-          const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(900 + Math.random() * 220, now);
-          gain.gain.setValueAtTime(0.03, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
-          osc.connect(gain); gain.connect(this.ctx.destination);
-          osc.start(now); osc.stop(now + 0.03);
+
+        stomp() {
+          this.playTone(420, 130, 0.1, 'square', 0.13);
+          this.playTone(280, 560, 0.09, 'triangle', 0.12, 0.04);
+        }
+
+        checkpoint() {
+          this.playTone(523.25, 659.25, 0.1, 'triangle', 0.13, 0);
+          this.playTone(659.25, 1046.5, 0.18, 'triangle', 0.13, 0.1);
+        }
+
+        stageClear() {
+          const melody = [
+            { f: 523.25, d: 0.12, t: 0.00 },
+            { f: 659.25, d: 0.12, t: 0.13 },
+            { f: 783.99, d: 0.12, t: 0.26 },
+            { f: 1046.50, d: 0.22, t: 0.39 },
+            { f: 783.99, d: 0.14, t: 0.63 },
+            { f: 1046.50, d: 0.45, t: 0.79 }
+          ];
+          melody.forEach((m) => this.playTone(m.f, m.f, m.d, 'square', 0.12, m.t));
+        }
+
+        lifeLost() {
+          const melody = [
+            { f: 587.33, d: 0.1, t: 0.00 },
+            { f: 523.25, d: 0.1, t: 0.12 },
+            { f: 440.00, d: 0.14, t: 0.24 },
+            { f: 349.23, d: 0.25, t: 0.40 }
+          ];
+          melody.forEach((m) => this.playTone(m.f, m.f, m.d, 'triangle', 0.13, m.t));
+        }
+
+        gameOver() {
+          const melody = [
+            { f: 493.88, d: 0.13, t: 0.00 },
+            { f: 698.46, d: 0.13, t: 0.15 },
+            { f: 698.46, d: 0.13, t: 0.30 },
+            { f: 659.25, d: 0.16, t: 0.45 },
+            { f: 587.33, d: 0.16, t: 0.62 },
+            { f: 523.25, d: 0.36, t: 0.79 }
+          ];
+          melody.forEach((m) => this.playTone(m.f, m.f, m.d, 'sawtooth', 0.11, m.t));
         }
       }
 
-      const sound = new SoundEngine();
+      const sound = new RetroAudio();
 
-      function drawPixelMatrix(ctx, matrix, x, y, scale, palette, flipX = false) {
-        const cols = matrix[0] ? matrix[0].length : 0;
-        for (let row = 0; row < matrix.length; row++) {
-          const line = matrix[row];
-          for (let col = 0; col < line.length; col++) {
-            const ch = line[col];
-            if (ch === ' ' || ch === '.') continue;
-            ctx.fillStyle = palette[ch] || palette['#'] || '#333';
-            const drawCol = flipX ? (cols - 1 - col) : col;
-            ctx.fillRect(
-              Math.floor(x + drawCol * scale),
-              Math.floor(y + row * scale),
-              Math.ceil(scale),
-              Math.ceil(scale)
-            );
+      // ==========================================
+      // 3. 입력 핸들러 (키보드 + 모바일 터치)
+      // ==========================================
+      const keys = {
+        left: false,
+        right: false,
+        down: false,
+        jump: false,
+        jumpJustPressed: false,
+        fire: false,
+        fireJustPressed: false
+      };
+
+      function handleKeyDown(e) {
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', ' '].includes(e.key) || e.code === 'Space') {
+          e.preventDefault();
+        }
+        sound.init();
+
+        const code = e.code;
+        if (code === 'ArrowLeft' || code === 'KeyA') keys.left = true;
+        if (code === 'ArrowRight' || code === 'KeyD') keys.right = true;
+        if (code === 'ArrowDown' || code === 'KeyS') keys.down = true;
+        if (code === 'Space' || code === 'KeyW' || code === 'ArrowUp') {
+          if (!keys.jump) keys.jumpJustPressed = true;
+          keys.jump = true;
+        }
+        if (code === 'KeyZ' || code === 'ShiftLeft' || code === 'ShiftRight' || code === 'KeyX') {
+          if (!keys.fire) keys.fireJustPressed = true;
+          keys.fire = true;
+        }
+        if (code === 'KeyR') {
+          startFullNewGame(currentStage);
+        }
+        if (code === 'KeyN' && gameState === 'STAGE_CLEAR' && currentStage < 5) {
+          goToStage(currentStage + 1);
+        }
+        if (code === 'Digit1') goToStage(1);
+        if (code === 'Digit2') goToStage(2);
+        if (code === 'Digit3') goToStage(3);
+        if (code === 'Digit4') goToStage(4);
+        if (code === 'Digit5') goToStage(5);
+        if (code === 'KeyF') toggleFullscreen();
+        if (code === 'KeyH') toggleGuideModal();
+      }
+
+      function handleKeyUp(e) {
+        const code = e.code;
+        if (code === 'ArrowLeft' || code === 'KeyA') keys.left = false;
+        if (code === 'ArrowRight' || code === 'KeyD') keys.right = false;
+        if (code === 'ArrowDown' || code === 'KeyS') keys.down = false;
+        if (code === 'Space' || code === 'KeyW' || code === 'ArrowUp') {
+          keys.jump = false;
+          keys.jumpJustPressed = false;
+        }
+        if (code === 'KeyZ' || code === 'ShiftLeft' || code === 'ShiftRight' || code === 'KeyX') {
+          keys.fire = false;
+          keys.fireJustPressed = false;
+        }
+      }
+
+      window.addEventListener('keydown', handleKeyDown, { passive: false });
+      window.addEventListener('keyup', handleKeyUp);
+
+      function bindHoldButton(btnId, keyName) {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+
+        const press = (ev) => {
+          ev.preventDefault();
+          sound.init();
+          btn.classList.add('active');
+          if (keyName === 'jump' && !keys.jump) keys.jumpJustPressed = true;
+          if (keyName === 'fire' && !keys.fire) keys.fireJustPressed = true;
+          keys[keyName] = true;
+        };
+
+        const release = (ev) => {
+          ev.preventDefault();
+          btn.classList.remove('active');
+          keys[keyName] = false;
+          if (keyName === 'jump') keys.jumpJustPressed = false;
+          if (keyName === 'fire') keys.fireJustPressed = false;
+        };
+
+        btn.addEventListener('mousedown', press);
+        btn.addEventListener('mouseup', release);
+        btn.addEventListener('mouseleave', release);
+        btn.addEventListener('touchstart', press, { passive: false });
+        btn.addEventListener('touchend', release, { passive: false });
+        btn.addEventListener('touchcancel', release, { passive: false });
+      }
+
+      bindHoldButton('btnTouchLeft', 'left');
+      bindHoldButton('btnTouchDown', 'down');
+      bindHoldButton('btnTouchRight', 'right');
+      bindHoldButton('btnTouchFire', 'fire');
+      bindHoldButton('btnTouchJump', 'jump');
+
+      // 모바일 가로 베젤 전용 버튼 바인딩 (캐릭터 화면을 전혀 가리지 않는 좌·우 날개 컨트롤러)
+      bindHoldButton('btnWingLeft', 'left');
+      bindHoldButton('btnWingDown', 'down');
+      bindHoldButton('btnWingRight', 'right');
+      bindHoldButton('btnWingFire', 'fire');
+      bindHoldButton('btnWingJump', 'jump');
+
+      // PC vs 모바일 및 가로/세로 방향 자동 감지 시스템
+      const deviceModeBadge = document.getElementById('deviceModeBadge');
+      const guideModal = document.getElementById('guideModal');
+      const btnGuide = document.getElementById('btnGuide');
+      const btnCloseGuide = document.getElementById('btnCloseGuide');
+      const controlsFooter = document.querySelector('.controls-footer');
+
+      function detectDeviceAndOrientation() {
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+        const isLandscape = window.innerWidth > window.innerHeight;
+        const isSmallScreen = window.innerWidth <= 960;
+
+        document.body.classList.toggle('mobile-mode', isTouchDevice || isSmallScreen);
+        document.body.classList.toggle('landscape-mode', isLandscape && (isTouchDevice || isSmallScreen));
+
+        if (deviceModeBadge) {
+          if (isTouchDevice || isSmallScreen) {
+            deviceModeBadge.textContent = isLandscape ? '📱 모바일 가로 모드' : '📱 모바일 모드 (가로 권장)';
+          } else {
+            deviceModeBadge.textContent = '💻 PC 키보드 모드';
           }
         }
       }
 
-      function drawGroundAnchoredSprite(ctx, matrix, x, groundY, scale, palette, sinkPx = 2, flipX = false) {
-        const spriteH = matrix.length * scale;
-        const drawY = Math.floor(groundY - spriteH + sinkPx);
-        drawPixelMatrix(ctx, matrix, x, drawY, scale, palette, flipX);
+      window.addEventListener('resize', detectDeviceAndOrientation);
+      window.addEventListener('orientationchange', detectDeviceAndOrientation);
+      detectDeviceAndOrientation();
+
+      function toggleGuideModal(forceState) {
+        if (!guideModal) return;
+        const willShow = typeof forceState === 'boolean' ? forceState : !guideModal.classList.contains('visible');
+        guideModal.classList.toggle('visible', willShow);
       }
 
-      function drawAnimatedBgDino(ctx, matrix, x, groundY, scale, color, animTick, neckRows = 6, legRows = 3, flipX = false) {
-        const totalRows = matrix.length;
-        const cols = matrix[0] ? matrix[0].length : 0;
-        const stridePhase = Math.floor(animTick / 4) % 4;
-        const bodyBob = (stridePhase === 1 || stridePhase === 3) ? -2.0 : 0;
-        const neckSway = Math.round(Math.sin(animTick * 0.11) * 1.6) * scale * (flipX ? -1 : 1);
-        const baseDrawY = Math.floor(groundY - totalRows * scale + 2 + bodyBob);
+      if (btnGuide) {
+        btnGuide.addEventListener('click', () => {
+          sound.init();
+          toggleGuideModal();
+          btnGuide.blur();
+        });
+      }
 
-        ctx.fillStyle = color;
-        for (let row = 0; row < totalRows; row++) {
-          const line = matrix[row];
-          let rowOffsetX = 0;
-          let rowOffsetY = 0;
+      if (btnCloseGuide) {
+        btnCloseGuide.addEventListener('click', () => {
+          toggleGuideModal(false);
+        });
+      }
 
-          if (row < neckRows) {
-            rowOffsetX = neckSway * (1 - row / neckRows);
-          } else if (row >= totalRows - legRows) {
-            const legRowIdx = row - (totalRows - legRows);
-            for (let col = 0; col < line.length; col++) {
-              if (line[col] === ' ') continue;
-              const drawCol = flipX ? (cols - 1 - col) : col;
-              const isFrontLeg = col > line.length * 0.52;
-              let legDX = 0;
-              let legDY = 0;
-              const dirSign = flipX ? -1 : 1;
-              if (isFrontLeg) {
-                if (stridePhase === 0) { legDX = scale * 1.4 * dirSign; }
-                else if (stridePhase === 1) { legDY = -scale * 1.0; }
-                else if (stridePhase === 2) { legDX = -scale * 1.2 * dirSign; }
-              } else {
-                if (stridePhase === 0) { legDX = -scale * 1.2 * dirSign; }
-                else if (stridePhase === 2) { legDX = scale * 1.4 * dirSign; }
-                else if (stridePhase === 3) { legDY = -scale * 1.0; }
-              }
+      // 툴바 버튼 바인딩
+      const btnMute = document.getElementById('btnMute');
+      const btnRestartTop = document.getElementById('btnRestartTop');
+      const btnModalRestart = document.getElementById('btnModalRestart');
+      const btnModalNext = document.getElementById('btnModalNext');
+      const btnToggleTouch = document.getElementById('btnToggleTouch');
+      const btnFullscreen = document.getElementById('btnFullscreen');
+      const gameShell = document.querySelector('.game-shell');
+
+      function toggleFullscreen() {
+        try {
+          if (!document.fullscreenElement) {
+            if (gameShell && gameShell.requestFullscreen) {
+              gameShell.requestFullscreen().then(() => {
+                if (screen.orientation && screen.orientation.lock) {
+                  screen.orientation.lock('landscape').catch(() => {});
+                }
+              }).catch(() => {});
+            }
+          } else if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          }
+        } catch (err) {}
+      }
+
+      if (btnFullscreen) {
+        btnFullscreen.addEventListener('click', () => {
+          sound.init();
+          toggleFullscreen();
+          btnFullscreen.blur();
+        });
+      }
+      const touchControlsBar = document.getElementById('touchControlsBar');
+
+      btnMute.addEventListener('click', () => {
+        const isMuted = sound.toggleMute();
+        btnMute.textContent = isMuted ? '🔇 사운드: OFF' : '🔊 사운드: ON';
+        btnMute.blur();
+      });
+
+      btnRestartTop.addEventListener('click', () => {
+        sound.init();
+        startFullNewGame(currentStage);
+        btnRestartTop.blur();
+      });
+
+      btnModalRestart.addEventListener('click', () => {
+        sound.init();
+        startFullNewGame(1);
+      });
+
+      btnModalNext.addEventListener('click', () => {
+        sound.init();
+        if (currentStage < 5) {
+          goToStage(currentStage + 1);
+        } else {
+          startFullNewGame(1);
+        }
+      });
+
+      btnToggleTouch.addEventListener('click', () => {
+        touchControlsBar.classList.toggle('force-show');
+        if (controlsFooter) controlsFooter.classList.toggle('force-show-footer');
+        btnToggleTouch.blur();
+      });
+
+      const stageBtnIds = ['btnStage1', 'btnStage2', 'btnStage3', 'btnStage4', 'btnStage5'];
+      stageBtnIds.forEach((id, idx) => {
+        const sb = document.getElementById(id);
+        if (sb) {
+          sb.addEventListener('click', () => {
+            sound.init();
+            goToStage(idx + 1);
+            sb.blur();
+          });
+        }
+      });
+
+      function updateStageButtonsUI() {
+        stageBtnIds.forEach((id, idx) => {
+          const sb = document.getElementById(id);
+          if (sb) {
+            sb.classList.toggle('active', idx + 1 === currentStage);
+          }
+        });
+      }
+
+      // ==========================================
+      // 4. 픽셀 아트 렌더러 및 팔레트
+      // ==========================================
+      const HERO_PALETTE_NORMAL = {
+        R: '#e62822',
+        B: '#2563eb',
+        S: '#fca560',
+        H: '#5c2c06',
+        Y: '#facc15',
+        W: '#ffffff',
+        K: '#111827'
+      };
+
+      // 슈퍼 마리오 상태 팔레트 (선명한 레드 & 로열 블루)
+      const HERO_PALETTE_SUPER = {
+        R: '#ef4444',
+        B: '#1d4ed8',
+        S: '#fdba74',
+        H: '#451a03',
+        Y: '#fde047',
+        W: '#ffffff',
+        K: '#111827'
+      };
+
+      // 파이어 마리오 상태 팔레트 (화이트 모자/상의 + 진홍색 멜빵바지)
+      const HERO_PALETTE_FIRE = {
+        R: '#ffffff',
+        B: '#dc2626',
+        S: '#fed7aa',
+        H: '#7c2d12',
+        Y: '#facc15',
+        W: '#ffffff',
+        K: '#111827'
+      };
+
+      // 무적 스타 레인보우 팔레트
+      const STAR_PALETTES = [
+        { R: '#facc15', B: '#ef4444', S: '#fef08a', H: '#b45309', Y: '#ffffff', W: '#ffffff', K: '#111827' },
+        { R: '#4ade80', B: '#2563eb', S: '#dcfce7', H: '#065f46', Y: '#facc15', W: '#ffffff', K: '#111827' },
+        { R: '#f472b6', B: '#9333ea', S: '#fce7f3', H: '#581c87', Y: '#fde047', W: '#ffffff', K: '#111827' }
+      ];
+
+      const SPRITE_HERO_IDLE = [
+        '...RRRRR....',
+        '..RRRRRRRRR.',
+        '..HHHSSKSS..',
+        '.HSHSSSKS...',
+        '.HSHHSSSSS..',
+        '.HHSSSSHHHH.',
+        '...SSSSSSS..',
+        '..RRBRRR....',
+        '.RRRBRRRBRR.',
+        'RRRRBBBBBRRR',
+        'SS.RBYBBR.SS',
+        'SS.BBBBBB.SS',
+        '..BBBBBBBB..',
+        '..BBB..BBB..',
+        '.HHH....HHH.',
+        'HHHH....HHHH'
+      ];
+
+      const SPRITE_HERO_RUN1 = [
+        '...RRRRR....',
+        '..RRRRRRRRR.',
+        '..HHHSSKSS..',
+        '.HSHSSSKS...',
+        '.HSHHSSSSS..',
+        '.HHSSSSHHHH.',
+        '...SSSSSSS..',
+        '...RRBRR....',
+        '..RRRBRR....',
+        '..RRBBBBSS..',
+        '..BBBBBYBS..',
+        '..BBBBBBBB..',
+        '.BBBB..BBB..',
+        'HHHH....HHH.',
+        'HHH.....HHHH',
+        '............'
+      ];
+
+      const SPRITE_HERO_RUN2 = [
+        '....RRRRR...',
+        '...RRRRRRRRR',
+        '...HHHSSKSS.',
+        '..HSHSSSKS..',
+        '..HSHHSSSSS.',
+        '..HHSSSSHHHH',
+        '....SSSSSSS.',
+        '...RRRBRR...',
+        '..SSRRBRRR..',
+        '..SSRBBBBBR.',
+        '....BBBYBBR.',
+        '...BBBBBBBB.',
+        '...BBB..BBB.',
+        '...HHH...HHH',
+        '..HHHH......',
+        '............'
+      ];
+
+      const SPRITE_HERO_JUMP = [
+        '...RRRRR....',
+        '..RRRRRRRRR.',
+        '..HHHSSKSS..',
+        '.HSHSSSKS...',
+        '.HSHHSSSSS..',
+        '.HHSSSSHHHH.',
+        '...SSSSSSS..',
+        '..RRRBRR.SS.',
+        '.RRRRBRRRSS.',
+        'SS.RBBBBBR..',
+        '...BBBYBBBB.',
+        '..BBBBBBBBB.',
+        '.BBBB...BBB.',
+        'HHHH.....HHH',
+        'HH........HH',
+        '............'
+      ];
+
+      const GOOMBA_PALETTE_OVERWORLD = {
+        M: '#b45309',
+        D: '#78350f',
+        S: '#fde68a',
+        W: '#ffffff',
+        K: '#111827'
+      };
+
+      const GOOMBA_PALETTE_UNDERGROUND = {
+        M: '#1e40af',
+        D: '#1e3a8a',
+        S: '#93c5fd',
+        W: '#ffffff',
+        K: '#090d16'
+      };
+
+      const SPRITE_GOOMBA_1 = [
+        '....MMMM....',
+        '..MMMMMMMM..',
+        '.MMMMMMMMMM.',
+        'MMMWKMMMWKMM',
+        'MMMWKMMMWKMM',
+        'MMMMKMMMMKMM',
+        'DDDDDDDDDDDD',
+        '..SSSSSSSS..',
+        '..SSSSSSSS..',
+        '.KKKKKKKK..K',
+        'KKKKKKKK..KK',
+        'KKKKK.......'
+      ];
+
+      const SPRITE_GOOMBA_2 = [
+        '....MMMM....',
+        '..MMMMMMMM..',
+        '.MMMMMMMMMM.',
+        'MMMWKMMMWKMM',
+        'MMMWKMMMWKMM',
+        'MMMMKMMMMKMM',
+        'DDDDDDDDDDDD',
+        '..SSSSSSSS..',
+        '..SSSSSSSS..',
+        'K..KKKKKKKK.',
+        'KK..KKKKKKKK',
+        '.......KKKKK'
+      ];
+
+      function drawPixelMatrix(ctx, matrix, palette, x, y, width, height, flipX = false) {
+        const rows = matrix.length;
+        const cols = matrix[0].length;
+        const pw = width / cols;
+        const ph = height / rows;
+
+        ctx.save();
+        if (flipX) {
+          ctx.translate(x + width, y);
+          ctx.scale(-1, 1);
+        } else {
+          ctx.translate(x, y);
+        }
+
+        for (let r = 0; r < rows; r++) {
+          const rowStr = matrix[r];
+          for (let c = 0; c < cols; c++) {
+            const ch = rowStr[c];
+            if (ch !== '.' && palette[ch]) {
+              ctx.fillStyle = palette[ch];
               ctx.fillRect(
-                Math.floor(x + drawCol * scale + legDX * (legRowIdx + 1) * 0.48),
-                Math.floor(baseDrawY + row * scale + legDY),
-                Math.ceil(scale),
-                Math.ceil(scale)
+                Math.floor(c * pw),
+                Math.floor(r * ph),
+                Math.ceil(pw),
+                Math.ceil(ph)
               );
             }
+          }
+        }
+        ctx.restore();
+      }
+
+      // ==========================================
+      // 5. AABB 정밀 충돌 감지 유틸리티
+      // ==========================================
+      function aabbOverlap(a, b) {
+        return (
+          a.x < b.x + b.w &&
+          a.x + a.w > b.x &&
+          a.y < b.y + b.h &&
+          a.y + a.h > b.y
+        );
+      }
+
+      // ==========================================
+      // 6. 게임 상태, 목숨(3개), 5개 스테이지 빌더
+      // ==========================================
+      let gameState = 'PLAYING'; // 'PLAYING' | 'PIPE_WARP' | 'CLEARING' | 'STAGE_CLEAR' | 'DYING' | 'GAME_OVER'
+      let currentStage = 1;      // 1 ~ 5 스테이지
+      let currentZone = 'OVERWORLD'; // 'OVERWORLD' | 'UNDERGROUND'
+      let lives = 3;             // ★ 목숨 3개 시스템
+      let score = 0;
+      let bestScore = 0;
+      try {
+        bestScore = parseInt(localStorage.getItem('super_pixel_bros_best') || '0', 10) || 0;
+      } catch (e) {
+        bestScore = 0;
+      }
+      let coins = 0;
+      let timeLeft = 400;
+      let timeAccumulator = 0;
+      let frameCount = 0;
+      let cameraX = 0;
+      let checkpointReached = false;
+
+      // 존(Zone)별 월드 데이터 저장소
+      let worlds = {
+        OVERWORLD: {
+          solids: [],
+          platforms: [],   // 이동 리프트 플랫폼
+          springs: [],     // 스프링 점프대
+          hazards: [],     // 가시 함정, 회전 화염바, 쿵쿵이(Thwomp), 용암 화염구(Podoboo)
+          enemies: [],
+          items: [],
+          fieldCoins: [],
+          piranhas: [],
+          decors: []
+        },
+        UNDERGROUND: {
+          solids: [],
+          platforms: [],
+          springs: [],
+          hazards: [],
+          enemies: [],
+          items: [],
+          fieldCoins: [],
+          piranhas: [],
+          decors: []
+        }
+      };
+
+      // 현재 활성화된 존 참조 포인터
+      let solids = [];
+      let platforms = [];
+      let springs = [];
+      let hazards = [];
+      let enemies = [];
+      let items = [];
+      let fieldCoins = [];
+      let piranhas = [];
+      let decors = [];
+
+      let fireballs = [];
+      let particles = [];
+      let popups = [];
+      let flagpole = null;
+      let checkpoint = null;
+      let player = null;
+      let warpState = null;
+
+      function setActiveZone(zoneName) {
+        currentZone = zoneName;
+        const w = worlds[zoneName];
+        solids = w.solids;
+        platforms = w.platforms;
+        springs = w.springs;
+        hazards = w.hazards;
+        enemies = w.enemies;
+        items = w.items;
+        fieldCoins = w.fieldCoins;
+        piranhas = w.piranhas;
+        decors = w.decors;
+        fireballs = [];
+      }
+
+      function createPlayer(spawnAtCheckpoint = false, keepPowerLevel = 0) {
+        const startX = spawnAtCheckpoint && checkpoint ? checkpoint.x : 96;
+        const h = keepPowerLevel >= 1 ? 48 : 32;
+        return {
+          x: startX,
+          y: GROUND_Y - h,
+          w: 26,
+          h,
+          vx: 0,
+          vy: 0,
+          facing: 1,
+          onGround: false,
+          powerLevel: keepPowerLevel, // 0: SMALL, 1: SUPER, 2: FIRE
+          isSuper: keepPowerLevel >= 1,
+          starTimer: 0,
+          fireCooldown: 0,
+          // ★ 스폰킬 방지: 시작/부활 시 90프레임(1.5초) 스폰 무적 보호 부여!
+          invincibleTimer: 90,
+          transformTimer: 0,
+          jumpHoldTimer: 0,
+          isSkidding: false,
+          animFrame: 0,
+          animTimer: 0,
+          clearPhase: 0
+        };
+      }
+
+      function addPopup(x, y, text, color = '#ffffff') {
+        popups.push({
+          x,
+          y,
+          text,
+          color,
+          vy: -1.3,
+          life: 45
+        });
+      }
+
+      function spawnDust(x, y, count = 5, color = '#f1f5f9') {
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            type: 'dust',
+            x: x + (Math.random() - 0.5) * 14,
+            y: y + (Math.random() - 0.5) * 6,
+            vx: (Math.random() - 0.5) * 2.6,
+            vy: -Math.random() * 2.0 - 0.4,
+            size: 4 + Math.random() * 4,
+            color,
+            gravity: 0.05,
+            life: 18 + Math.floor(Math.random() * 10)
+          });
+        }
+      }
+
+      function spawnFireBurst(x, y) {
+        const fireColors = ['#ef4444', '#f97316', '#facc15', '#ffffff'];
+        for (let i = 0; i < 10; i++) {
+          const angle = (Math.PI * 2 * i) / 10;
+          const speed = 1.5 + Math.random() * 2.2;
+          particles.push({
+            type: 'dust',
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 0.5,
+            size: 5 + Math.random() * 3,
+            color: fireColors[i % fireColors.length],
+            gravity: 0.08,
+            life: 16 + Math.floor(Math.random() * 8)
+          });
+        }
+      }
+
+      function spawnBrickDebris(bx, by, color = '#c2410c') {
+        const offsets = [
+          { dx: 4, dy: 4, vx: -2.8, vy: -7.5 },
+          { dx: 18, dy: 4, vx: 2.8, vy: -7.5 },
+          { dx: 4, dy: 18, vx: -2.2, vy: -5.2 },
+          { dx: 18, dy: 18, vx: 2.2, vy: -5.2 }
+        ];
+        offsets.forEach((o) => {
+          particles.push({
+            type: 'brick',
+            x: bx + o.dx,
+            y: by + o.dy,
+            vx: o.vx,
+            vy: o.vy,
+            size: 10,
+            color,
+            gravity: 0.48,
+            angle: 0,
+            vAngle: o.vx * 0.08,
+            life: 55
+          });
+        });
+      }
+
+      // ==========================================
+      // 스테이지 빌더 (Stage 1 ~ Stage 5 테마별 고유 지형·장애물·몬스터)
+      // ==========================================
+      function buildStage(stageNum) {
+        worlds = {
+          OVERWORLD: { solids: [], platforms: [], springs: [], hazards: [], enemies: [], items: [], fieldCoins: [], piranhas: [], decors: [] },
+          UNDERGROUND: { solids: [], platforms: [], springs: [], hazards: [], enemies: [], items: [], fieldCoins: [], piranhas: [], decors: [] }
+        };
+        particles = [];
+        popups = [];
+        fireballs = [];
+
+        const ow = worlds.OVERWORLD;
+        const ug = worlds.UNDERGROUND;
+        const theme = STAGE_THEMES[stageNum] || STAGE_THEMES[1];
+
+        // 헬퍼 함수들
+        function addBlock(targetWorld, col, row, type = 'brick', content = 'coin', extra = {}) {
+          targetWorld.solids.push({
+            type,          // 'brick' | 'question' | 'empty' | 'hard' | 'ug_brick'
+            content,       // 'coin' | 'mushroom' | 'flower' | 'star' | '1up' | 'multicoin' | null
+            coinsLeft: content === 'multicoin' ? 5 : 0,
+            x: col * TILE,
+            y: row * TILE,
+            baseY: row * TILE,
+            w: TILE,
+            h: TILE,
+            bumpOffset: 0,
+            bumpVy: 0,
+            ...extra
+          });
+        }
+
+        function addPipe(targetWorld, col, heightTiles, extra = {}) {
+          const pipeObj = {
+            type: 'pipe',
+            x: col * TILE,
+            y: (GROUND_ROW - heightTiles) * TILE,
+            w: TILE * 2,
+            h: heightTiles * TILE,
+            ...extra
+          };
+          targetWorld.solids.push(pipeObj);
+
+          if (extra.hasPiranha) {
+            targetWorld.piranhas.push({
+              x: col * TILE + 16,
+              baseY: (GROUND_ROW - heightTiles) * TILE,
+              y: (GROUND_ROW - heightTiles) * TILE,
+              w: 32,
+              h: 38,
+              timer: 40,
+              alive: true
+            });
+          }
+        }
+
+        function addStairs(targetWorld, startCol, maxSteps, direction = 'up') {
+          for (let step = 0; step < maxSteps; step++) {
+            const col = startCol + step;
+            const height = direction === 'up' ? step + 1 : maxSteps - step;
+            for (let h = 1; h <= height; h++) {
+              addBlock(targetWorld, col, GROUND_ROW - h, 'hard', null);
+            }
+          }
+        }
+
+        // ★ 몬스터 추가 헬퍼 (스폰킬 방지를 위해 minX 설정 및 스폰 구역 col < 15 침범 완전 차단!)
+        function addEnemy(targetWorld, col, row = GROUND_ROW - 1, dir = -1, enemyType = 'goomba', minCol = 13, maxCol = 112) {
+          // enemyType: 'goomba' | 'koopa' | 'red_koopa' | 'paratroopa' | 'beetle' | 'spiny'
+          const isTall = enemyType === 'koopa' || enemyType === 'red_koopa' || enemyType === 'paratroopa';
+          targetWorld.enemies.push({
+            type: enemyType,
+            x: col * TILE + 2,
+            y: row * TILE + (isTall ? -4 : 4),
+            w: 28,
+            h: isTall ? 36 : 28,
+            vx: dir * (enemyType === 'spiny' ? 1.15 : isTall ? 1.35 : 1.2),
+            vy: 0,
+            minX: minCol * TILE, // 이 좌표보다 왼쪽(플레이어 시작 지점)으로는 절대 넘어오지 않음!
+            maxX: maxCol * TILE,
+            onGround: false,
+            state: 'walk', // 'walk' | 'squished' | 'shell_idle' | 'shell_moving'
+            squishTimer: 0,
+            animTimer: 0
+          });
+        }
+
+        function addFieldCoins(targetWorld, cols, row) {
+          cols.forEach((c) => {
+            targetWorld.fieldCoins.push({
+              x: c * TILE + 7,
+              y: row * TILE + 5,
+              w: 18,
+              h: 22,
+              collected: false
+            });
+          });
+        }
+
+        function addMovingPlatform(targetWorld, col, row, widthTiles, rangeX, rangeY, speed = 0.03) {
+          targetWorld.platforms.push({
+            x: col * TILE,
+            y: row * TILE,
+            startX: col * TILE,
+            startY: row * TILE,
+            w: widthTiles * TILE,
+            h: 16,
+            rangeX,
+            rangeY,
+            speed,
+            theta: 0,
+            vx: 0,
+            vy: 0
+          });
+        }
+
+        function addSpring(targetWorld, col, row = GROUND_ROW - 1) {
+          targetWorld.springs.push({
+            x: col * TILE + 4,
+            y: row * TILE + 6,
+            w: 24,
+            h: 26,
+            compressTimer: 0
+          });
+        }
+
+        function addSpikes(targetWorld, startCol, count, row = GROUND_ROW - 1) {
+          targetWorld.hazards.push({
+            type: 'spikes',
+            x: startCol * TILE,
+            y: row * TILE + 14,
+            w: count * TILE,
+            h: 18
+          });
+        }
+
+        function addFireBar(targetWorld, col, row, lengthBalls = 4, speed = 0.045) {
+          addBlock(targetWorld, col, row, 'hard', null);
+          targetWorld.hazards.push({
+            type: 'firebar',
+            cx: col * TILE + 16,
+            cy: row * TILE + 16,
+            balls: lengthBalls,
+            angle: 0,
+            speed
+          });
+        }
+
+        function addThwomp(targetWorld, col, row = 3) {
+          targetWorld.hazards.push({
+            type: 'thwomp',
+            x: col * TILE,
+            y: row * TILE,
+            homeY: row * TILE,
+            w: 48,
+            h: 56,
+            vy: 0,
+            state: 'idle', // 'idle' | 'falling' | 'wait' | 'rising'
+            timer: 0
+          });
+        }
+
+        function addPodoboo(targetWorld, col) {
+          targetWorld.hazards.push({
+            type: 'podoboo',
+            x: col * TILE + 6,
+            y: VIEW_H + 10,
+            baseY: VIEW_H + 10,
+            w: 20,
+            h: 24,
+            vy: -11.5,
+            timer: (col * 17) % 90
+          });
+        }
+
+        // 배경 장식물 세팅
+        for (let cx = 80; cx < WORLD_WIDTH; cx += 280) {
+          if (stageNum !== 2 && stageNum !== 5) {
+            ow.decors.push({
+              type: 'cloud',
+              x: cx + (cx % 70),
+              y: 44 + ((cx * 3) % 65),
+              w: 76 + ((cx % 2) * 28),
+              h: 34
+            });
+          } else if (stageNum === 2) {
+            ow.decors.push({
+              type: 'crystal',
+              x: cx,
+              y: TILE * 2,
+              w: 28,
+              h: 42 + (cx % 24)
+            });
+          } else if (stageNum === 5) {
+            ow.decors.push({
+              type: 'chain',
+              x: cx,
+              y: TILE * 2,
+              w: 16,
+              h: 72
+            });
+          }
+        }
+
+        const hillPositions = [0, 480, 1020, 1580, 2150, 2720, 3300];
+        hillPositions.forEach((hx, idx) => {
+          if (stageNum === 1 || stageNum === 3) {
+            ow.decors.push({
+              type: 'hill',
+              x: hx,
+              y: GROUND_Y,
+              w: idx % 2 === 0 ? 160 : 112,
+              h: idx % 2 === 0 ? 74 : 48
+            });
+          } else if (stageNum === 4) {
+            ow.decors.push({
+              type: 'pyramid',
+              x: hx,
+              y: GROUND_Y,
+              w: idx % 2 === 0 ? 180 : 130,
+              h: idx % 2 === 0 ? 96 : 68
+            });
+          }
+        });
+
+        // 스테이지별 낭떠러지/용암 구간 설정
+        let pitRanges = [
+          [28, 30],
+          [55, 58],
+          [85, 87]
+        ];
+        if (stageNum === 2) {
+          pitRanges = [
+            [26, 30],
+            [52, 57],
+            [82, 86]
+          ];
+        } else if (stageNum === 3) {
+          pitRanges = [
+            [24, 29],
+            [47, 54],
+            [78, 85]
+          ];
+        } else if (stageNum === 4) {
+          pitRanges = [
+            [27, 30],
+            [56, 59],
+            [84, 87]
+          ];
+        } else if (stageNum === 5) {
+          pitRanges = [
+            [24, 28],
+            [50, 55],
+            [78, 84]
+          ];
+        }
+
+        const isPitTile = (col) => pitRanges.some(([s, e]) => col >= s && col <= e);
+        const totalCols = Math.floor(WORLD_WIDTH / TILE);
+
+        for (let col = 0; col < totalCols; col++) {
+          if (!isPitTile(col)) {
+            ow.solids.push({
+              type: 'ground',
+              x: col * TILE,
+              y: GROUND_Y,
+              w: TILE,
+              h: VIEW_H - GROUND_Y
+            });
+          }
+          // 지하 동굴(Stage 2) 및 쿠파 성채(Stage 5)는 천장 타일 추가
+          if (theme.hasCeiling && col >= 2 && col <= 108 && (col < 22 || col > 25)) {
+            addBlock(ow, col, 1, 'brick', null);
+          }
+        }
+
+        // 중간 체크포인트 (모든 스테이지 타일 60 부근)
+        checkpoint = {
+          x: 60 * TILE + 8,
+          y: (GROUND_ROW - 3) * TILE,
+          w: 16,
+          h: 3 * TILE
+        };
+
+        // 도착 지점 깃대 (타일 112)
+        addBlock(ow, 112, GROUND_ROW - 1, 'hard', null);
+        flagpole = {
+          x: 112 * TILE + 12,
+          y: (GROUND_ROW - 10) * TILE,
+          w: 8,
+          h: 9 * TILE,
+          flagY: (GROUND_ROW - 10) * TILE + 10,
+          targetFlagY: (GROUND_ROW - 2) * TILE - 8,
+          castleX: 114 * TILE + 16,
+          castleY: GROUND_Y - 128
+        };
+
+        // ==========================================
+        // 각 스테이지별 세부 레이아웃 & 고유 몬스터·장애물 배치
+        // (스폰킬 방지를 위해 시작 구간 타일 0~14에는 몬스터를 절대 배치하지 않고 안전 구역 보장!)
+        // ==========================================
+        if (stageNum === 1) {
+          // [STAGE 1: 초원 지상 월드] - 굼바, 엉금엉금, 뻐끔플라워, 배관 비밀방
+          addBlock(ow, 7, 8, 'question', 'coin');
+          addBlock(ow, 10, 8, 'brick', 'multicoin');
+          addBlock(ow, 11, 8, 'question', 'mushroom');
+          addBlock(ow, 12, 8, 'brick', null);
+          addBlock(ow, 13, 8, 'question', 'flower');
+          addBlock(ow, 14, 8, 'brick', null);
+          addBlock(ow, 12, 4, 'question', '1up'); // 1UP 초록 버섯 블록!
+
+          // 토관 16이 시작 구역과 몬스터 구역을 안전하게 분리! (스폰킬 100% 차단)
+          addPipe(ow, 16, 2);
+          addPipe(ow, 23, 3, {
+            canEnterDown: true,
+            label: '▼ SECRET PIPE',
+            warpTargetZone: 'UNDERGROUND',
+            warpSpawnX: 84,
+            warpSpawnY: 64
+          });
+
+          addEnemy(ow, 20, GROUND_ROW - 1, -1, 'goomba', 18, 22);
+          addEnemy(ow, 26, GROUND_ROW - 1, -1, 'koopa', 25, 27);
+
+          // 섹션 2
+          addPipe(ow, 33, 3, {
+            isWarpExit: true,
+            canEnterDown: true,
+            label: '▼ BONUS PIPE',
+            warpTargetZone: 'UNDERGROUND',
+            warpSpawnX: 84,
+            warpSpawnY: 64
+          });
+          addBlock(ow, 38, 8, 'brick', null);
+          addBlock(ow, 39, 8, 'question', 'flower');
+          addBlock(ow, 40, 8, 'brick', 'star');
+
+          for (let c = 41; c <= 46; c++) {
+            addBlock(ow, c, 4, c === 44 ? 'question' : 'brick', 'coin');
+          }
+          addFieldCoins(ow, [42, 43, 44, 45], 2);
+
+          addPipe(ow, 49, 4, { hasPiranha: true });
+          addBlock(ow, 56, 7, 'hard', null);
+          addBlock(ow, 57, 7, 'hard', null);
+
+          addEnemy(ow, 37, GROUND_ROW - 1, 1, 'goomba', 35, 48);
+          addEnemy(ow, 44, GROUND_ROW - 1, -1, 'koopa', 35, 48);
+
+          // 섹션 3
+          addStairs(ow, 62, 4, 'up');
+          addStairs(ow, 68, 4, 'down');
+
+          addBlock(ow, 74, 8, 'brick', 'multicoin');
+          addBlock(ow, 75, 8, 'question', 'flower');
+          addBlock(ow, 76, 8, 'question', 'coin');
+          addBlock(ow, 75, 4, 'question', 'star');
+
+          addPipe(ow, 81, 3, { hasPiranha: true });
+          addEnemy(ow, 73, GROUND_ROW - 1, -1, 'goomba', 66, 80);
+          addEnemy(ow, 78, GROUND_ROW - 1, 1, 'koopa', 66, 80);
+
+          // 섹션 4
+          addPipe(ow, 90, 2);
+          addBlock(ow, 94, 8, 'question', 'coin');
+          addBlock(ow, 95, 8, 'question', 'flower');
+          addEnemy(ow, 96, GROUND_ROW - 1, -1, 'goomba', 92, 100);
+          addEnemy(ow, 99, GROUND_ROW - 1, -1, 'koopa', 92, 100);
+
+          addStairs(ow, 102, 7, 'up');
+        } else if (stageNum === 2) {
+          // [STAGE 2: 지하 수정 동굴] - 파이어볼 면역 딱정벌레(Buzzy Beetle), 상하/좌우 이동 리프트, 배관 워프
+          addBlock(ow, 7, 8, 'question', 'mushroom');
+          addBlock(ow, 9, 8, 'question', 'flower');
+          addBlock(ow, 11, 8, 'brick', 'multicoin');
+          addPipe(ow, 15, 2);
+
+          addPipe(ow, 21, 3, {
+            canEnterDown: true,
+            label: '▼ SECRET PIPE',
+            warpTargetZone: 'UNDERGROUND',
+            warpSpawnX: 84,
+            warpSpawnY: 64
+          });
+
+          addEnemy(ow, 19, GROUND_ROW - 1, -1, 'beetle', 17, 20); // 딱정벌레 몬스터!
+
+          // 넓은 낭떠러지(26~30) 위 좌우 이동 엘리베이터 플랫폼
+          addMovingPlatform(ow, 26, 8, 3, 72, 0, 0.035);
+          addFieldCoins(ow, [27, 28, 29], 5);
+
+          addPipe(ow, 33, 3, {
+            isWarpExit: true,
+            canEnterDown: true,
+            label: '▼ BONUS PIPE',
+            warpTargetZone: 'UNDERGROUND',
+            warpSpawnX: 84,
+            warpSpawnY: 64
+          });
+
+          for (let c = 37; c <= 44; c++) {
+            addBlock(ow, c, 7, c % 2 === 0 ? 'question' : 'brick', c === 40 ? 'flower' : 'coin');
+          }
+          addEnemy(ow, 39, GROUND_ROW - 1, 1, 'goomba', 35, 47);
+          addEnemy(ow, 43, GROUND_ROW - 1, -1, 'beetle', 35, 47);
+          addPipe(ow, 48, 3, { hasPiranha: true });
+
+          // 두 번째 낭떠러지(52~57) 위 상하 승강 리프트
+          addMovingPlatform(ow, 53, 8, 3, 0, 64, 0.04);
+          addFieldCoins(ow, [54, 55], 4);
+
+          addStairs(ow, 62, 4, 'up');
+          addBlock(ow, 69, 8, 'question', 'star');
+          addBlock(ow, 71, 8, 'question', 'flower');
+          addEnemy(ow, 73, GROUND_ROW - 1, -1, 'beetle', 67, 79);
+          addEnemy(ow, 77, GROUND_ROW - 1, -1, 'goomba', 67, 79);
+
+          // 세 번째 낭떠러지(82~86) 위 이동 플랫폼
+          addMovingPlatform(ow, 82, 7, 3, 64, 0, 0.04);
+
+          addPipe(ow, 90, 2, { hasPiranha: true });
+          addEnemy(ow, 95, GROUND_ROW - 1, -1, 'beetle', 92, 100);
+          addStairs(ow, 102, 7, 'up');
+        } else if (stageNum === 3) {
+          // [STAGE 3: 구름 고원 애슬레틱] - 스프링 점프대(Trampoline), 날개 엉금엉금(Paratroopa), 빨간 엉금엉금, 구름 리프트
+          addBlock(ow, 7, 8, 'question', 'mushroom');
+          addBlock(ow, 10, 8, 'question', 'flower');
+          addSpring(ow, 14, GROUND_ROW - 1); // ★ 첫 번째 스프링 점프대!
+          addFieldCoins(ow, [14, 15, 16], 4);
+
+          for (let c = 16; c <= 21; c++) {
+            addBlock(ow, c, 5, c === 19 ? 'question' : 'hard', '1up');
+          }
+
+          addEnemy(ow, 19, GROUND_ROW - 1, -1, 'paratroopa', 16, 23); // ★ 날개 달린 점프 엉금엉금!
+
+          // 첫 번째 넓은 구름 협곡(24~29) + 이동 구름 리프트
+          addSpring(ow, 23, GROUND_ROW - 1);
+          addMovingPlatform(ow, 25, 7, 3, 80, 0, 0.035);
+          addFieldCoins(ow, [26, 27, 28], 4);
+
+          addPipe(ow, 32, 2, {
+            canEnterDown: true,
+            label: '▼ SKY PIPE',
+            warpTargetZone: 'UNDERGROUND',
+            warpSpawnX: 84,
+            warpSpawnY: 64
+          });
+
+          addBlock(ow, 37, 8, 'question', 'flower');
+          addBlock(ow, 39, 8, 'question', 'star');
+          addEnemy(ow, 38, GROUND_ROW - 1, -1, 'red_koopa', 35, 45); // 절벽에서 안 떨어지는 빨간 엉금엉금!
+          addEnemy(ow, 43, GROUND_ROW - 1, -1, 'paratroopa', 35, 45);
+
+          // 두 번째 대협곡(47~54) + 2단 이동 구름 리프트
+          addSpring(ow, 46, GROUND_ROW - 1);
+          addMovingPlatform(ow, 48, 8, 3, 55, 0, 0.035);
+          addMovingPlatform(ow, 52, 6, 3, 0, 50, 0.04);
+          addFieldCoins(ow, [49, 50, 52, 53], 3);
+
+          addPipe(ow, 56, 2, { isWarpExit: true });
+
+          addBlock(ow, 65, 8, 'question', 'flower');
+          addBlock(ow, 67, 8, 'brick', 'multicoin');
+          addEnemy(ow, 70, GROUND_ROW - 1, -1, 'paratroopa', 64, 76);
+          addEnemy(ow, 74, GROUND_ROW - 1, 1, 'red_koopa', 64, 76);
+
+          // 세 번째 협곡(78~85)
+          addSpring(ow, 77, GROUND_ROW - 1);
+          addMovingPlatform(ow, 79, 7, 3, 95, 0, 0.04);
+
+          addEnemy(ow, 92, GROUND_ROW - 1, -1, 'paratroopa', 88, 100);
+          addStairs(ow, 102, 7, 'up');
+        } else if (stageNum === 4) {
+          // [STAGE 4: 사막 피라미드 유적] - 가시돌이(Spiny: 밟기 불가, 파이어볼/등껍질로 처치!), 가시 함정(Spikes), 피라미드 계단
+          addBlock(ow, 7, 8, 'question', 'mushroom');
+          addBlock(ow, 9, 8, 'question', 'flower'); // 가시돌이 상대용 파이어 플라워 초반 제공!
+          addBlock(ow, 11, 8, 'question', 'coin');
+
+          addPipe(ow, 15, 2);
+          // 가시 함정 지대 + 위쪽 징검다리 블록
+          addSpikes(ow, 19, 3, GROUND_ROW - 1);
+          addBlock(ow, 19, 8, 'hard', null);
+          addBlock(ow, 20, 8, 'question', 'coin');
+          addBlock(ow, 21, 8, 'hard', null);
+
+          addEnemy(ow, 24, GROUND_ROW - 1, -1, 'spiny', 22, 26); // ★ 등 가시 몬스터 가시돌이!
+
+          // 사막 유사(27~30) 위 발판
+          addMovingPlatform(ow, 27, 8, 3, 60, 0, 0.035);
+
+          addPipe(ow, 33, 3, {
+            canEnterDown: true,
+            label: '▼ TOMB PIPE',
+            warpTargetZone: 'UNDERGROUND',
+            warpSpawnX: 84,
+            warpSpawnY: 64
+          });
+
+          // 피라미드 지형
+          addStairs(ow, 37, 4, 'up');
+          addStairs(ow, 41, 4, 'down');
+          addBlock(ow, 40, 4, 'question', 'star');
+
+          addEnemy(ow, 47, GROUND_ROW - 1, -1, 'koopa', 45, 54); // 등껍질로 가시돌이 올킬 가능!
+          addEnemy(ow, 51, GROUND_ROW - 1, -1, 'spiny', 45, 54);
+          addPipe(ow, 53, 3, { hasPiranha: true, isWarpExit: true });
+
+          addMovingPlatform(ow, 56, 7, 3, 50, 0, 0.04);
+
+          addBlock(ow, 64, 8, 'question', 'flower');
+          addBlock(ow, 66, 8, 'brick', 'multicoin');
+          addSpikes(ow, 69, 3, GROUND_ROW - 1);
+          addSpring(ow, 68, GROUND_ROW - 1);
+          addFieldCoins(ow, [69, 70, 71], 4);
+
+          addEnemy(ow, 76, GROUND_ROW - 1, -1, 'spiny', 73, 82);
+          addEnemy(ow, 80, GROUND_ROW - 1, 1, 'spiny', 73, 82);
+
+          addMovingPlatform(ow, 84, 8, 3, 55, 0, 0.04);
+
+          addEnemy(ow, 93, GROUND_ROW - 1, -1, 'koopa', 89, 100);
+          addEnemy(ow, 97, GROUND_ROW - 1, -1, 'spiny', 89, 100);
+          addStairs(ow, 102, 7, 'up');
+        } else if (stageNum === 5) {
+          // [STAGE 5: 쿠파의 용암 성채] - 쿵쿵이(Thwomp), 회전 화염바(Fire Bar), 용암 불덩이(Podoboo), 용암 다리
+          addBlock(ow, 7, 8, 'question', 'mushroom');
+          addBlock(ow, 9, 8, 'question', 'flower');
+          addBlock(ow, 11, 8, 'question', '1up');
+
+          addBlock(ow, 15, 8, 'hard', null);
+          // ★ 첫 번째 회전 화염 막대 (Fire Bar)
+          addFireBar(ow, 19, 8, 4, 0.042);
+
+          // 첫 번째 용암 구덩이(24~28) + 용암에서 솟구치는 화염구(Podoboo) + 이동 다리
+          addPodoboo(ow, 25);
+          addPodoboo(ow, 27);
+          addMovingPlatform(ow, 25, 8, 3, 64, 0, 0.038);
+
+          // ★ 천장에서 내려찍는 쿵쿵이 (Thwomp #1)
+          addThwomp(ow, 34, 3);
+          addBlock(ow, 39, 8, 'question', 'flower');
+          addBlock(ow, 41, 8, 'question', 'star');
+
+          addEnemy(ow, 43, GROUND_ROW - 1, -1, 'beetle', 37, 48);
+          addFireBar(ow, 46, 8, 4, -0.045);
+
+          // 두 번째 용암 구덩이(50~55) + 솟구치는 화염구 2개 + 다리
+          addPodoboo(ow, 51);
+          addPodoboo(ow, 54);
+          addMovingPlatform(ow, 51, 7, 3, 76, 0, 0.04);
+
+          // 섹션 3: 쿵쿵이 회랑 & 화염바
+          addThwomp(ow, 65, 3);
+          addFireBar(ow, 71, 8, 4, 0.048);
+          addBlock(ow, 74, 8, 'question', 'flower');
+          addEnemy(ow, 75, GROUND_ROW - 1, -1, 'spiny', 68, 77);
+
+          // 세 번째 용암 구덩이(78~84)
+          addPodoboo(ow, 79);
+          addPodoboo(ow, 82);
+          addMovingPlatform(ow, 79, 8, 3, 88, 0, 0.042);
+
+          // 최종 성채 수비대 & 쿵쿵이 #3
+          addThwomp(ow, 90, 3);
+          addEnemy(ow, 95, GROUND_ROW - 1, -1, 'red_koopa', 92, 100);
+          addEnemy(ow, 98, GROUND_ROW - 1, -1, 'beetle', 92, 100);
+          addStairs(ow, 102, 7, 'up');
+        }
+
+        // ==========================================
+        // [Part 2] 지하 비밀 보너스 공간 (UNDERGROUND BONUS ROOM) 구성
+        // ==========================================
+        const ugCols = Math.floor(UNDERGROUND_WIDTH / TILE);
+        for (let c = 0; c < ugCols; c++) {
+          ug.solids.push({
+            type: 'ug_ground',
+            x: c * TILE,
+            y: GROUND_Y,
+            w: TILE,
+            h: VIEW_H - GROUND_Y
+          });
+        }
+        for (let c = 4; c < ugCols - 1; c++) {
+          addBlock(ug, c, 1, 'ug_brick', null);
+        }
+        for (let r = 1; r < GROUND_ROW; r++) {
+          addBlock(ug, 0, r, 'ug_brick', null);
+          addBlock(ug, ugCols - 1, r, 'ug_brick', null);
+        }
+        ug.solids.push({
+          type: 'pipe',
+          x: 2 * TILE,
+          y: 0,
+          w: TILE * 2,
+          h: TILE * 2,
+          isCeilingPipe: true
+        });
+        for (let c = 6; c <= 16; c++) {
+          addBlock(ug, c, 8, 'ug_brick', null);
+        }
+        addBlock(ug, 8, 5, 'question', 'flower');
+        addBlock(ug, 10, 5, 'question', 'star');
+        addBlock(ug, 12, 5, 'question', '1up');
+        addBlock(ug, 14, 5, 'question', 'mushroom');
+
+        for (let c = 6; c <= 16; c++) {
+          ug.fieldCoins.push({ x: c * TILE + 7, y: 7 * TILE + 5, w: 18, h: 22, collected: false });
+          ug.fieldCoins.push({ x: c * TILE + 7, y: 10 * TILE + 5, w: 18, h: 22, collected: false });
+        }
+        for (let c = 7; c <= 15; c += 2) {
+          ug.fieldCoins.push({ x: c * TILE + 7, y: 3 * TILE + 5, w: 18, h: 22, collected: false });
+        }
+
+        // 지하 출구 배관 찾기
+        const exitPipeInOw = ow.solids.find((s) => s.type === 'pipe' && s.isWarpExit) || { x: 33 * TILE, y: (GROUND_ROW - 3) * TILE };
+        ug.solids.push({
+          type: 'pipe',
+          x: 21 * TILE,
+          y: (GROUND_ROW - 2) * TILE,
+          w: TILE * 2,
+          h: TILE * 2,
+          canExitRight: true,
+          canEnterDown: true,
+          label: '▶ EXIT PIPE',
+          warpTargetZone: 'OVERWORLD',
+          warpSpawnX: exitPipeInOw.x + 19,
+          warpSpawnY: exitPipeInOw.y
+        });
+
+        setActiveZone('OVERWORLD');
+      }
+
+      // ==========================================
+      // 7. 배관(토관) 워프 전환 시퀀스
+      // ==========================================
+      function startPipeWarp(pipe, entryDir) {
+        if (gameState !== 'PLAYING') return;
+        sound.pipeWarp();
+        gameState = 'PIPE_WARP';
+        player.vx = 0;
+        player.vy = 0;
+
+        if (entryDir === 'DOWN') {
+          player.x = pipe.x + (pipe.w - player.w) / 2;
+        }
+
+        warpState = {
+          phase: 'ENTER',
+          dir: entryDir,
+          timer: 26,
+          targetZone: pipe.warpTargetZone,
+          spawnX: pipe.warpSpawnX,
+          spawnY: pipe.warpSpawnY
+        };
+      }
+
+      function updatePipeWarp() {
+        if (!warpState) return;
+
+        if (warpState.phase === 'ENTER') {
+          if (warpState.dir === 'DOWN') player.y += 1.8;
+          else player.x += 1.8;
+          warpState.timer--;
+
+          if (warpState.timer <= 0) {
+            setActiveZone(warpState.targetZone);
+
+            if (warpState.targetZone === 'UNDERGROUND') {
+              cameraX = 0;
+              player.x = warpState.spawnX;
+              player.y = warpState.spawnY;
+              player.vx = 0;
+              player.vy = 0;
+              player.invincibleTimer = 60;
+              addPopup(player.x + 20, player.y + 10, 'SECRET BONUS ROOM!', '#38bdf8');
+              warpState = null;
+              gameState = 'PLAYING';
+            } else {
+              player.x = warpState.spawnX;
+              player.y = warpState.spawnY + player.h;
+              cameraX = Math.max(0, Math.min(WORLD_WIDTH - VIEW_W, player.x - VIEW_W * 0.35));
+              sound.pipeWarp();
+              warpState.phase = 'EXIT';
+              warpState.timer = Math.ceil(player.h / 1.8);
+            }
+          }
+        } else if (warpState.phase === 'EXIT') {
+          player.y -= 1.8;
+          warpState.timer--;
+          if (warpState.timer <= 0) {
+            player.y = warpState.spawnY - player.h;
+            player.vy = 0;
+            player.onGround = true;
+            player.invincibleTimer = 75; // 토관 탈출 직후 스폰킬 보호!
+            addPopup(player.x, player.y - 12, 'WARP COMPLETE!', '#4ade80');
+            warpState = null;
+            gameState = 'PLAYING';
+          }
+        }
+      }
+
+      // ==========================================
+      // 8. 파이어 마리오 불꽃 탄환 발사 및 물리 업데이트
+      // ==========================================
+      function tryShootFireball() {
+        if (player.powerLevel < 2 || player.fireCooldown > 0 || fireballs.length >= 3) {
+          return;
+        }
+        sound.fireball();
+        player.fireCooldown = 14;
+        const spawnX = player.facing === 1 ? player.x + player.w + 2 : player.x - 12;
+        const spawnY = player.y + Math.floor(player.h * 0.38);
+
+        fireballs.push({
+          x: spawnX,
+          y: spawnY,
+          w: 12,
+          h: 12,
+          vx: player.facing * 7.2,
+          vy: 2.2,
+          bounces: 0,
+          maxBounces: 5,
+          life: 150
+        });
+      }
+
+      function updateFireballs() {
+        const maxW = currentZone === 'UNDERGROUND' ? UNDERGROUND_WIDTH : WORLD_WIDTH;
+
+        for (let i = fireballs.length - 1; i >= 0; i--) {
+          const fb = fireballs[i];
+          fb.life--;
+          if (fb.life <= 0 || fb.x < cameraX - 60 || fb.x > cameraX + VIEW_W + 60 || fb.y > VIEW_H + 40) {
+            fireballs.splice(i, 1);
             continue;
           }
 
-          for (let col = 0; col < line.length; col++) {
-            if (line[col] === ' ') continue;
-            const drawCol = flipX ? (cols - 1 - col) : col;
-            ctx.fillRect(
-              Math.floor(x + drawCol * scale + rowOffsetX),
-              Math.floor(baseDrawY + row * scale + rowOffsetY),
-              Math.ceil(scale),
-              Math.ceil(scale)
-            );
-          }
-        }
-      }
-
-      const SPRITES = {
-        PIXEL_SUN: [
-          "      44    44      ",
-          "      44    44      ",
-          "  44   ######   44  ",
-          "   44##########44   ",
-          "    ###222222###    ",
-          "   ###22333322###   ",
-          "44###2233333322###44",
-          "44###2333333332###44",
-          "  ###2333333332###  ",
-          "  ###2333333332###  ",
-          "44###2333333332###44",
-          "44###2233333322###44",
-          "   ###22333322###   ",
-          "    ###222222###    ",
-          "   44##########44   ",
-          "  44   ######   44  ",
-          "      44    44      ",
-          "      44    44      "
-        ],
-        PIXEL_ASTEROID: [
-          "       44444444       ",
-          "    444########444    ",
-          "   44###222#######44  ",
-          "  44##2233322######44 ",
-          " 44###23333322###22#44",
-          " 4####2233322###232##4",
-          "44#####22222####222##4",
-          "4###22##########22###4",
-          "4##2332####222#######4",
-          "4###22####233322#####4",
-          " 4########223322####44",
-          " 44#########222####44 ",
-          "  44#######22#####44  ",
-          "   444##########444   ",
-          "     444444444444     "
-        ],
-        UFO_BOSS: [
-          "         33333333         ",
-          "       332222222233       ",
-          "      32233333333223      ",
-          "    ###################   ",
-          "  ####################### ",
-          " ####44###44###44###44####",
-          "###########################",
-          "  ####################### ",
-          "    444  #########  444   ",
-          "          44   44         "
-        ],
-        PROTO_RUNFrames: [
-          [
-            "           ######  ",
-            "          ##3##### ",
-            "          ######## ",
-            "          #####    ",
-            "          #######  ",
-            "#        ######22  ",
-            "##      #######    ",
-            "###    ########2   ",
-            " #### #########    ",
-            "  ############     ",
-            "   ####   ####     ",
-            "  ###       ###    ",
-            " ###         ###   ",
-            "             ####  "
-          ],
-          [
-            "          ######   ",
-            "         ##3#####  ",
-            "         ########  ",
-            "         #####     ",
-            "         #######   ",
-            "##      ######22   ",
-            " ###   #######     ",
-            "  ############2    ",
-            "   ###########     ",
-            "    ##########     ",
-            "      #######      ",
-            "      ###  ###     ",
-            "      ##    ###    ",
-            "      ####         "
-          ],
-          [
-            "           ######  ",
-            "          ##3##### ",
-            "          ######## ",
-            "          #####    ",
-            "          #######  ",
-            "         ######22  ",
-            "#       #######    ",
-            "###    ########2   ",
-            " ##############    ",
-            "  ############     ",
-            "   #####  ####     ",
-            "   ###      ###    ",
-            "  ###        ##    ",
-            " ####              "
-          ],
-          [
-            "          ######   ",
-            "         ##3#####  ",
-            "         ########  ",
-            "         #####     ",
-            "         #######   ",
-            "#       ######22   ",
-            "##     #######     ",
-            "###   ########2    ",
-            " #### ########     ",
-            "  ###########      ",
-            "    #########      ",
-            "     ###   ####    ",
-            "     ##     ##     ",
-            "     ####          "
-          ]
-        ],
-        PROTO_DUCKFrames: [
-          [
-            "               ######   ",
-            "#             ##3#####  ",
-            "###          #########  ",
-            " #####     ###########2 ",
-            "   ###################  ",
-            "     ###############    ",
-            "    ###          ###    ",
-            "   ####           ###   "
-          ],
-          [
-            "               ######   ",
-            "##            ##3#####  ",
-            " ####        #########  ",
-            "  ######   ###########2 ",
-            "   ###################  ",
-            "     ###############    ",
-            "       ###    ###       ",
-            "       ####             "
-          ],
-          [
-            "               ######   ",
-            "#             ##3#####  ",
-            "###          #########  ",
-            " #####     ###########2 ",
-            "   ###################  ",
-            "     ###############    ",
-            "     ###        ###     ",
-            "                ####    "
-          ],
-          [
-            "               ######   ",
-            "##            ##3#####  ",
-            " ####        #########  ",
-            "  ######   ###########2 ",
-            "   ###################  ",
-            "     ###############    ",
-            "        ###  ###        ",
-            "        ####            "
-          ]
-        ],
-        TREX_RUNFrames: [
-          [
-            "            ########## ",
-            "           ###3####### ",
-            "           ########### ",
-            "           ########### ",
-            "           ######      ",
-            "           #########   ",
-            "#         ######       ",
-            "##       ########      ",
-            "###     ###########    ",
-            "####   ##########22    ",
-            "#####  ##########      ",
-            "#################      ",
-            " ################      ",
-            "  ##############       ",
-            "   #####   #####       ",
-            "  ####       ####      ",
-            " ###           ###     ",
-            "               #####   "
-          ],
-          [
-            "           ##########  ",
-            "          ###3#######  ",
-            "          ###########  ",
-            "          ###########  ",
-            "          ######       ",
-            "          #########    ",
-            "##       ######        ",
-            " ###    ########       ",
-            "  #### ###########     ",
-            "   #############22     ",
-            "    ############       ",
-            "     ###########       ",
-            "     ###########       ",
-            "      #########        ",
-            "       ########        ",
-            "       ###   ####      ",
-            "       ###    ###      ",
-            "       #####           "
-          ],
-          [
-            "            ########## ",
-            "           ###3####### ",
-            "           ########### ",
-            "           ########### ",
-            "           ######      ",
-            "           #########   ",
-            "          ######       ",
-            "#        ########      ",
-            "###     ###########    ",
-            "#####  ##########22    ",
-            "################       ",
-            "################       ",
-            " ###############       ",
-            "  #############        ",
-            "   #####   #####       ",
-            "   ###       ####      ",
-            "  ###          ##      ",
-            " #####                 "
-          ],
-          [
-            "           ##########  ",
-            "          ###3#######  ",
-            "          ###########  ",
-            "          ###########  ",
-            "          ######       ",
-            "          #########    ",
-            "#        ######        ",
-            "##      ########       ",
-            "###    ###########     ",
-            "####  ##########22     ",
-            "################       ",
-            " ###############       ",
-            "  #############        ",
-            "   ############        ",
-            "    ##########         ",
-            "     ####   #####      ",
-            "     ###      ###      ",
-            "     #####             "
-          ]
-        ],
-        TREX_DUCKFrames: [
-          [
-            "               ########## ",
-            "#             ###3####### ",
-            "##            ########### ",
-            "###          ############ ",
-            "#####      ########       ",
-            " #####################    ",
-            "  ###################22   ",
-            "   #################      ",
-            "   ####          ####     ",
-            "  ####            ###     ",
-            "                  #####   "
-          ],
-          [
-            "               ########## ",
-            "##            ###3####### ",
-            "###           ########### ",
-            "#####        ############ ",
-            " ######    ########       ",
-            "  ####################    ",
-            "   ##################22   ",
-            "    ################      ",
-            "       ####   ####        ",
-            "       ###     ###        ",
-            "       #####              "
-          ],
-          [
-            "               ########## ",
-            "#             ###3####### ",
-            "##            ########### ",
-            "###          ############ ",
-            "#####      ########       ",
-            " #####################    ",
-            "  ###################22   ",
-            "   #################      ",
-            "    ####        ####      ",
-            "   ###            ###     ",
-            "  #####                   "
-          ],
-          [
-            "               ########## ",
-            "##            ###3####### ",
-            "###           ########### ",
-            "#####        ############ ",
-            " ######    ########       ",
-            "  ####################    ",
-            "   ##################22   ",
-            "    ################      ",
-            "        ####   #####      ",
-            "        ###      ###      ",
-            "        #####             "
-          ]
-        ],
-        SKEL_RUNFrames: [
-          [
-            "            ########## ",
-            "           ## 3# ##### ",
-            "           ########### ",
-            "           ##### # # # ",
-            "           ####        ",
-            "           ########    ",
-            "#         ####         ",
-            "##       # # # #       ",
-            " #     ## # # # ###    ",
-            "  #   # # # # #   #    ",
-            "   # #  # # # #        ",
-            "    ### ########       ",
-            "      ##########       ",
-            "       ###   ###       ",
-            "      ##       ##      ",
-            "     ##         ##     ",
-            "    ##           ##    ",
-            "                 ####  "
-          ],
-          [
-            "           ##########  ",
-            "          ## 3# #####  ",
-            "          ###########  ",
-            "          ##### # # #  ",
-            "          ####         ",
-            "          ########     ",
-            "##       ####          ",
-            " #      # # # #        ",
-            "  #   ## # # # ###     ",
-            "   # # # # # #   #     ",
-            "    ##  # # # #        ",
-            "     ###########       ",
-            "      #########        ",
-            "       #######         ",
-            "       ##   ###        ",
-            "       ##    ##        ",
-            "       ##   ###        ",
-            "       ####            "
-          ],
-          [
-            "            ########## ",
-            "           ## 3# ##### ",
-            "           ########### ",
-            "           ##### # # # ",
-            "           ####        ",
-            "           ########    ",
-            "          ####         ",
-            "#        # # # #       ",
-            "##     ## # # # ###    ",
-            "  #   # # # # #   #    ",
-            "   ###  # # # #        ",
-            "    ############       ",
-            "      #########        ",
-            "      ###   ###        ",
-            "     ##       ###      ",
-            "    ##          ##     ",
-            "   ##                  ",
-            "  ####                 "
-          ],
-          [
-            "           ##########  ",
-            "          ## 3# #####  ",
-            "          ###########  ",
-            "          ##### # # #  ",
-            "          ####         ",
-            "          ########     ",
-            "#        ####          ",
-            "##      # # # #        ",
-            " #    ## # # # ###     ",
-            "  #  # # # # #   #     ",
-            "   ###  # # # #        ",
-            "    ###########        ",
-            "      #########        ",
-            "       #######         ",
-            "      ##    ####       ",
-            "     ##       ##       ",
-            "     ####              ",
-            "                       "
-          ]
-        ],
-        SKEL_DUCKFrames: [
-          [
-            "               ########## ",
-            "#             ## 3# ##### ",
-            "##            ########### ",
-            " #           ##### # # #  ",
-            "  #        ######         ",
-            "   # # # # # # # #####    ",
-            "    ### # # # # #   #     ",
-            "      ###########         ",
-            "     ##          ##       ",
-            "    ##            ##      ",
-            "                  ####    "
-          ],
-          [
-            "               ########## ",
-            "##            ## 3# ##### ",
-            " #            ########### ",
-            "  #          ##### # # #  ",
-            "   #       ######         ",
-            "    # # # # # # #####     ",
-            "     ## # # # # #   #     ",
-            "       ##########         ",
-            "        ##    ###         ",
-            "        ##     ##         ",
-            "        ####              "
-          ],
-          [
-            "               ########## ",
-            "#             ## 3# ##### ",
-            "##            ########### ",
-            " #           ##### # # #  ",
-            "  #        ######         ",
-            "   # # # # # # # #####    ",
-            "    ### # # # # #   #     ",
-            "      ###########         ",
-            "      ##        ##        ",
-            "     ##          ###      ",
-            "    ####                  "
-          ],
-          [
-            "               ########## ",
-            "##            ## 3# ##### ",
-            " #            ########### ",
-            "  #          ##### # # #  ",
-            "   #       ######         ",
-            "    # # # # # # #####     ",
-            "     ## # # # # #   #     ",
-            "       ##########         ",
-            "         ##   ####        ",
-            "         ##     ##        ",
-            "         ####             "
-          ]
-        ],
-        TREX_LOOK_UP: [
-          "             #####    ",
-          "            #######   ",
-          "           ####3###   ",
-          "           ########   ",
-          "          ########    ",
-          "          ######      ",
-          "#        #######      ",
-          "##      #########     ",
-          "##     ###########    ",
-          "###   ##########22    ",
-          "####  ##########      ",
-          "################      ",
-          " ###############      ",
-          "  #############       ",
-          "   ###########        ",
-          "    ####  ####        ",
-          "    ###    ###        ",
-          "    ####   ####       "
-        ],
-        TREX_FOSSIL_SLEEP: [
-          "           ########## ",
-          "          ############",
-          "          ###222######",
-          "          ##### # #   ",
-          "          ####        ",
-          "          ########    ",
-          "#         ####        ",
-          "##       # # # #      ",
-          " #     ## # # # ###   ",
-          "  #   # # # # #   #   ",
-          "   # #  # # # #       ",
-          "    ### ########      ",
-          "      ##########      ",
-          "       ###   ###      ",
-          "       ##     ##      ",
-          "       ##     ##      ",
-          "       ##     ##      ",
-          "      ####   ####     "
-        ],
-        TREX_FOSSIL: [
-          "           ########## ",
-          "          ## 3# ##### ",
-          "          ##########  ",
-          "          ##### # #   ",
-          "          ####        ",
-          "          ########    ",
-          "#         ####        ",
-          "##       # # # #      ",
-          " #     ## # # # ###   ",
-          "  #   # # # # #   #   ",
-          "   # #  # # # #       ",
-          "    ### ########      ",
-          "      ##########      ",
-          "       ###   ###      ",
-          "       ##     ##      ",
-          "       ##     ##      ",
-          "       ##     ##      ",
-          "      ####   ####     "
-        ],
-        FERN_BUSH: [
-          "    ##    ##    ",
-          "   ####  ####   ",
-          " ## ## #### ##  ",
-          "#### ###########",
-          " ###2#######2###",
-          "  #####222##### ",
-          " ###############",
-          "################",
-          "################"
-        ],
-        DESERT_ROCKS: [
-          "       ##        ",
-          "      ####       ",
-          "      ####   ##  ",
-          "  ## ###### #### ",
-          " ############### ",
-          " #######2####### ",
-          "################ ",
-          "#####2#####2#####",
-          "#################",
-          "#################"
-        ],
-        POSTOSUCHUS_1: [
-          "   ########              ",
-          " ######3####  ####  #### ",
-          "  ###################### ",
-          " #####222################",
-          "   ######################",
-          "     ####  ###   ###  ###",
-          "    ####    ### ###    ##"
-        ],
-        POSTOSUCHUS_2: [
-          "  #########              ",
-          "#######3####  ####  #### ",
-          " ### ################### ",
-          "   ###222################",
-          "   ######################",
-          "      ###  #### ####  ## ",
-          "     ###    ###  ###  ###"
-        ],
-        EORAPTOR_1: [
-          "  ######          ",
-          " ###3####         ",
-          "  #####           ",
-          "   ##########  ###",
-          "  #####22######## ",
-          "   ###########    ",
-          "   ###     ###    ",
-          "  ###       ###   "
-        ],
-        EORAPTOR_2: [
-          "  ######          ",
-          " ###3####         ",
-          "  #####           ",
-          "   ##########  ###",
-          "  #####22######## ",
-          "   ###########    ",
-          "     ###  ###     ",
-          "    ###    ###    "
-        ],
-        CONIFER_STUMP: [
-          "   ############   ",
-          "  ##2222222222##  ",
-          "  ##############  ",
-          "   ############   ",
-          "   #####22#####   ",
-          "   ############   ",
-          "  ##############  ",
-          " ################ ",
-          "##################",
-          "##################"
-        ],
-        DILOPHO_1: [
-          "   22  22           ",
-          "  222##222          ",
-          " #####3###          ",
-          " 22######           ",
-          "  22#########    ## ",
-          "    ############ ###",
-          "    #####22######## ",
-          "     ###########    ",
-          "     ###     ###    ",
-          "    ####      ###   "
-        ],
-        DILOPHO_2: [
-          "   22  22           ",
-          "  222##222          ",
-          " #####3###          ",
-          " 22######           ",
-          "  22#########    ## ",
-          "    ############ ###",
-          "    #####22######## ",
-          "     ###########    ",
-          "       ###  ###     ",
-          "      ###    ####   "
-        ],
-        STEGO_OB_1: [
-          "       22   222   22     ",
-          "     2222  22222 2222    ",
-          "   ### ###############   ",
-          " ###3################### ",
-          "#########################",
-          "  #####################  ",
-          "   ####   ####   ####    ",
-          "  ####    ####    ####   "
-        ],
-        STEGO_OB_2: [
-          "       22   222   22     ",
-          "     2222  22222 2222    ",
-          "   ### ###############  #",
-          " ###3####################",
-          "######################## ",
-          "  #####################  ",
-          "    ####  ####  ####     ",
-          "    ####  ####  ####     "
-        ],
-        ARCHAEO_1: [
-          "      ####        ",
-          "     ######   ### ",
-          " ##3######## #### ",
-          "################# ",
-          "   #############  ",
-          "     #####  ###   ",
-          "      ##          "
-        ],
-        ARCHAEO_2: [
-          "                  ",
-          " ##3#####     ### ",
-          "################# ",
-          "   ############## ",
-          "    ######## ###  ",
-          "     ######       ",
-          "      ####        "
-        ],
-        RHAMPHO_1: [
-          "     ####              ",
-          "    ######         22  ",
-          "###3########      2222 ",
-          "###################### ",
-          "   ###########         ",
-          "     ####              "
-        ],
-        RHAMPHO_2: [
-          "                       ",
-          "###3######         22  ",
-          "######################2",
-          "   ###########    222  ",
-          "    #######            ",
-          "     ####              "
-        ],
-        TRICERA_1: [
-          "      ###  ####        ",
-          "  #   ##########       ",
-          " ### #############     ",
-          "#####3################ ",
-          " ######################",
-          "   ####################",
-          "    ###################",
-          "     ####  ###  ### ###",
-          "    #####  ###  ### ###"
-        ],
-        TRICERA_2: [
-          "      ###  ####        ",
-          "  #   ##########       ",
-          " ### #############     ",
-          "#####3################ ",
-          " ######################",
-          "   ####################",
-          "    ###################",
-          "      ### ###  #### ## ",
-          "     #### ###  #### ###"
-        ],
-        RAPTOR_1: [
-          "  #######          ",
-          " ####3###          ",
-          " #######       ### ",
-          "   ########## ###  ",
-          "  #####22#######   ",
-          "   ###########     ",
-          "  ###      ###     ",
-          " ###        ###    "
-        ],
-        RAPTOR_2: [
-          "  #######          ",
-          " ####3###          ",
-          " #######       ### ",
-          "   ########## ###  ",
-          "  #####22#######   ",
-          "   ###########     ",
-          "     ###  ###      ",
-          "    ###    ###     "
-        ],
-        ANKYLO_OB_1: [
-          "      22  22  22  22      ",
-          "    ##################    ",
-          "  ####222222222222#### ###",
-          " ###3################# ###",
-          "##########################",
-          "   ####  ####  ####       ",
-          "  #####  ####  #####      "
-        ],
-        ANKYLO_OB_2: [
-          "      22  22  22  22   ###",
-          "    ################## ###",
-          "  ####222222222222####### ",
-          " ###3#################### ",
-          "########################  ",
-          "    ####  ####  ####      ",
-          "    ####  ####  ####      "
-        ],
-        PACHY_1: [
-          "   22222           ",
-          "  2222222          ",
-          " ####3####     ### ",
-          "###########  ##### ",
-          "  ################ ",
-          "    ############   ",
-          "    ###      ###   ",
-          "   ####       ###  "
-        ],
-        PACHY_2: [
-          "   22222           ",
-          "  2222222          ",
-          " ####3####     ### ",
-          "###########  ##### ",
-          "  ################ ",
-          "    ############   ",
-          "      ###  ###     ",
-          "     ####   ####   "
-        ],
-        QUETZAL_1: [
-          "         ###            ",
-          "        #####           ",
-          "###############         ",
-          "   ###3#################",
-          "        ################",
-          "          #####         ",
-          "           ##           "
-        ],
-        QUETZAL_2: [
-          "                        ",
-          "###############         ",
-          "   ###3#################",
-          "       #################",
-          "         #########      ",
-          "          #####         ",
-          "           ###          "
-        ],
-        METEOR_OB: [
-          "   444444   ",
-          " 44######44 ",
-          "4##223322##4",
-          "4#23333332#4",
-          "4#23333332#4",
-          "4##223322##4",
-          " 44######44 ",
-          "   444444   "
-        ],
-        LAVA_GEYSER_1: [
-          "    33    ",
-          "   2332   ",
-          "  #2332#  ",
-          "  #2332#  ",
-          " ##2332## ",
-          " ##2332## ",
-          "###2332###",
-          "###2332###",
-          "##########"
-        ],
-        LAVA_GEYSER_2: [
-          "   2332   ",
-          "  #2332#  ",
-          "  #2332#  ",
-          " ##2332## ",
-          " ##2332## ",
-          "###2332###",
-          "###2332###",
-          "###2332###",
-          "##########"
-        ],
-        MAMMOTH_1: [
-          "        ############   ",
-          "      ################ ",
-          "  22  ###3#############",
-          " 22   #################",
-          " 2222##################",
-          "   ####################",
-          "   ####   ####    #### ",
-          "   ####   ####    #### "
-        ],
-        MAMMOTH_2: [
-          "        ############   ",
-          "      ################ ",
-          "  22  ###3#############",
-          " 22   #################",
-          " 2222##################",
-          "   ####################",
-          "    ####   ####  ####  ",
-          "    ####   ####  ####  "
-        ],
-        SMILODON_1: [
-          "   ######             ",
-          "  ###3####  ######### ",
-          "  22##################",
-          "  22  ################",
-          "     ####         ####",
-          "    ####           ###"
-        ],
-        SMILODON_2: [
-          "   ######             ",
-          "  ###3####  ######### ",
-          "  22##################",
-          "  22  ################",
-          "       ####     ####  ",
-          "      ####       #### "
-        ],
-        CHARIOT_1: [
-          "   ####       2222    ",
-          "  ##3###     22##22   ",
-          " ########   ########  ",
-          "####################  ",
-          "  ####  ####  222222  ",
-          " ##  ##  ##  22 22 22 ",
-          "             22222222 "
-        ],
-        CHARIOT_2: [
-          "   ####       2222    ",
-          "  ##3###     22##22   ",
-          " ########   ########  ",
-          "####################  ",
-          "   ###  ####  222222  ",
-          "  ##   ##    22222222 ",
-          "             22 22 22 "
-        ],
-        SPARTAN_1: [
-          "      333333        ",
-          "     33333333       ",
-          "       ####         ",
-          "      ##22##    22  ",
-          "333333######  2222  ",
-          "     2222222222222  ",
-          "    2223333222####  ",
-          "    2223333222####  ",
-          "     222222222####  ",
-          "      ####  ####    ",
-          "     ###      ###   ",
-          "    ####       ###  "
-        ],
-        SPARTAN_2: [
-          "      333333        ",
-          "     33333333       ",
-          "       ####         ",
-          "      ##22##    22  ",
-          "333333######  2222  ",
-          "     2222222222222  ",
-          "    2223333222####  ",
-          "    2223333222####  ",
-          "     222222222####  ",
-          "       #### ####    ",
-          "       ###   ###    ",
-          "      ####    ####  "
-        ],
-        CANNON_1: [
-          "                  33  ",
-          "  ######         333  ",
-          " ###########    22    ",
-          "################      ",
-          " ################     ",
-          "   ##############     ",
-          "     222222222222     ",
-          "    22222222222222    ",
-          "   ###  ######  ###   ",
-          "  #3#   ######   #3#  ",
-          "   ###          ###   "
-        ],
-        CANNON_2: [
-          "                 333  ",
-          "  ######        33 3  ",
-          " ###########    22    ",
-          "################      ",
-          " ################     ",
-          "   ##############     ",
-          "     222222222222     ",
-          "    22222222222222    ",
-          "   ###  ######  ###   ",
-          "  #3#   ######   #3#  ",
-          "   ###          ###   "
-        ],
-        POLICE_CAR: [
-          "       33332222       ",
-          "     ############     ",
-          "   ###2222##2222###   ",
-          " #################### ",
-          "33##################22",
-          "######################",
-          "  ####          ####  ",
-          "  ####          ####  "
-        ],
-        HELICOPTER_1: [
-          "  333333333333333333    ",
-          "         ###         ## ",
-          "     ###########    ####",
-          "   ###22222####### #####",
-          "  ##################    ",
-          "     ###########        ",
-          "    ###      ###        "
-        ],
-        HELICOPTER_2: [
-          "      3333333333        ",
-          "         ###         ## ",
-          "     ###########    ####",
-          "   ###22222####### #####",
-          "  ##################    ",
-          "     ###########        ",
-          "    ###      ###        "
-        ],
-        CHRONO_MECHA_1: [
-          "      ##########      ",
-          "    ####333333####    ",
-          "   ################   ",
-          " 22################22 ",
-          "   ################   ",
-          "     ############     ",
-          "     ####    ####     ",
-          "    ####      ####    ",
-          "   #####      #####   "
-        ],
-        CHRONO_MECHA_2: [
-          "      ##########      ",
-          "    ####333333####    ",
-          "   ################   ",
-          " 22################22 ",
-          "   ################   ",
-          "     ############     ",
-          "      ####  ####      ",
-          "     ####    ####     ",
-          "    #####    #####    "
-        ],
-        FUTURE_DRONE_1: [
-          "     2222222222     ",
-          "  ################  ",
-          "####333333333333####",
-          "  ################  ",
-          "    ###      ###    ",
-          "   33          33   "
-        ],
-        FUTURE_DRONE_2: [
-          "     2222222222     ",
-          "  ################  ",
-          "####222233332222####",
-          "  ################  ",
-          "    ###      ###    ",
-          "  333          333  "
-        ],
-        BRACHIOSAURUS: [
-          "                 #### ",
-          "                ##### ",
-          "                ###   ",
-          "               ###    ",
-          "               ###    ",
-          "              ###     ",
-          "              ###     ",
-          "             ####     ",
-          "     ###########      ",
-          "   ##############     ",
-          "  ################    ",
-          " #################    ",
-          "#  ###############    ",
-          "#   ####      ####    ",
-          "    ####      ####    ",
-          "    ####      ####    ",
-          "    ####      ####    "
-        ],
-        DIPLODOCUS: [
-          "                          #####",
-          "                        ###### ",
-          "                      #####    ",
-          "                    #####      ",
-          "         ###############       ",
-          "      ##################       ",
-          "   #####################       ",
-          "########################       ",
-          "      ####          ####       ",
-          "      ####          ####       ",
-          "      ####          ####       "
-        ],
-        STEGOSAURUS: [
-          "       ##   ###   ##     ",
-          "     ####  ##### ####    ",
-          "   ### ###############   ",
-          " # ##################### ",
-          "#########################",
-          "  #####################  ",
-          "    ####         ####    ",
-          "    ####         ####    "
-        ],
-        PARASAUROLOPHUS: [
-          "             ######## ",
-          "            ######    ",
-          "           #####      ",
-          "          ######      ",
-          "      ###########     ",
-          "   ###############    ",
-          " #################    ",
-          "###   ###########     ",
-          "       ###    ###     ",
-          "       ###    ###     ",
-          "       ###    ###     "
-        ],
-        ANKYLOSAURUS: [
-          "        ############     ",
-          "     ##################  ",
-          "### #####################",
-          "#########################",
-          "    ####          ####   ",
-          "    ####          ####   "
-        ],
-        SPINOSAURUS: [
-          "          ######         ",
-          "        ##########       ",
-          "       ############  ####",
-          "      ###################",
-          "  #######################",
-          "######################## ",
-          "     ####       ####     ",
-          "     ####       ####     ",
-          "     ####       ####     "
-        ],
-        FOSSIL_SKULL: [
-          "   #########   ",
-          " ############# ",
-          "###   ###   ###",
-          "###############",
-          " ## # # # # ## "
-        ]
-      };
-
-      function hexToRgb(hex) {
-        const clean = String(hex || '#000000').replace('#', '');
-        const num = parseInt(clean, 16) || 0;
-        return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
-      }
-      function rgbToHex(r, g, b) {
-        const toHex = (n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
-        return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-      }
-      function lerp(a, b, t) { return a + (b - a) * t; }
-      function lerpColor(hexA, hexB, t) {
-        const clamped = Math.max(0, Math.min(1, t));
-        const a = hexToRgb(hexA); const b = hexToRgb(hexB);
-        return rgbToHex(lerp(a.r, b.r, clamped), lerp(a.g, b.g, clamped), lerp(a.b, b.b, clamped));
-      }
-
-      const SUBPHASE_THEMES = {
-        '1A': {
-          majorPhase: 1, stage: 1,
-          bannerTitle: '[ STAGE 1 · EARLY TRIASSIC ]',
-          bannerSub: '초기 트라이아스기 (0~500) — 원시 사막과 생존의 시작',
-          koTitle: '[1부 · 1-A] 초기 트라이아스기 (0~500) — "생존의 시작"',
-          badge: 'STAGE 1: 1-A TRIASSIC',
-          skyTop: '#F7F7F7', skyBottom: '#EAD7C3', groundLine: '#9E3D22', groundFill: '#DFA382', groundSub: '#C27455',
-          farSil: '#DEC3AC', midSil: '#C99B7C', nearSil: '#8C583A',
-          dinoPrimary: '#4A3525', dinoSecondary: '#8C6246', dinoEye: '#FFFFFF', uiText: '#4A3525'
-        },
-        '1B': {
-          majorPhase: 1, stage: 1,
-          bannerTitle: '[ LATE TRIASSIC : SANDSTORM ]',
-          bannerSub: '후기 트라이아스기 (500~1,000) — 붉은 모래폭풍과 포스토수쿠스·에오랍토르의 습격!',
-          koTitle: '[1부 · 1-B] 후기 트라이아스기 (500~1,000) — "모래폭풍과 포식자들"',
-          badge: 'STAGE 1: 1-B TRIASSIC',
-          skyTop: '#E8C5A5', skyBottom: '#D48C6A', groundLine: '#7A2512', groundFill: '#C97A57', groundSub: '#9E5334',
-          farSil: '#C48B6C', midSil: '#A6684B', nearSil: '#6E3B22',
-          dinoPrimary: '#3D2214', dinoSecondary: '#B84A24', dinoEye: '#FFEE99', uiText: '#3D1E10'
-        },
-        '2A': {
-          majorPhase: 2, stage: 1,
-          bannerTitle: '[ EARLY JURASSIC : LUSH FOREST ]',
-          bannerSub: '초기 쥐라기 (1,000~1,500) — 거대 수각류 진화! 울창한 침엽수림과 딜로포사우루스·시조새',
-          koTitle: '[1부 · 2-A] 초기 쥐라기 (1,000~1,500) — "거대 공룡의 황금기"',
-          badge: 'STAGE 1: 2-A JURASSIC',
-          skyTop: '#D4E6D5', skyBottom: '#99C2A2', groundLine: '#234730', groundFill: '#6D9976', groundSub: '#4D7556',
-          farSil: '#A7CBB0', midSil: '#6B9E78', nearSil: '#3A6B48',
-          dinoPrimary: '#1E3626', dinoSecondary: '#4B7556', dinoEye: '#FFF3B0', uiText: '#1F3626'
-        },
-        '2B': {
-          majorPhase: 2, stage: 1,
-          bannerTitle: '[ LATE JURASSIC : DEEP JUNGLE ]',
-          bannerSub: '후기 쥐라기 (1,500~2,000) — 안개 낀 대습지 밀림! 스테고사우루스와 람포링크스 편대',
-          koTitle: '[1부 · 2-B] 후기 쥐라기 (1,500~2,000) — "안개 밀림과 거대 용각류·갑주공룡"',
-          badge: 'STAGE 1: 2-B JURASSIC',
-          skyTop: '#9EC5BE', skyBottom: '#659B91', groundLine: '#173831', groundFill: '#4E7D73', groundSub: '#345952',
-          farSil: '#78A69E', midSil: '#4B7D74', nearSil: '#254F47',
-          dinoPrimary: '#132A26', dinoSecondary: '#3E7A6E', dinoEye: '#FDE047', uiText: '#102824'
-        },
-        '3A': {
-          majorPhase: 3, stage: 1,
-          bannerTitle: '[ EARLY CRETACEOUS : APEX T-REX ]',
-          bannerSub: '초기 백악기 (2,000~2,500) — 소행성 출현! 꽃피는 목련 숲과 트리케라톱스·벨로시랩터',
-          koTitle: '[1부 · 3-A] 초기 백악기 (2,000~2,500) — "번성의 정점과 소행성의 징조"',
-          badge: 'STAGE 1: 3-A CRETACEOUS',
-          skyTop: '#C5D5E4', skyBottom: '#EBC3AC', groundLine: '#383447', groundFill: '#8E8878', groundSub: '#6B6659',
-          farSil: '#B8B0B8', midSil: '#857887', nearSil: '#574B5C',
-          dinoPrimary: '#282A3E', dinoSecondary: '#5C6078', dinoEye: '#FFD166', uiText: '#282A3E'
-        },
-        '3B': {
-          majorPhase: 3, stage: 1,
-          bannerTitle: '[ LATE CRETACEOUS : TWILIGHT OMEN ]',
-          bannerSub: '후기 백악기 (2,500~3,000) — 짙어지는 황혼! 안킬로사우루스·박치기 파키케팔로사우루스 격돌',
-          koTitle: '[1부 · 3-B] 후기 백악기 (2,500~3,000) — "불길한 황혼과 최후의 격돌"',
-          badge: 'STAGE 1: 3-B CRETACEOUS',
-          skyTop: '#6B5B8E', skyBottom: '#E08A70', groundLine: '#2B1F38', groundFill: '#78636E', groundSub: '#54434E',
-          farSil: '#8C6D8A', midSil: '#6B4E6E', nearSil: '#442C4A',
-          dinoPrimary: '#1F162B', dinoSecondary: '#6A4C78', dinoEye: '#FF9F1C', uiText: '#F8FAFC'
-        },
-        '4A': {
-          majorPhase: 4, stage: 1,
-          bannerTitle: '[ EXTINCTION IMMINENT ]',
-          bannerSub: '대멸종 카운트다운 (3,000~3,500) — 앙상한 고사목과 쓰러진 나무들, 운석 파편 낙하!',
-          koTitle: '[1부 · 4-A] 대멸종 카운트다운 (3,000~3,500) — "불타 쓰러진 숲과 종말"',
-          badge: 'STAGE 1: 4-A EXTINCTION',
-          skyTop: '#290736', skyBottom: '#E85314', groundLine: '#FF4500', groundFill: '#33121A', groundSub: '#1D080D',
-          farSil: '#4F132A', midSil: '#6E1A25', nearSil: '#3B0912',
-          dinoPrimary: '#14050A', dinoSecondary: '#8A1C24', dinoEye: '#FF3333', uiText: '#FFE5D9'
-        },
-        '4B': {
-          majorPhase: 4, stage: 1,
-          bannerTitle: '[ FINAL CATACLYSM : CRUST RUPTURE ]',
-          bannerSub: '대멸종 직전 (3,500~4,000) — 지각 붕괴 용암 기둥 분출 & 소행성 대충돌 임박!',
-          koTitle: '[1부 · 4-B] 지각 붕괴 클라이맥스 (3,500~4,000) — "깊은 흙속에 묻히다"',
-          badge: 'STAGE 1: 4-B CATACLYSM',
-          skyTop: '#14021C', skyBottom: '#FF2A00', groundLine: '#FFCC00', groundFill: '#24070B', groundSub: '#120205',
-          farSil: '#3B0814', midSil: '#590D18', nearSil: '#2E040A',
-          dinoPrimary: '#0A0204', dinoSecondary: '#B81D13', dinoEye: '#FFFF00', uiText: '#FFF3B0'
-        },
-        '5A': {
-          majorPhase: 5, stage: 2,
-          bannerTitle: '[ STAGE 2 · PALEOLITHIC & FIRST HUMANS ]',
-          bannerSub: '구석기 빙하기 (4,000~4,500) — 흙을 파고 깨어난 백골 티렉스! 원시 인류 사냥꾼과 매머드',
-          koTitle: '[2부 · 5-A] 구석기 빙하기 (4,000~4,500) — "인류의 시작과 깨어난 백골"',
-          badge: 'STAGE 2: 5-A PALEOLITHIC',
-          skyTop: '#CBD5E1', skyBottom: '#94A3B8', groundLine: '#334155', groundFill: '#E2E8F0', groundSub: '#94A3B8',
-          farSil: '#94A3B8', midSil: '#64748B', nearSil: '#475569',
-          dinoPrimary: '#F8FAFC', dinoSecondary: '#CBD5E1', dinoEye: '#FF3B30', uiText: '#1E293B'
-        },
-        '5B': {
-          majorPhase: 5, stage: 2,
-          bannerTitle: '[ NEOLITHIC VILLAGES & MEGALITHS ]',
-          bannerSub: '신석기 거석 시대 (4,500~5,000) — 고인돌 유적과 움집 마을의 원시 부족민들',
-          koTitle: '[2부 · 5-B] 신석기 거석 문화 (4,500~5,000) — "부족 마을과 거석 유적"',
-          badge: 'STAGE 2: 5-B NEOLITHIC',
-          skyTop: '#BAE6FD', skyBottom: '#D9F99D', groundLine: '#3F6212', groundFill: '#84CC16', groundSub: '#4D7C0F',
-          farSil: '#86EFAC', midSil: '#4ADE80', nearSil: '#15803D',
-          dinoPrimary: '#F8FAFC', dinoSecondary: '#E2E8F0', dinoEye: '#FF3B30', uiText: '#14532D'
-        },
-        '6A': {
-          majorPhase: 6, stage: 2,
-          bannerTitle: '[ ANCIENT EMPIRES : PYRAMID & PARTHENON ]',
-          bannerSub: '고대 문명 (5,000~5,500) — 피라미드·스핑크스·파르테논 신전과 고대 시민·전차 군단!',
-          koTitle: '[2부 · 6-A] 고대 제국 시대 (5,000~5,500) — "피라미드와 신전의 도시"',
-          badge: 'STAGE 2: 6-A ANCIENT',
-          skyTop: '#FEF08A', skyBottom: '#FDBA74', groundLine: '#9A3412', groundFill: '#FDE047', groundSub: '#CA8A04',
-          farSil: '#FCD34D', midSil: '#D97706', nearSil: '#92400E',
-          dinoPrimary: '#FFFBEB', dinoSecondary: '#FDE68A', dinoEye: '#EF4444', uiText: '#451A03'
-        },
-        '6B': {
-          majorPhase: 6, stage: 2,
-          bannerTitle: '[ MEDIEVAL CASTLES & STEAM CLOCKTOWER ]',
-          bannerSub: '중세 & 산업혁명 (5,500~6,000) — 고딕 성채·빅벤 시계탑·풍차·증기 공장과 기마 기사!',
-          koTitle: '[2부 · 6-B] 중세 & 증기 산업혁명 (5,500~6,000) — "시계탑과 증기기관"',
-          badge: 'STAGE 2: 6-B INDUSTRIAL',
-          skyTop: '#78716C', skyBottom: '#D6D3D1', groundLine: '#292524', groundFill: '#57534E', groundSub: '#44403C',
-          farSil: '#A8A29E', midSil: '#78716C', nearSil: '#44403C',
-          dinoPrimary: '#F8FAFC', dinoSecondary: '#CBD5E1', dinoEye: '#F97316', uiText: '#1C1917'
-        },
-        '7A': {
-          majorPhase: 7, stage: 2,
-          bannerTitle: '[ MODERN METROPOLIS : BANK & LANDMARKS ]',
-          bannerSub: '현대 대도시 (6,000~6,500) — 은행($)·대형 전광판·랜드마크 타워·현수교와 도심 시민들!',
-          koTitle: '[2부 · 7-A] 현대 메트로폴리스 (6,000~6,500) — "은행·전광판·랜드마크 빌딩 숲"',
-          badge: 'STAGE 2: 7-A MODERN',
-          skyTop: '#38BDF8', skyBottom: '#E0F2FE', groundLine: '#0F172A', groundFill: '#334155', groundSub: '#1E293B',
-          farSil: '#94A3B8', midSil: '#475569', nearSil: '#1E293B',
-          dinoPrimary: '#FFFFFF', dinoSecondary: '#E2E8F0', dinoEye: '#EF4444', uiText: '#0F172A'
-        },
-        '7B': {
-          majorPhase: 7, stage: 2,
-          bannerTitle: '[ MODERN NIGHT : NEON BILLBOARDS ]',
-          bannerSub: '현대 야간 비상사태 (6,500~7,000) — 화려한 야간 전광판·서치라이트와 경찰 추격전!',
-          koTitle: '[2부 · 7-B] 현대 도심 야간 추격전 (6,500~7,000) — "야간 네온 전광판과 비상사태"',
-          badge: 'STAGE 2: 7-B LOCKDOWN',
-          skyTop: '#0F172A', skyBottom: '#312E81', groundLine: '#FACC15', groundFill: '#1E293B', groundSub: '#0F172A',
-          farSil: '#1E1B4B', midSil: '#312E81', nearSil: '#1E293B',
-          dinoPrimary: '#F8FAFC', dinoSecondary: '#94A3B8', dinoEye: '#38BDF8', uiText: '#F8FAFC'
-        },
-        '8A': {
-          majorPhase: 8, stage: 2,
-          bannerTitle: '[ SCI-FI 2200 : MEGA-TOWERS & UFO BOSS ]',
-          bannerSub: '초미래 문명 (7,000~7,500) — 초고층 메가타워, SF UFO 편대 & 중간보스 UFO 레이저 결전!',
-          koTitle: '[2부 · 8-A] 초미래 SF 메가시티 (7,000~7,500) — "초고층 타워와 UFO 중간보스전"',
-          badge: 'STAGE 2: 8-A UFO BOSS',
-          skyTop: '#120324', skyBottom: '#701A75', groundLine: '#06B6D4', groundFill: '#0F172A', groundSub: '#020617',
-          farSil: '#3B0764', midSil: '#581C87', nearSil: '#2E1065',
-          dinoPrimary: '#ECFEFF', dinoSecondary: '#67E8F9', dinoEye: '#F43F5E', uiText: '#22D3EE'
-        },
-        '8B': {
-          majorPhase: 8, stage: 2,
-          bannerTitle: '[ FAR FUTURE 3000 : HOT PURSUIT ]',
-          bannerSub: '초미래 서기 3000년 (7,500~8,000) — 뒤에서 맹추격해오는 크로노 부대! 8,000점 앞길 차단 포위!',
-          koTitle: '[2부 · 8-B] 초미래 추격전 (7,500~8,000) — "뒤에서 따라붙는 포위망"',
-          badge: 'STAGE 2: 8-B PURSUIT',
-          skyTop: '#020617', skyBottom: '#0F766E', groundLine: '#2DD4BF', groundFill: '#0F172A', groundSub: '#020617',
-          farSil: '#134E4A', midSil: '#115E59', nearSil: '#042F2E',
-          dinoPrimary: '#F0FDFA', dinoSecondary: '#5EEAD4', dinoEye: '#FBBF24', uiText: '#99F6E4'
-        }
-      };
-
-      function getSubPhaseForScore(s) {
-        if (s < 500) return '1A';
-        if (s < 1000) return '1B';
-        if (s < 1500) return '2A';
-        if (s < 2000) return '2B';
-        if (s < 2500) return '3A';
-        if (s < 3000) return '3B';
-        if (s < 3500) return '4A';
-        if (s < 4000) return '4B';
-        if (s < 4500) return '5A';
-        if (s < 5000) return '5B';
-        if (s < 5500) return '6A';
-        if (s < 6000) return '6B';
-        if (s < 6500) return '7A';
-        if (s < 7000) return '7B';
-        if (s < 7500) return '8A';
-        return '8B';
-      }
-
-      const canvas = document.getElementById('gameCanvas');
-      const ctx = canvas.getContext('2d');
-      const W = 800;
-      const H = 300;
-      const GROUND_Y = 252;
-
-      const STATE = {
-        READY: 'READY',
-        PLAYING: 'PLAYING',
-        IMPACT_CUTSCENE: 'IMPACT_CUTSCENE',
-        STAGE1_BURIED_ENDING: 'STAGE1_BURIED_ENDING',
-        STAGE2_AWAKEN_CUTSCENE: 'STAGE2_AWAKEN_CUTSCENE',
-        STAGE2_CAPTURE_CUTSCENE: 'STAGE2_CAPTURE_CUTSCENE',
-        FINAL_EPILOGUE: 'FINAL_EPILOGUE',
-        GAMEOVER: 'GAMEOVER'
-      };
-
-      let gameState = STATE.READY;
-      let score = 0;
-      let highScore = 0;
-      try {
-        highScore = parseInt(localStorage.getItem('dino_66m_hi') || '0', 10) || 0;
-      } catch (e) {
-        highScore = 0;
-      }
-
-      let currentSubPhase = '1A';
-      let currentPhase = 1;
-      let currentStage = 1;
-      let invincible = false;
-      let isMobileMode = false;
-      let userOverrodeDeviceMode = false;
-      let gameSpeed = 5.6;
-      let frameCount = 0;
-      let lastMilestone = 0;
-      let deathReason = '';
-
-      let activeTheme = { ...SUBPHASE_THEMES['1A'] };
-
-      const player = {
-        x: 92,
-        y: GROUND_Y,
-        vy: 0,
-        gravity: 0.68,
-        jumpForce: -12.8,
-        isJumping: false,
-        isDucking: false,
-        evolved: false,
-        isSkeleton: false,
-        evolveFlashTimer: 0,
-        animTimer: 0,
-        legFrame: 0,
-        lookingUp: false,
-
-        getSpriteAndScale() {
-          if (this.lookingUp) {
-            return { sprite: this.isSkeleton ? SPRITES.TREX_FOSSIL : SPRITES.TREX_LOOK_UP, scale: 2.38 };
-          }
-          const f = this.isJumping ? 0 : (this.legFrame % 4);
-          if (this.isSkeleton) {
-            const spr = this.isDucking ? SPRITES.SKEL_DUCKFrames[f] : SPRITES.SKEL_RUNFrames[f];
-            return { sprite: spr, scale: 2.42 };
-          }
-          if (!this.evolved) {
-            const spr = this.isDucking ? SPRITES.PROTO_DUCKFrames[f] : SPRITES.PROTO_RUNFrames[f];
-            return { sprite: spr, scale: 2.2 };
-          }
-          const tScale = currentPhase >= 3 ? 2.42 : 2.25;
-          const spr = this.isDucking ? SPRITES.TREX_DUCKFrames[f] : SPRITES.TREX_RUNFrames[f];
-          return { sprite: spr, scale: tScale };
-        },
-        getWidth() {
-          const { sprite, scale } = this.getSpriteAndScale();
-          return sprite[0].length * scale;
-        },
-        getHeight() {
-          const { sprite, scale } = this.getSpriteAndScale();
-          return sprite.length * scale;
-        },
-        getHitbox() {
-          const w = this.getWidth();
-          const h = this.getHeight();
-          return { x: this.x + 8, y: this.y - h + 6, w: w - 16, h: h - 8 };
-        }
-      };
-
-      const banner = {
-        text: '',
-        subtext: '',
-        alpha: 0,
-        timer: 0,
-        maxTimer: 165,
-        isWarning: false,
-        trigger(text, subtext, isWarning = false) {
-          this.text = text;
-          this.subtext = subtext;
-          this.timer = this.maxTimer;
-          this.alpha = 1;
-          this.isWarning = isWarning;
-        }
-      };
-
-      // Phase 8 Mid-Boss UFO State Machine (Fires 6 lasers, 0.5s = 30 frames each, up/down, no normal obstacles)
-      const ufoBoss = {
-        triggeredInRun: false,
-        active: false,
-        state: 'IDLE', // 'APPROACHING', 'AIMING', 'FIRING', 'COOLDOWN', 'RETREATING'
-        x: W + 120,
-        y: 120,
-        targetY: 165,
-        shotsFired: 0,
-        maxShots: 6,
-        stateTimer: 0,
-        isHighLaser: true, // true = High laser (duck to dodge), false = Low laser (jump to dodge)
-        patternSequence: [true, false, true, false, false, true], // 6 alternating/varied shots
-        reset() {
-          this.triggeredInRun = false;
-          this.active = false;
-          this.state = 'IDLE';
-          this.x = W + 120;
-          this.y = 120;
-          this.shotsFired = 0;
-          this.stateTimer = 0;
-        },
-        startEncounter() {
-          this.triggeredInRun = true;
-          this.active = true;
-          this.state = 'APPROACHING';
-          this.x = W + 110;
-          this.y = 110;
-          this.shotsFired = 0;
-          this.stateTimer = 0;
-          this.isHighLaser = this.patternSequence[0];
-          this.targetY = this.isHighLaser ? (GROUND_Y - 58) : (GROUND_Y - 22);
-          obstacles = []; // Clear all normal obstacles immediately!
-          sound.playWarningAlarm();
-          banner.trigger('[ WARNING : UFO MID-BOSS ]', '초미래 UFO 전함 출현! 위/아래 레이저 6연발을 점프·숙이기로 피하세요!', true);
-        }
-      };
-
-      let obstacles = [];
-      let obstacleSpawnTimer = 0;
-      let groundPebbles = [];
-      let footstepDust = [];
-      let undergroundFossils = [];
-      let skyClouds = [];
-      let distantFlocks = [];
-      let farLandforms = [];
-      let forestTrees = [];
-      let midLandmarks = [];
-      let bgRoamingDinos = []; // Actively moving background dinosaurs in Stage 1!
-      let bgHumans = []; // Stage 2 Humans across history!
-      let bgUfos = [];   // Phase 8 Sci-Fi background UFOs & Flying cars!
-      let nearScenery = [];
-      let volcanoSmoke = [];
-      let panicStampede = [];
-      let ashParticles = [];
-      let evolutionSparks = [];
-
-      const cutscene = {
-        timer: 0,
-        meteorX: 740,
-        meteorY: 25,
-        meteorScale: 2.4,
-        impacted: false,
-        whiteoutAlpha: 0,
-        whiteoutHoldTimer: 0,
-        shockwaveStep: 0
-      };
-
-      const buriedScene = {
-        fadeFromWhite: 1.0,
-        timer: 0,
-        soilGrains: []
-      };
-
-      const awakenScene = {
-        timer: 0,
-        phase: 'SLEEP', // 'SLEEP' -> 'DIGGING' -> 'LEAP_OUT' -> 'SURFACE_RUN'
-        surfaceY: 148,
-        fossilX: W / 2 - 34,
-        fossilY: 228,
-        vy: 0,
-        dugPath: [],
-        dirtClods: []
-      };
-
-      // Stage 2 Ending: Pursuers chase from behind (left), accelerate, overtake to the front (right), block, and surround!
-      const captureScene = {
-        timer: 0,
-        phase: 'OVERTAKE', // 'OVERTAKE' -> 'BLOCK_STOP' -> 'STASIS'
-        dinoX: 110,
-        rearMechX: 18,
-        overtakeMechX: 25,
-        overtakeCarX: -10,
-        drone1X: 30,
-        drone2X: -20,
-        droneY: 58,
-        stasisActive: false,
-        crystalAlpha: 0,
-        whiteoutAlpha: 0
-      };
-
-      const epilogue = {
-        fadeFromWhite: 1.0,
-        timer: 0,
-        line1Full: '기원전 6,600만 년의 태고에서 머나먼 미래까지...',
-        line2Full: '멸종은 끝이 아니라, 영원히 기억될 역사다.',
-        line1Shown: '',
-        line2Shown: '',
-        visitors: []
-      };
-
-      function initWorldDecor() {
-        groundPebbles = [];
-        for (let i = 0; i < 48; i++) {
-          groundPebbles.push({
-            x: Math.random() * W,
-            y: GROUND_Y + 4 + Math.random() * 14,
-            w: 2 + Math.floor(Math.random() * 6),
-            h: 2
-          });
-        }
-        footstepDust = [];
-
-        undergroundFossils = [
-          { x: 90, y: GROUND_Y + 22, kind: 'ammonite' },
-          { x: 240, y: GROUND_Y + 26, kind: 'bone' },
-          { x: 410, y: GROUND_Y + 20, kind: 'skull' },
-          { x: 580, y: GROUND_Y + 25, kind: 'ammonite' },
-          { x: 730, y: GROUND_Y + 23, kind: 'bone' }
-        ];
-
-        skyClouds = [
-          { x: 80, y: 42, w: 68, h: 16, speed: 0.22 },
-          { x: 290, y: 62, w: 88, h: 20, speed: 0.18 },
-          { x: 520, y: 36, w: 74, h: 16, speed: 0.26 },
-          { x: 710, y: 55, w: 64, h: 14, speed: 0.2 }
-        ];
-
-        distantFlocks = [
-          { x: 180, y: 68, count: 4, speed: 0.65, phase: 0 },
-          { x: 460, y: 52, count: 5, speed: 0.55, phase: 1.5 },
-          { x: 710, y: 78, count: 3, speed: 0.72, phase: 3.1 }
-        ];
-
-        farLandforms = [
-          { x: 30, w: 120, h: 72, kind: 'volcano', smokeTimer: 5 },
-          { x: 175, w: 145, h: 58, kind: 'mesa', smokeTimer: 0 },
-          { x: 350, w: 110, h: 88, kind: 'caldera', smokeTimer: 18 },
-          { x: 490, w: 155, h: 64, kind: 'waterfall_cliff', smokeTimer: 0 },
-          { x: 665, w: 130, h: 94, kind: 'twin_peaks', smokeTimer: 30 }
-        ];
-
-        // 28 Lush Trees / 10 Varied Building Architectures for Modern (Phase 7) & Far Future (Phase 8)
-        const bTypes = [
-          'STANDARD', 'BILLBOARD', 'BANK', 'LANDMARK_TOWER', 'CAFE_SHOP',
-          'BROADCAST', 'ARCH_DOME', 'HOSPITAL_HOTEL', 'TWIN_BRIDGE_TOWER', 'STEPPED_PYRAMID_CORP'
-        ];
-        forestTrees = [];
-        for (let i = 0; i < 28; i++) {
-          forestTrees.push({
-            x: i * 32 + Math.random() * 14,
-            h: 34 + Math.floor(Math.random() * 46),
-            crownW: 28 + Math.floor(Math.random() * 28),
-            layer: i % 2,
-            seed: i,
-            bType: bTypes[i % bTypes.length]
-          });
-        }
-
-        midLandmarks = [
-          { x: 40, slot: 0, walkSpeed: 1.55, dir: -1, anim: 0 },
-          { x: 185, slot: 1, walkSpeed: 1.95, dir: 1, anim: 14 },
-          { x: 330, slot: 2, walkSpeed: 1.75, dir: -1, anim: 28 },
-          { x: 475, slot: 3, walkSpeed: 2.15, dir: 1, anim: 7 },
-          { x: 620, slot: 4, walkSpeed: 1.65, dir: -1, anim: 21 },
-          { x: 760, slot: 5, walkSpeed: 2.05, dir: 1, anim: 35 }
-        ];
-
-        // Extra roaming dinosaur herds & flyers that visibly travel across the plains in Stage 1
-        bgRoamingDinos = [
-          { x: 120, yOffset: 0, species: 'proto_pack', dir: 1, speed: 2.2, anim: 3 },
-          { x: 380, yOffset: 0, species: 'raptor_dash', dir: -1, speed: 2.8, anim: 11 },
-          { x: 590, yOffset: 0, species: 'herbivore_walk', dir: 1, speed: 1.7, anim: 19 },
-          { x: 730, yOffset: -78, species: 'sky_pterosaur', dir: -1, speed: 2.5, anim: 27 }
-        ];
-
-        // Stage 2 Background Humans with diverse fashion, skin tones, hairstyles, hats & outfits!
-        const skinPalette = ['#FDE68A', '#FCD34D', '#FDBA74', '#E0A96D', '#C68642', '#FFE4E6'];
-        const hairPalette = ['#1C1917', '#78350F', '#B45309', '#FACC15', '#DC2626', '#E2E8F0', '#9333EA', '#0284C7'];
-        bgHumans = [];
-        for (let i = 0; i < 14; i++) {
-          bgHumans.push({
-            x: i * 62 + Math.random() * 28,
-            role: i % 6, // 6 distinct fashion/outfit archetypes per era!
-            skin: skinPalette[i % skinPalette.length],
-            hairCol: hairPalette[(i * 3) % hairPalette.length],
-            hairStyle: i % 5, // 0: spiky, 1: long/ponytail, 2: bun, 3: cap/hat, 4: headband/hood
-            dir: i % 3 === 0 ? 1 : -1,
-            speedOffset: (i % 3 === 0 ? -1.1 : (0.55 + (i % 4) * 0.28)),
-            anim: i * 7
-          });
-        }
-
-        // Phase 8 Sci-Fi Background UFOs & Flying Traffic
-        bgUfos = [
-          { x: 140, y: 42, speed: 1.4, phase: 0, hasBeam: true, kind: 'saucer' },
-          { x: 390, y: 68, speed: 2.1, phase: 2.1, hasBeam: false, kind: 'saucer' },
-          { x: 640, y: 34, speed: 0.85, phase: 4.0, hasBeam: true, kind: 'mothership' },
-          { x: 260, y: 95, speed: 3.2, phase: 1.2, hasBeam: false, kind: 'skycar' },
-          { x: 550, y: 112, speed: 2.8, phase: 3.5, hasBeam: false, kind: 'skycar' }
-        ];
-
-        nearScenery = [];
-        for (let i = 0; i < 20; i++) {
-          nearScenery.push({
-            x: i * 44 + Math.random() * 18,
-            variant: i % 7
-          });
-        }
-
-        buriedScene.soilGrains = [];
-        for (let i = 0; i < 140; i++) {
-          buriedScene.soilGrains.push({
-            x: Math.floor(Math.random() * W),
-            y: 108 + Math.floor(Math.random() * (H - 112)),
-            w: 3 + Math.floor(Math.random() * 8),
-            h: 2 + Math.floor(Math.random() * 4),
-            tone: i % 3
-          });
-        }
-
-        volcanoSmoke = [];
-        panicStampede = [];
-        ashParticles = [];
-        evolutionSparks = [];
-      }
-
-      function initEpilogueVisitors() {
-        epilogue.visitors = [
-          { x: 80, type: 'child_hat', speed: 0.48, step: 0, topCol: '#EF4444', botCol: '#1D4ED8', hatCol: '#FACC15', skin: '#FDE68A' },
-          { x: 215, type: 'photographer', speed: 0.36, step: 10, flashTimer: 85, topCol: '#10B981', botCol: '#1E293B', hairCol: '#78350F', skin: '#FDBA74' },
-          { x: 360, type: 'fashion_dress', speed: 0.42, step: 5, topCol: '#EC4899', botCol: '#BE185D', hairCol: '#FACC15', skin: '#FFE4E6' },
-          { x: 505, type: 'suit_curator', speed: 0.52, step: 14, topCol: '#3B82F6', botCol: '#0F172A', hairCol: '#1C1917', skin: '#E0A96D' },
-          { x: 645, type: 'hoodie_student', speed: 0.44, step: 22, topCol: '#A855F7', botCol: '#334155', hatCol: '#22D3EE', skin: '#FCD34D' }
-        ];
-      }
-
-      initWorldDecor();
-      initEpilogueVisitors();
-
-      function hideAllOverlays() {
-        const bo = document.getElementById('buriedOverlay');
-        const eo = document.getElementById('epilogueOverlay');
-        const io = document.getElementById('introGuideOverlay');
-        if (bo) bo.classList.add('hidden');
-        if (eo) eo.classList.add('hidden');
-        if (io) io.classList.add('hidden');
-      }
-
-      function triggerSubPhaseChange(newSubKey) {
-        const prevMajor = currentPhase;
-        currentSubPhase = newSubKey;
-        const cfg = SUBPHASE_THEMES[newSubKey];
-        currentPhase = cfg.majorPhase;
-        currentStage = cfg.stage;
-        player.isSkeleton = currentStage === 2;
-        player.evolved = currentStage === 2 || currentPhase >= 2;
-
-        sound.startBGM(currentPhase);
-
-        const isWarning = currentPhase === 4 || newSubKey === '8B';
-        banner.trigger(cfg.bannerTitle, cfg.bannerSub, isWarning);
-
-        if (newSubKey === '2A' || newSubKey === '3A' || newSubKey === '5A') {
-          player.evolveFlashTimer = 70;
-          sound.playEvolution();
-          for (let i = 0; i < 28; i++) {
-            evolutionSparks.push({
-              x: player.x + 22,
-              y: player.y - 22,
-              vx: (Math.random() - 0.5) * 6.5,
-              vy: (Math.random() - 0.7) * 6.5,
-              life: 35 + Math.random() * 22
+          if (frameCount % 2 === 0) {
+            particles.push({
+              type: 'dust',
+              x: fb.x + 4,
+              y: fb.y + 4,
+              vx: -fb.vx * 0.15,
+              vy: -0.4,
+              size: 4,
+              color: frameCount % 4 === 0 ? '#facc15' : '#f97316',
+              gravity: 0,
+              life: 8
             });
           }
-        } else if (newSubKey === '4A' || newSubKey === '4B' || newSubKey === '8B') {
-          sound.playWarningAlarm();
-        } else if (prevMajor !== currentPhase) {
-          sound.playEvolution();
-        } else {
-          player.evolveFlashTimer = 35;
-          sound.playSubPhaseShift();
+
+          fb.x += fb.vx;
+          let hitWall = false;
+          for (let j = 0; j < solids.length; j++) {
+            if (aabbOverlap(fb, solids[j])) {
+              hitWall = true;
+              break;
+            }
+          }
+          if (hitWall || fb.x <= 0 || fb.x + fb.w >= maxW) {
+            sound.bump();
+            spawnFireBurst(fb.x + 6, fb.y + 6);
+            fireballs.splice(i, 1);
+            continue;
+          }
+
+          fb.vy += 0.48;
+          if (fb.vy > 8.5) fb.vy = 8.5;
+          fb.y += fb.vy;
+
+          let destroyedByCeiling = false;
+          for (let j = 0; j < solids.length; j++) {
+            const s = solids[j];
+            if (aabbOverlap(fb, s)) {
+              if (fb.vy > 0) {
+                fb.y = s.y - fb.h;
+                fb.vy = -5.8;
+                fb.bounces++;
+                if (fb.bounces > fb.maxBounces) destroyedByCeiling = true;
+              } else {
+                destroyedByCeiling = true;
+              }
+              break;
+            }
+          }
+          if (destroyedByCeiling) {
+            spawnFireBurst(fb.x + 6, fb.y + 6);
+            fireballs.splice(i, 1);
+            continue;
+          }
+
+          // 몬스터 타격 (딱정벌레 beetle은 등껍질이 단단해 파이어볼 면역!)
+          let hitTarget = false;
+          for (let k = enemies.length - 1; k >= 0; k--) {
+            const en = enemies[k];
+            if (en.state !== 'squished' && aabbOverlap(fb, en)) {
+              if (en.type === 'beetle') {
+                sound.bump();
+                spawnDust(fb.x, fb.y, 5, '#93c5fd');
+                addPopup(en.x, en.y - 10, 'SHELL IMMUNE!', '#93c5fd');
+                hitTarget = true;
+                break;
+              }
+              sound.kick();
+              score += 200;
+              spawnFireBurst(en.x + en.w / 2, en.y + en.h / 2);
+              addPopup(en.x, en.y - 10, 'FIRE +200', '#fb923c');
+              enemies.splice(k, 1);
+              hitTarget = true;
+              break;
+            }
+          }
+
+          if (!hitTarget) {
+            for (let p = 0; p < piranhas.length; p++) {
+              const pir = piranhas[p];
+              if (pir.alive && pir.y < pir.baseY - 6 && aabbOverlap(fb, pir)) {
+                pir.alive = false;
+                sound.kick();
+                score += 300;
+                spawnFireBurst(pir.x + pir.w / 2, pir.y + pir.h / 2);
+                addPopup(pir.x, pir.y - 10, 'FIRE +300', '#fb923c');
+                hitTarget = true;
+                break;
+              }
+            }
+          }
+
+          if (hitTarget) {
+            fireballs.splice(i, 1);
+          }
         }
-        updateHeaderHUD();
       }
 
-      function jumpToScoreCheat(targetScore) {
-        sound.init();
-        hideAllOverlays();
-        if (targetScore === 4000) {
-          startStage2AwakenCutscene();
+      // ==========================================
+      // 9. 블록 타격 및 아이템 생성
+      // ==========================================
+      function gainCoin() {
+        coins += 1;
+        score += 200;
+        if (coins >= 100) {
+          coins -= 100;
+          lives += 1;
+          sound.oneUp();
+          addPopup(player.x, player.y - 20, '100 COINS! 1-UP!', '#4ade80');
+        } else {
+          sound.coin();
+        }
+      }
+
+      function triggerBlockHit(block) {
+        if (block.type === 'hard' || block.type === 'pipe' || block.type === 'ground' || block.type === 'ug_ground') {
+          sound.bump();
+          return;
+        }
+        if (block.type === 'empty') {
+          sound.bump();
           return;
         }
 
-        gameState = STATE.PLAYING;
-        score = Math.max(0, Math.min(STAGE2_END_SCORE - 5, targetScore));
-        lastMilestone = Math.floor(score / 100);
-        obstacles = [];
-        obstacleSpawnTimer = 26;
-        player.x = 92;
-        player.y = GROUND_Y;
-        player.vy = 0;
-        player.isJumping = false;
-        player.isDucking = false;
-        player.lookingUp = false;
+        block.bumpVy = -4.2;
 
-        ufoBoss.reset();
+        const topSensor = { x: block.x + 2, y: block.y - 10, w: block.w - 4, h: 12 };
+        enemies.forEach((en) => {
+          if (en.state !== 'squished' && aabbOverlap(topSensor, en)) {
+            en.state = 'squished';
+            en.squishTimer = 25;
+            score += 100;
+            sound.stomp();
+            addPopup(en.x, en.y - 10, '+100', '#fde047');
+          }
+        });
 
-        const subKey = getSubPhaseForScore(score);
-        currentSubPhase = subKey;
-        currentPhase = SUBPHASE_THEMES[subKey].majorPhase;
-        currentStage = SUBPHASE_THEMES[subKey].stage;
-        player.isSkeleton = currentStage === 2;
-        player.evolved = currentStage === 2 || currentPhase >= 2;
-        activeTheme = { ...SUBPHASE_THEMES[subKey] };
-
-        triggerSubPhaseChange(subKey);
-
-        // If user clicked [9] (7,000 PTS) to test Phase 8 & UFO Boss, start UFO Boss right away!
-        if (targetScore === 7000) {
-          ufoBoss.startEncounter();
+        if (block.content === 'multicoin' && block.coinsLeft > 0) {
+          block.coinsLeft--;
+          gainCoin();
+          items.push({
+            type: 'popCoin',
+            x: block.x + 8,
+            y: block.y - 16,
+            w: 16,
+            h: 22,
+            vy: -7.5,
+            life: 28
+          });
+          addPopup(block.x + 4, block.y - 24, '+200', '#facc15');
+          if (block.coinsLeft <= 0) {
+            block.type = 'empty';
+            block.content = null;
+          }
+          return;
         }
-        updateHeaderHUD();
-      }
 
-      function startImpactCutscene() {
-        hideAllOverlays();
-        gameState = STATE.IMPACT_CUTSCENE;
-        sound.stopBGM();
-        const badgeEl = document.getElementById('bgmTrackName');
-        if (badgeEl) badgeEl.textContent = 'BGM: K-Pg 소행성 대충돌 (Impact)';
+        if (block.type === 'question' || (block.type === 'brick' && block.content)) {
+          block.type = 'empty';
 
-        score = STAGE1_END_SCORE;
-        if (score > highScore) {
-          highScore = STAGE1_END_SCORE;
-          try { localStorage.setItem('dino_66m_hi', String(highScore)); } catch (e) {}
+          if (block.content === 'coin') {
+            gainCoin();
+            items.push({
+              type: 'popCoin',
+              x: block.x + 8,
+              y: block.y - 16,
+              w: 16,
+              h: 22,
+              vy: -7.5,
+              life: 28
+            });
+            addPopup(block.x + 4, block.y - 24, '+200', '#facc15');
+          } else if (block.content === 'mushroom') {
+            sound.itemSpawn();
+            const spawnType = player.powerLevel >= 1 ? 'flower' : 'mushroom';
+            items.push({
+              type: spawnType,
+              x: block.x + 2,
+              y: block.y - 4,
+              targetRiseY: block.y - 28,
+              w: 28,
+              h: 28,
+              vx: spawnType === 'mushroom' ? 1.85 : 0,
+              vy: 0,
+              state: 'rising'
+            });
+          } else if (block.content === '1up') {
+            sound.itemSpawn();
+            items.push({
+              type: '1up',
+              x: block.x + 2,
+              y: block.y - 4,
+              targetRiseY: block.y - 28,
+              w: 28,
+              h: 28,
+              vx: 1.9,
+              vy: 0,
+              state: 'rising'
+            });
+          } else if (block.content === 'flower') {
+            sound.itemSpawn();
+            items.push({
+              type: 'flower',
+              x: block.x + 2,
+              y: block.y - 4,
+              targetRiseY: block.y - 28,
+              w: 28,
+              h: 28,
+              vx: 0,
+              vy: 0,
+              state: 'rising'
+            });
+          } else if (block.content === 'star') {
+            sound.itemSpawn();
+            items.push({
+              type: 'star',
+              x: block.x + 2,
+              y: block.y - 4,
+              targetRiseY: block.y - 28,
+              w: 28,
+              h: 28,
+              vx: 2.3,
+              vy: -5.5,
+              state: 'rising'
+            });
+          }
+          block.content = null;
+        } else if (block.type === 'brick' || block.type === 'ug_brick') {
+          if (player.powerLevel >= 1) {
+            sound.brickSmash();
+            score += 50;
+            const theme = STAGE_THEMES[currentStage] || STAGE_THEMES[1];
+            spawnBrickDebris(block.x, block.y, block.type === 'ug_brick' ? '#2563eb' : theme.brickMain);
+            const idx = solids.indexOf(block);
+            if (idx !== -1) solids.splice(idx, 1);
+          } else {
+            sound.bump();
+          }
         }
-        obstacles = [];
-        player.isJumping = false;
-        player.isDucking = false;
-        player.vy = 0;
-        player.y = GROUND_Y;
-        player.x = 120;
-        player.lookingUp = true;
-
-        cutscene.timer = 0;
-        cutscene.meteorX = 700;
-        cutscene.meteorY = 16;
-        cutscene.meteorScale = 2.6;
-        cutscene.impacted = false;
-        cutscene.whiteoutAlpha = 0;
-        cutscene.whiteoutHoldTimer = 0;
-        cutscene.shockwaveStep = 0;
-
-        sound.playMeteorDescentRoar(2.2);
-        updateHeaderHUD();
       }
 
-      function startStage1BuriedEnding() {
-        hideAllOverlays();
-        gameState = STATE.STAGE1_BURIED_ENDING;
-        sound.startBGM('BURIED');
-        buriedScene.fadeFromWhite = 1.0;
-        buriedScene.timer = 0;
-        const bo = document.getElementById('buriedOverlay');
-        if (bo) bo.classList.remove('hidden');
-        updateHeaderHUD();
+      // ==========================================
+      // 10. 플레이어 피격, 목숨 3개 차감 및 스테이지 진행 처리
+      // ==========================================
+      function setPlayerPower(newLevel) {
+        const oldBottom = player.y + player.h;
+        player.powerLevel = newLevel;
+        player.isSuper = newLevel >= 1;
+        player.h = newLevel >= 1 ? 48 : 32;
+        player.y = oldBottom - player.h;
       }
 
-      function startStage2AwakenCutscene() {
-        hideAllOverlays();
-        sound.init();
-        sound.stopBGM();
-        sound.playEvolution();
-        gameState = STATE.STAGE2_AWAKEN_CUTSCENE;
-        score = STAGE1_END_SCORE;
-        currentStage = 2;
-        currentSubPhase = '5A';
-        currentPhase = 5;
-        activeTheme = { ...SUBPHASE_THEMES['5A'] };
-
-        awakenScene.timer = 0;
-        awakenScene.phase = 'SLEEP';
-        awakenScene.surfaceY = 148;
-        awakenScene.fossilX = W / 2 - 34;
-        awakenScene.fossilY = 228; // Deep underground in solid soil
-        awakenScene.vy = 0;
-        awakenScene.dugPath = [];
-        awakenScene.dirtClods = [];
-        updateHeaderHUD();
-      }
-
-      function beginStage2Playing() {
-        hideAllOverlays();
-        gameState = STATE.PLAYING;
-        score = STAGE1_END_SCORE + 1;
-        lastMilestone = Math.floor(score / 100);
-        currentStage = 2;
-        currentSubPhase = '5A';
-        currentPhase = 5;
-        activeTheme = { ...SUBPHASE_THEMES['5A'] };
-
-        obstacles = [];
-        obstacleSpawnTimer = 36;
-        panicStampede = [];
-        ashParticles = [];
-        ufoBoss.reset();
-
-        player.x = 92;
-        player.y = GROUND_Y;
-        player.vy = 0;
-        player.isJumping = false;
-        player.isDucking = false;
-        player.lookingUp = false;
-        player.isSkeleton = true;
-        player.evolved = true;
-        player.evolveFlashTimer = 45;
-
-        sound.startBGM(5);
-        banner.trigger(SUBPHASE_THEMES['5A'].bannerTitle, SUBPHASE_THEMES['5A'].bannerSub, false);
-        updateHeaderHUD();
-      }
-
-      function startStage2CaptureCutscene() {
-        hideAllOverlays();
-        gameState = STATE.STAGE2_CAPTURE_CUTSCENE;
-        sound.stopBGM();
-        sound.playWarningAlarm();
-        const badgeEl = document.getElementById('bgmTrackName');
-        if (badgeEl) badgeEl.textContent = 'BGM: 추격대 전방 차단 및 포위·박제 작전';
-
-        score = STAGE2_END_SCORE;
-        if (score > highScore) {
-          highScore = STAGE2_END_SCORE;
-          try { localStorage.setItem('dino_66m_hi', String(highScore)); } catch (e) {}
+      function triggerPlayerDamage() {
+        if (player.invincibleTimer > 0 || player.transformTimer > 0 || player.starTimer > 0 || gameState !== 'PLAYING') {
+          return;
         }
-        obstacles = [];
-        ufoBoss.reset();
-        player.isJumping = false;
-        player.isDucking = false;
-        player.vy = 0;
-        player.y = GROUND_Y;
-        player.isSkeleton = true;
-        player.lookingUp = false;
 
-        // Start from the running pursuit positions on the left!
-        captureScene.timer = 0;
-        captureScene.phase = 'OVERTAKE';
-        captureScene.dinoX = player.x;
-        captureScene.rearMechX = 14;
-        captureScene.overtakeMechX = 22;
-        captureScene.overtakeCarX = -18;
-        captureScene.drone1X = 35;
-        captureScene.drone2X = -15;
-        captureScene.droneY = 54;
-        captureScene.stasisActive = false;
-        captureScene.crystalAlpha = 0;
-        captureScene.whiteoutAlpha = 0;
-        updateHeaderHUD();
+        if (player.powerLevel === 2) {
+          sound.powerDown();
+          setPlayerPower(1);
+          player.invincibleTimer = 110;
+          player.transformTimer = 18;
+          addPopup(player.x, player.y - 12, 'FIRE LOST!', '#fb923c');
+          spawnDust(player.x + player.w / 2, player.y + player.h / 2, 8);
+        } else if (player.powerLevel === 1) {
+          sound.powerDown();
+          setPlayerPower(0);
+          player.invincibleTimer = 110;
+          player.transformTimer = 18;
+          addPopup(player.x, player.y - 12, 'POWER DOWN!', '#f87171');
+          spawnDust(player.x + player.w / 2, player.y + player.h / 2, 8);
+        } else {
+          triggerPlayerDeath();
+        }
       }
 
-      function startFinalEpilogue() {
-        hideAllOverlays();
-        gameState = STATE.FINAL_EPILOGUE;
-        sound.startBGM('EPILOGUE');
-        epilogue.fadeFromWhite = 1.0;
-        epilogue.timer = 0;
-        epilogue.line1Shown = '';
-        epilogue.line2Shown = '';
-        initEpilogueVisitors();
-        const eo = document.getElementById('epilogueOverlay');
-        if (eo) eo.classList.remove('hidden');
-        updateHeaderHUD();
+      function triggerPlayerDeath() {
+        if (gameState !== 'PLAYING') return;
+        gameState = 'DYING';
+        lives = Math.max(0, lives - 1);
+        if (lives > 0) {
+          sound.lifeLost();
+        } else {
+          sound.gameOver();
+        }
+        player.vx = 0;
+        player.vy = -10.5;
       }
 
-      function resetGame(startImmediately = false) {
-        hideAllOverlays();
+      function respawnAfterLifeLost() {
+        // 목숨이 남아있을 때는 게임 오버 없이 즉시 체크포인트 또는 스테이지 시작점에서 스폰 무적 상태로 부활!
+        setActiveZone('OVERWORLD');
+        timeLeft = 400;
+        timeAccumulator = 0;
+        gameState = 'PLAYING';
+        warpState = null;
+        keys.jumpJustPressed = false;
+        keys.fireJustPressed = false;
+
+        player = createPlayer(checkpointReached, 0);
+        player.invincibleTimer = 120; // 2초간 부활 스폰 무적 보호!
+
+        // 부활 지점 좌우 180px 이내에 있는 몬스터들을 뒤로 밀어내어 부활 직후 스폰킬 완전 차단!
+        enemies.forEach((en) => {
+          if (Math.abs(en.x - player.x) < 180) {
+            en.x = Math.max(en.minX || 16 * TILE, player.x + 220);
+            en.vx = Math.abs(en.vx);
+          }
+        });
+
+        cameraX = Math.max(0, player.x - VIEW_W * 0.35);
+        addPopup(player.x, player.y - 16, `LIVES LEFT: ${lives}`, '#fde047');
+      }
+
+      function showModal(mode) {
+        const modal = document.getElementById('overlayModal');
+        const card = document.getElementById('modalCard');
+        const title = document.getElementById('modalTitle');
+        const sub = document.getElementById('modalSubtitle');
+        const scoreEl = document.getElementById('modalScore');
+        const coinsEl = document.getElementById('modalCoins');
+        const timeEl = document.getElementById('modalTime');
+        const nextBtn = document.getElementById('btnModalNext');
+
+        card.className = 'modal-card ' + (mode === 'CLEAR' ? 'clear' : 'gameover');
+        if (mode === 'CLEAR') {
+          if (currentStage < 5) {
+            title.textContent = `STAGE 1-${currentStage} CLEAR!`;
+            sub.textContent = `${STAGE_THEMES[currentStage].korName} 스테이지를 돌파했습니다! 다음 스테이지(${STAGE_THEMES[currentStage + 1].korName})로 진격하세요!`;
+            nextBtn.style.display = 'inline-flex';
+            nextBtn.textContent = `다음 스테이지 1-${currentStage + 1} (N)`;
+          } else {
+            title.textContent = 'ALL 5 STAGES CLEAR!';
+            sub.textContent = '축하합니다! 초원부터 쿠파의 용암 성채까지 5개 월드를 모두 제패했습니다!';
+            nextBtn.style.display = 'none';
+          }
+        } else {
+          title.textContent = 'GAME OVER';
+          sub.textContent = '목숨 3개를 모두 소진했습니다. 키보드 R 키 또는 아래 버튼을 눌러 다시 도전하세요!';
+          nextBtn.style.display = 'none';
+        }
+
+        scoreEl.textContent = String(score).padStart(6, '0');
+        coinsEl.textContent = String(coins).padStart(2, '0');
+        timeEl.textContent = String(Math.max(0, Math.ceil(timeLeft))).padStart(3, '0');
+
+        modal.classList.add('visible');
+      }
+
+      function hideModal() {
+        const modal = document.getElementById('overlayModal');
+        modal.classList.remove('visible');
+      }
+
+      function goToStage(stageNum) {
+        hideModal();
+        currentStage = Math.max(1, Math.min(5, stageNum));
+        updateStageButtonsUI();
+        checkpointReached = false;
+        timeLeft = 400;
+        timeAccumulator = 0;
+        gameState = 'PLAYING';
+        warpState = null;
+        keys.jumpJustPressed = false;
+        keys.fireJustPressed = false;
+        const prevPower = player ? player.powerLevel : 0;
+        buildStage(currentStage);
+        player = createPlayer(false, prevPower);
+        cameraX = 0;
+        addPopup(player.x + 20, player.y - 16, `STAGE 1-${currentStage}: ${STAGE_THEMES[currentStage].name}`, '#fde047');
+      }
+
+      function startFullNewGame(startStage = 1) {
+        hideModal();
+        lives = 3; // 목숨 3개로 초기화
         score = 0;
-        lastMilestone = 0;
-        currentSubPhase = '1A';
-        currentPhase = 1;
-        currentStage = 1;
-        gameSpeed = 5.6;
-        activeTheme = { ...SUBPHASE_THEMES['1A'] };
-        obstacles = [];
-        obstacleSpawnTimer = 42;
-        panicStampede = [];
-        ashParticles = [];
-        evolutionSparks = [];
-        footstepDust = [];
-        ufoBoss.reset();
-
-        player.x = 92;
-        player.y = GROUND_Y;
-        player.vy = 0;
-        player.isJumping = false;
-        player.isDucking = false;
-        player.evolved = false;
-        player.isSkeleton = false;
-        player.evolveFlashTimer = 0;
-        player.lookingUp = false;
-
-        banner.timer = 0;
-        banner.alpha = 0;
-
-        if (startImmediately) {
-          gameState = STATE.PLAYING;
-          sound.startBGM(1);
-          banner.trigger(SUBPHASE_THEMES['1A'].bannerTitle, SUBPHASE_THEMES['1A'].bannerSub, false);
-        } else {
-          gameState = STATE.READY;
-          sound.stopBGM();
-          const io = document.getElementById('introGuideOverlay');
-          if (io) io.classList.remove('hidden');
-        }
-        updateHeaderHUD();
+        coins = 0;
+        currentStage = startStage;
+        updateStageButtonsUI();
+        checkpointReached = false;
+        timeLeft = 400;
+        timeAccumulator = 0;
+        gameState = 'PLAYING';
+        warpState = null;
+        keys.jumpJustPressed = false;
+        keys.fireJustPressed = false;
+        buildStage(currentStage);
+        player = createPlayer(false, 0);
+        cameraX = 0;
       }
 
-      function createGroundObstacle(type, label, sprite, scale, speedBonus = 0, extra = {}) {
-        const w = Math.round(sprite[0].length * scale);
-        const h = Math.round(sprite.length * scale);
-        return {
-          type, label, scale,
-          x: W + 24 + (extra.offsetX || 0),
-          y: GROUND_Y,
-          w, h, speedBonus, isGround: true, ...extra
-        };
-      }
-
-      // REQUIREMENT 4: All flying obstacles fly at a clear, consistent head-level height (GROUND_Y - 28)
-      // so the player ALWAYS knows to duck (↓) underneath them without ambiguity!
-      function createFlyingObstacle(type, label, sprite, scale, speedBonus = 1.2) {
-        const w = Math.round(sprite[0].length * scale);
-        const h = Math.round(sprite.length * scale);
-        const flyBottomY = GROUND_Y - 28; // Hits standing player's head, cleanly cleared when ducking (↓)!
-        return {
-          type, label, scale,
-          x: W + 28,
-          y: flyBottomY,
-          baseY: flyBottomY,
-          w, h, speedBonus, swoop: false, isGround: false
-        };
-      }
-
-      function spawnObstacleForSubPhase(subKey) {
-        // Do NOT spawn normal obstacles while the UFO Mid-Boss is active!
-        if (ufoBoss.active) return;
-
-        const r = Math.random();
-        if (subKey === '1A') {
-          if (r < 0.55) obstacles.push(createGroundObstacle('FERN_BUSH', '원시 양치식물 덤불', SPRITES.FERN_BUSH, 2.35, 0));
-          else obstacles.push(createGroundObstacle('DESERT_ROCKS', '뾰족한 사막 바위 군집', SPRITES.DESERT_ROCKS, 2.75, 0));
-        } else if (subKey === '1B') {
-          if (r < 0.32) obstacles.push(createGroundObstacle('POSTOSUCHUS', '포스토수쿠스(지배파충류)', SPRITES.POSTOSUCHUS_1, 2.4, 1.5));
-          else if (r < 0.62) obstacles.push(createGroundObstacle('EORAPTOR', '에오랍토르(원시 수각류)', SPRITES.EORAPTOR_1, 2.35, 2.0));
-          else if (r < 0.82) obstacles.push(createGroundObstacle('DESERT_ROCKS', '붉은 사막 바위 군집', SPRITES.DESERT_ROCKS, 2.75, 0));
-          else obstacles.push(createGroundObstacle('FERN_BUSH', '건조 양치식물 덤불', SPRITES.FERN_BUSH, 2.35, 0));
-        } else if (subKey === '2A') {
-          if (r < 0.34) obstacles.push(createGroundObstacle('CONIFER_STUMP', '거대 침엽수 그루터기', SPRITES.CONIFER_STUMP, 2.7, 0));
-          else if (r < 0.68) obstacles.push(createGroundObstacle('DILOPHOSAURUS', '딜로포사우루스(주름깃 육식공룡)', SPRITES.DILOPHO_1, 2.45, 1.7));
-          else obstacles.push(createFlyingObstacle('ARCHAEOPTERYX', '시조새(아르케옵테릭스) [↓숙이기]', SPRITES.ARCHAEO_1, 2.4, 1.15));
-        } else if (subKey === '2B') {
-          if (r < 0.34) obstacles.push(createGroundObstacle('STEGOSAURUS', '스테고사우루스(골판과 가시 꼬리)', SPRITES.STEGO_OB_1, 2.4, 0.9));
-          else if (r < 0.64) obstacles.push(createFlyingObstacle('RHAMPHORHYNCHUS', '람포링크스(긴꼬리 익룡) [↓숙이기]', SPRITES.RHAMPHO_1, 2.35, 1.65));
-          else if (r < 0.84) obstacles.push(createGroundObstacle('DILOPHOSAURUS', '딜로포사우루스', SPRITES.DILOPHO_1, 2.45, 1.8));
-          else obstacles.push(createGroundObstacle('CONIFER_STUMP', '거대 침엽수 그루터기', SPRITES.CONIFER_STUMP, 2.7, 0));
-        } else if (subKey === '3A') {
-          if (r < 0.38) obstacles.push(createGroundObstacle('TRICERATOPS', '돌진하는 트리케라톱스', SPRITES.TRICERA_1, 2.5, 2.2));
-          else if (r < 0.68) {
-            obstacles.push(createGroundObstacle('VELOCIRAPTOR', '벨로시랩터 무리', SPRITES.RAPTOR_1, 2.2, 2.4, { offsetX: 0 }));
-            obstacles.push(createGroundObstacle('VELOCIRAPTOR', '벨로시랩터 무리', SPRITES.RAPTOR_2, 2.0, 2.4, { offsetX: 46 }));
-          } else obstacles.push(createFlyingObstacle('QUETZALCOATLUS', '거대 익룡 케찰코아틀루스 [↓숙이기]', SPRITES.QUETZAL_1, 2.4, 1.6));
-        } else if (subKey === '3B') {
-          if (r < 0.30) obstacles.push(createGroundObstacle('ANKYLOSAURUS', '안킬로사우루스(곤봉 꼬리 갑주공룡)', SPRITES.ANKYLO_OB_1, 2.35, 1.1));
-          else if (r < 0.62) obstacles.push(createGroundObstacle('PACHYCEPHALO', '박치기 파키케팔로사우루스', SPRITES.PACHY_1, 2.45, 2.8));
-          else if (r < 0.82) obstacles.push(createGroundObstacle('TRICERATOPS', '돌진하는 트리케라톱스', SPRITES.TRICERA_1, 2.5, 2.4));
-          else obstacles.push(createFlyingObstacle('QUETZALCOATLUS', '프테라노돈 & 케찰코아틀루스 [↓숙이기]', SPRITES.QUETZAL_1, 2.4, 1.85));
-        } else if (subKey === '4A') {
-          if (r < 0.58) {
-            const targetGroundX = 310 + Math.random() * 340;
-            const scale = 2.6;
-            obstacles.push({
-              type: 'METEOR_FRAGMENT', label: '소형 운석 파편', scale,
-              x: targetGroundX + 180, y: -20, vy: 5.8 + Math.random() * 1.4, vxExtra: 2.2, landed: false,
-              w: Math.round(SPRITES.METEOR_OB[0].length * scale), h: Math.round(SPRITES.METEOR_OB.length * scale),
-              speedBonus: 0, isGround: true
-            });
-          } else if (r < 0.82) obstacles.push(createGroundObstacle('TRICERATOPS', '폭주하는 트리케라톱스', SPRITES.TRICERA_1, 2.5, 2.6));
-          else obstacles.push(createGroundObstacle('PACHYCEPHALO', '패닉에 빠진 파키케팔로사우루스', SPRITES.PACHY_1, 2.45, 2.9));
-        } else if (subKey === '4B') {
-          if (r < 0.42) obstacles.push(createGroundObstacle('LAVA_GEYSER', '분출하는 지각 용암 기둥', SPRITES.LAVA_GEYSER_1, 3.2, 0));
-          else if (r < 0.80) {
-            const targetGroundX = 290 + Math.random() * 350;
-            const scale = 2.7;
-            obstacles.push({
-              type: 'METEOR_FRAGMENT', label: '초고열 운석 파편', scale,
-              x: targetGroundX + 180, y: -20, vy: 6.2 + Math.random() * 1.5, vxExtra: 2.4, landed: false,
-              w: Math.round(SPRITES.METEOR_OB[0].length * scale), h: Math.round(SPRITES.METEOR_OB.length * scale),
-              speedBonus: 0, isGround: true
-            });
-          } else obstacles.push(createGroundObstacle('ANKYLOSAURUS', '폭주하는 안킬로사우루스', SPRITES.ANKYLO_OB_1, 2.35, 2.1));
-        } else if (subKey === '5A' || subKey === '5B') {
-          if (r < 0.38) obstacles.push(createGroundObstacle('MAMMOTH', '빙하기 털매머드', SPRITES.MAMMOTH_1, 2.45, 1.5));
-          else if (r < 0.72) obstacles.push(createGroundObstacle('SMILODON', '검치호(스밀로돈) 습격', SPRITES.SMILODON_1, 2.4, 2.5));
-          else obstacles.push(createGroundObstacle('DESERT_ROCKS', subKey === '5A' ? '구석기 붉은 부싯돌 & 화석 바위' : '신석기 흑요석 고인돌 제단', SPRITES.DESERT_ROCKS, 2.75, 0));
-        } else if (subKey === '6A' || subKey === '6B') {
-          if (r < 0.42) obstacles.push(createGroundObstacle('CHARIOT', subKey === '6A' ? '고대 제국 전차' : '중세 기마 기사', SPRITES.CHARIOT_1, 2.5, 2.3));
-          else if (r < 0.76) {
-            if (subKey === '6A') {
-              obstacles.push(createGroundObstacle('SPARTAN_PHALANX', '고대 스파르타 창방패 보병', SPRITES.SPARTAN_1, 2.45, 1.6));
-            } else {
-              obstacles.push(createGroundObstacle('SIEGE_CANNON', '중세 공성 대포 & 바리케이드', SPRITES.CANNON_1, 2.55, 0.8));
-            }
-          }
-          else obstacles.push(createFlyingObstacle('RHAMPHORHYNCHUS', subKey === '6A' ? '고대 전투 매 & 화살 [↓숙이기]' : '증기 비행선 드론 [↓숙이기]', SPRITES.RHAMPHO_1, 2.35, 1.7));
-        } else if (subKey === '7A' || subKey === '7B') {
-          if (r < 0.55) obstacles.push(createGroundObstacle('POLICE_CAR', '현대 경찰차 & 바리케이드', SPRITES.POLICE_CAR, 2.45, 2.4));
-          else obstacles.push(createFlyingObstacle('HELICOPTER', '도심 추격 헬리콥터 [↓숙이기]', SPRITES.HELICOPTER_1, 2.35, 1.9));
-        } else {
-          if (r < 0.38) obstacles.push(createGroundObstacle('CHRONO_MECHA', '초미래 크로노 이족보행 메카', SPRITES.CHRONO_MECHA_1, 2.5, 2.1));
-          else if (r < 0.70) obstacles.push(createFlyingObstacle('FUTURE_DRONE', '초미래 스테이시스 레이저 드론 [↓숙이기]', SPRITES.FUTURE_DRONE_1, 2.4, 2.3));
-          else obstacles.push(createGroundObstacle('POLICE_CAR', '초고속 사이버 호버 순찰차', SPRITES.POLICE_CAR, 2.45, 3.0));
-        }
-      }
-
-      function updateHeaderHUD() {
-        const eraBadge = document.getElementById('eraBadge');
-        const phaseTitleText = document.getElementById('phaseTitleText');
-        const scoreProgressLabel = document.getElementById('scoreProgressLabel');
-        const timelineFill = document.getElementById('timelineFill');
-        const invText = document.getElementById('invincibleStatusText');
-
-        const theme = SUBPHASE_THEMES[currentSubPhase] || SUBPHASE_THEMES['1A'];
-        if (eraBadge) {
-          if (gameState === STATE.STAGE1_BURIED_ENDING) eraBadge.textContent = 'STAGE 1 END: BURIED IN SOIL';
-          else if (gameState === STATE.STAGE2_AWAKEN_CUTSCENE) eraBadge.textContent = 'STAGE 2: DIGGING OUT!';
-          else if (gameState === STATE.STAGE2_CAPTURE_CUTSCENE) eraBadge.textContent = 'STAGE 2 END: OVERTAKE & SURROUND';
-          else if (gameState === STATE.FINAL_EPILOGUE) eraBadge.textContent = 'FINAL ENDING: MUSEUM';
-          else if (gameState === STATE.IMPACT_CUTSCENE) eraBadge.textContent = 'IMPACT: 66,000,000 BC';
-          else if (ufoBoss.active) eraBadge.textContent = `UFO BOSS: ${ufoBoss.shotsFired}/${ufoBoss.maxShots} LASERS`;
-          else eraBadge.textContent = theme.badge;
-        }
-        if (phaseTitleText) {
-          if (gameState === STATE.STAGE1_BURIED_ENDING) phaseTitleText.textContent = '[1부 엔딩] 흙으로 꽉 찬 지층 속에 눈을 감은 채 묻힌 뼈 티렉스 — 스페이스바로 각성!';
-          else if (gameState === STATE.STAGE2_AWAKEN_CUTSCENE) phaseTitleText.textContent = '[2부 오프닝] 눈을 뜨고 흙더미를 직접 파헤치며 구석기 지상으로 올라오는 뼈 티렉스!';
-          else if (gameState === STATE.STAGE2_CAPTURE_CUTSCENE) phaseTitleText.textContent = '[2부 클라이맥스] 뒤에서 따라오던 추격대가 앞질러 전방을 가로막고 포위·박제합니다!';
-          else if (gameState === STATE.FINAL_EPILOGUE) phaseTitleText.textContent = '[최종 엔딩] 자연사 박물관 — "멸종은 끝이 아닌 역사다"';
-          else if (gameState === STATE.IMPACT_CUTSCENE) phaseTitleText.textContent = '[1부 클라이맥스] 소행성 대충돌 — 백악기-팔레오세 대멸종 (K-Pg)';
-          else if (ufoBoss.active) phaseTitleText.textContent = `[초미래 중간보스] 거대 UFO 전함 레이저 공격 (${ufoBoss.shotsFired}/6회) — 상단(숙이기) / 하단(점프) 회피!`;
-          else phaseTitleText.textContent = theme.koTitle;
-        }
-        if (scoreProgressLabel) {
-          const dispScore = Math.min(STAGE2_END_SCORE, Math.floor(score));
-          scoreProgressLabel.textContent = `${String(dispScore).padStart(4, '0')} / ${STAGE2_END_SCORE} PTS`;
-        }
-        if (timelineFill) {
-          const pct = Math.min(100, Math.max(0, (score / STAGE2_END_SCORE) * 100));
-          timelineFill.style.width = `${pct.toFixed(1)}%`;
-        }
-        if (invText) {
-          invText.textContent = invincible ? 'INVINCIBLE: ON' : 'INVINCIBLE: OFF';
-          invText.className = invincible ? 'pixel-font text-[9px] text-amber-400 font-bold' : 'pixel-font text-[9px] text-slate-500';
-        }
-        const mobInvBtn = document.getElementById('mobileInvincibleBtn');
-        if (mobInvBtn) {
-          mobInvBtn.textContent = invincible ? '🛡️ 무적: ON' : '🛡️ 무적: OFF';
-          mobInvBtn.className = invincible
-            ? 'px-2.5 py-1.5 rounded-lg bg-amber-500/25 border border-amber-400 text-amber-200 font-bold'
-            : 'px-2.5 py-1.5 rounded-lg bg-indigo-950/90 border border-indigo-600/70 text-indigo-200 font-semibold';
-        }
-      }
-
-      function updateColorLerp() {
-        const target = SUBPHASE_THEMES[currentSubPhase];
-        const lerpSpeed = (currentPhase === 4 || currentPhase === 8) ? 0.045 : 0.025;
-        activeTheme.skyTop = lerpColor(activeTheme.skyTop, target.skyTop, lerpSpeed);
-        activeTheme.skyBottom = lerpColor(activeTheme.skyBottom, target.skyBottom, lerpSpeed);
-        activeTheme.groundLine = lerpColor(activeTheme.groundLine, target.groundLine, lerpSpeed);
-        activeTheme.groundFill = lerpColor(activeTheme.groundFill, target.groundFill, lerpSpeed);
-        activeTheme.groundSub = lerpColor(activeTheme.groundSub, target.groundSub, lerpSpeed);
-        activeTheme.farSil = lerpColor(activeTheme.farSil, target.farSil, lerpSpeed);
-        activeTheme.midSil = lerpColor(activeTheme.midSil, target.midSil, lerpSpeed);
-        activeTheme.nearSil = lerpColor(activeTheme.nearSil, target.nearSil, lerpSpeed);
-        activeTheme.dinoPrimary = lerpColor(activeTheme.dinoPrimary, target.dinoPrimary, lerpSpeed);
-        activeTheme.dinoSecondary = lerpColor(activeTheme.dinoSecondary, target.dinoSecondary, lerpSpeed);
-        activeTheme.dinoEye = lerpColor(activeTheme.dinoEye, target.dinoEye, lerpSpeed);
-        activeTheme.uiText = lerpColor(activeTheme.uiText, target.uiText, lerpSpeed);
-      }
-
-      function updateUfoBoss(pBox) {
-        if (!ufoBoss.active) return false;
-        ufoBoss.stateTimer++;
-
-        if (ufoBoss.state === 'APPROACHING') {
-          ufoBoss.x = lerp(ufoBoss.x, 585, 0.08);
-          ufoBoss.y = lerp(ufoBoss.y, ufoBoss.targetY, 0.08);
-          if (ufoBoss.stateTimer >= 45) {
-            ufoBoss.state = 'AIMING';
-            ufoBoss.stateTimer = 0;
-            sound.playUfoCharge();
-          }
-        } else if (ufoBoss.state === 'AIMING') {
-          // Move smoothly to High or Low firing altitude and charge for ~0.65s (40 frames)
-          ufoBoss.y = lerp(ufoBoss.y, ufoBoss.targetY, 0.14);
-          if (ufoBoss.stateTimer >= 40) {
-            ufoBoss.state = 'FIRING';
-            ufoBoss.stateTimer = 0;
-            sound.playUfoLaserFire();
-          }
-        } else if (ufoBoss.state === 'FIRING') {
-          // REQUIREMENT 5: Laser fires for 0.1 seconds = 6 frames at 60fps!
-          const beamTop = ufoBoss.y + 8;
-          const beamH = 16;
-          const beamBox = { x: 0, y: beamTop, w: ufoBoss.x + 12, h: beamH };
-
-          if (
-            !invincible &&
-            pBox.x < beamBox.x + beamBox.w &&
-            pBox.x + pBox.w > beamBox.x &&
-            pBox.y < beamBox.y + beamBox.h &&
-            pBox.y + pBox.h > beamBox.y
-          ) {
-            gameState = STATE.GAMEOVER;
-            deathReason = ufoBoss.isHighLaser
-              ? '초미래 UFO 보스 상단 레이저 (↓ 숙이기로 회피!)'
-              : '초미래 UFO 보스 하단 레이저 (SPACE 점프로 회피!)';
-            sound.stopBGM();
-            const badgeEl = document.getElementById('bgmTrackName');
-            if (badgeEl) badgeEl.textContent = 'BGM: 정지 (GAME OVER)';
-            if (score > highScore) {
-              highScore = Math.floor(score);
-              try { localStorage.setItem('dino_66m_hi', String(highScore)); } catch (e) {}
-            }
-            sound.playGameOver();
-            updateHeaderHUD();
-            return true;
-          }
-
-          if (ufoBoss.stateTimer >= 6) {
-            ufoBoss.shotsFired++;
-            updateHeaderHUD();
-            if (ufoBoss.shotsFired >= ufoBoss.maxShots) {
-              ufoBoss.state = 'RETREATING';
-              ufoBoss.stateTimer = 0;
-              sound.playEvolution();
-              banner.trigger('[ UFO BOSS DEFEATED! ]', '6연발 레이저 회피 성공! UFO 전함이 상공으로 퇴각합니다!', false);
-            } else {
-              ufoBoss.state = 'COOLDOWN';
-              ufoBoss.stateTimer = 0;
-              ufoBoss.isHighLaser = ufoBoss.patternSequence[ufoBoss.shotsFired % ufoBoss.patternSequence.length];
-              // High laser = GROUND_Y - 56 (hits standing player, misses ducking player)
-              // Low laser  = GROUND_Y - 22 (hits grounded player, misses jumping player)
-              ufoBoss.targetY = ufoBoss.isHighLaser ? (GROUND_Y - 56) : (GROUND_Y - 22);
-            }
-          }
-        } else if (ufoBoss.state === 'COOLDOWN') {
-          ufoBoss.y = lerp(ufoBoss.y, ufoBoss.targetY, 0.12);
-          if (ufoBoss.stateTimer >= 22) {
-            ufoBoss.state = 'AIMING';
-            ufoBoss.stateTimer = 0;
-            sound.playUfoCharge();
-          }
-        } else if (ufoBoss.state === 'RETREATING') {
-          ufoBoss.x += 9;
-          ufoBoss.y -= 4.5;
-          if (ufoBoss.x > W + 160) {
-            ufoBoss.active = false;
-            obstacleSpawnTimer = 35;
-            updateHeaderHUD();
-          }
-        }
-        return false;
-      }
-
-      function updatePlaying() {
+      // ==========================================
+      // 11. 메인 물리 및 게임 업데이트 루프
+      // ==========================================
+      function updateGame() {
         frameCount++;
 
-        const stageLocalScore = currentStage === 1 ? score : (score - STAGE1_END_SCORE);
-        gameSpeed = 5.8 + (stageLocalScore / 4000) * 3.6;
-        score += 0.42 + (gameSpeed * 0.024);
-
-        const currentHundred = Math.floor(score / 100);
-        if (currentHundred > lastMilestone && score < STAGE2_END_SCORE - 15) {
-          lastMilestone = currentHundred;
-          sound.playScoreMilestone();
+        // 블록 튕김 애니메이션 업데이트
+        for (let i = 0; i < solids.length; i++) {
+          const b = solids[i];
+          if (b.bumpOffset !== undefined && (b.bumpOffset !== 0 || b.bumpVy !== 0)) {
+            b.bumpOffset += b.bumpVy;
+            b.bumpVy += 0.65;
+            if (b.bumpOffset >= 0) {
+              b.bumpOffset = 0;
+              b.bumpVy = 0;
+            }
+            b.y = b.baseY + b.bumpOffset;
+          }
         }
 
-        if (currentStage === 1 && score >= STAGE1_END_SCORE) {
-          startImpactCutscene();
+        // 이동 리프트 플랫폼 업데이트
+        for (let i = 0; i < platforms.length; i++) {
+          const pf = platforms[i];
+          const oldX = pf.x;
+          const oldY = pf.y;
+          pf.theta += pf.speed;
+          pf.x = pf.startX + Math.sin(pf.theta) * pf.rangeX;
+          pf.y = pf.startY + Math.sin(pf.theta) * pf.rangeY;
+          pf.vx = pf.x - oldX;
+          pf.vy = pf.y - oldY;
+        }
+
+        // 스프링 점프대 압축 복원 타이머
+        for (let i = 0; i < springs.length; i++) {
+          if (springs[i].compressTimer > 0) springs[i].compressTimer--;
+        }
+
+        // 파티클 및 팝업 업데이트
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const pt = particles[i];
+          pt.x += pt.vx;
+          pt.y += pt.vy;
+          pt.vy += pt.gravity || 0;
+          if (pt.angle !== undefined) pt.angle += pt.vAngle;
+          pt.life--;
+          if (pt.life <= 0) particles.splice(i, 1);
+        }
+
+        for (let i = popups.length - 1; i >= 0; i--) {
+          const pp = popups[i];
+          pp.y += pp.vy;
+          pp.life--;
+          if (pp.life <= 0) popups.splice(i, 1);
+        }
+
+        if (gameState === 'PIPE_WARP') {
+          updatePipeWarp();
           return;
         }
 
-        if (currentStage === 2 && score >= STAGE2_END_SCORE) {
-          startStage2CaptureCutscene();
-          return;
-        }
-
-        const newSubKey = getSubPhaseForScore(score);
-        if (newSubKey !== currentSubPhase) {
-          triggerSubPhaseChange(newSubKey);
-        }
-
-        // Trigger Phase 8 UFO Mid-Boss automatically around 7,080 PTS!
-        if (currentStage === 2 && score >= 7080 && score < 7600 && !ufoBoss.triggeredInRun) {
-          ufoBoss.startEncounter();
-        }
-
-        if (frameCount % 6 === 0) updateHeaderHUD();
-        updateColorLerp();
-
-        if (banner.timer > 0) {
-          banner.timer--;
-          if (banner.timer < 30) banner.alpha = banner.timer / 30;
-          else if (banner.timer > banner.maxTimer - 20) banner.alpha = (banner.maxTimer - banner.timer) / 20;
-          else banner.alpha = 1;
-        }
-
-        if (player.isJumping) {
+        // 사망 연출 및 목숨(3개) 체크
+        if (gameState === 'DYING') {
           player.y += player.vy;
-          player.vy += player.isDucking ? player.gravity * 2.4 : player.gravity;
-          if (player.y >= GROUND_Y) {
-            player.y = GROUND_Y;
-            player.vy = 0;
-            player.isJumping = false;
-            for (let d = 0; d < 5; d++) {
-              footstepDust.push({
-                x: player.x + 12 + Math.random() * 18,
-                y: GROUND_Y - 1,
-                vx: -gameSpeed * 0.6 - Math.random() * 2,
-                vy: -0.6 - Math.random() * 1.4,
-                size: 3,
-                life: 14 + Math.floor(Math.random() * 8)
-              });
-            }
-          }
-        }
-
-        player.animTimer++;
-        const strideInterval = Math.max(3, Math.round(6 - (gameSpeed - 5.5) * 0.4));
-        if (player.animTimer >= strideInterval) {
-          player.animTimer = 0;
-          player.legFrame = (player.legFrame + 1) % 4;
-          if (!player.isJumping && (player.legFrame === 0 || player.legFrame === 2)) {
-            for (let k = 0; k < 2; k++) {
-              footstepDust.push({
-                x: player.x + 10 + (player.legFrame === 0 ? 18 : 6),
-                y: GROUND_Y - 1,
-                vx: -gameSpeed * 0.5 - Math.random() * 1.5,
-                vy: -0.4 - Math.random() * 1.1,
-                size: 3,
-                life: 11 + Math.floor(Math.random() * 6)
-              });
-            }
-          }
-        }
-
-        for (let i = footstepDust.length - 1; i >= 0; i--) {
-          const fd = footstepDust[i];
-          fd.x += fd.vx; fd.y += fd.vy; fd.life--;
-          if (fd.life <= 0) footstepDust.splice(i, 1);
-        }
-
-        if (player.evolveFlashTimer > 0) player.evolveFlashTimer--;
-
-        for (let p of groundPebbles) {
-          p.x -= gameSpeed;
-          if (p.x < -24) { p.x = W + Math.random() * 25; p.y = GROUND_Y + 4 + Math.random() * 14; }
-        }
-        for (let f of undergroundFossils) {
-          f.x -= gameSpeed;
-          if (f.x < -30) f.x = W + 30 + Math.random() * 60;
-        }
-        for (let cl of skyClouds) {
-          cl.x -= cl.speed + gameSpeed * 0.04;
-          if (cl.x + cl.w < -20) cl.x = W + 30;
-        }
-        for (let fl of distantFlocks) {
-          fl.x -= fl.speed + gameSpeed * 0.08;
-          if (fl.x < -80) { fl.x = W + 60 + Math.random() * 80; fl.y = 45 + Math.random() * 55; }
-        }
-        for (let lf of farLandforms) {
-          lf.x -= gameSpeed * 0.14;
-          if (lf.x + lf.w < -30) lf.x = W + 30;
-          if (lf.kind === 'volcano' || lf.kind === 'caldera' || currentPhase === 4 || currentSubPhase === '6B') {
-            lf.smokeTimer++;
-            if (lf.smokeTimer > 26 && (currentPhase === 1 || currentPhase === 3 || currentPhase === 4 || currentSubPhase === '6B')) {
-              lf.smokeTimer = 0;
-              volcanoSmoke.push({ x: lf.x + lf.w * 0.5, y: GROUND_Y - lf.h, r: 4 + Math.random() * 5, alpha: 0.75 });
-            }
-          }
-        }
-        for (let i = volcanoSmoke.length - 1; i >= 0; i--) {
-          const sm = volcanoSmoke[i];
-          sm.x -= gameSpeed * 0.22; sm.y -= 0.55; sm.r += 0.13; sm.alpha -= 0.008;
-          if (sm.alpha <= 0) volcanoSmoke.splice(i, 1);
-        }
-
-        for (let tr of forestTrees) {
-          const spd = tr.layer === 0 ? gameSpeed * 0.24 : gameSpeed * 0.38;
-          tr.x -= spd;
-          if (tr.x < -75) {
-            tr.x = W + 45 + Math.random() * 35;
-            tr.h = 34 + Math.floor(Math.random() * 46);
-          }
-        }
-
-        // REQUIREMENT 1: In Stage 1 (Mesozoic Era), background dinosaurs actively walk/run across the terrain
-        // in both directions at speeds distinct from the background trees so they visibly travel across the world!
-        for (let ml of midLandmarks) {
-          if (currentStage === 1) {
-            if (ml.dir === 1) {
-              // Walking rightward across the plains (moves right relative to trees!)
-              ml.x -= (gameSpeed * 0.14 - ml.walkSpeed);
+          player.vy += PHYSICS.gravity * 0.85;
+          if (player.y > VIEW_H + 120) {
+            if (lives > 0) {
+              respawnAfterLifeLost();
             } else {
-              // Walking/trotting leftward across the plains (faster than trees!)
-              ml.x -= (gameSpeed * 0.42 + ml.walkSpeed);
+              gameState = 'GAME_OVER';
+              showModal('GAME_OVER');
             }
+          }
+          return;
+        }
+
+        // 스테이지 클리어 연출
+        if (gameState === 'CLEARING') {
+          if (player.clearPhase === 1) {
+            const slideSpeed = 4.2;
+            const bottomLimit = GROUND_Y - TILE - player.h;
+            if (player.y < bottomLimit) {
+              player.y = Math.min(bottomLimit, player.y + slideSpeed);
+            }
+            if (flagpole.flagY < flagpole.targetFlagY) {
+              flagpole.flagY = Math.min(flagpole.targetFlagY, flagpole.flagY + slideSpeed);
+            }
+            if (player.y >= bottomLimit && flagpole.flagY >= flagpole.targetFlagY) {
+              player.clearPhase = 2;
+              player.facing = 1;
+            }
+          } else if (player.clearPhase === 2) {
+            player.vx = 2.6;
+            player.x += player.vx;
+            player.vy += PHYSICS.gravity;
+            player.y += player.vy;
+            if (player.y + player.h >= GROUND_Y) {
+              player.y = GROUND_Y - player.h;
+              player.vy = 0;
+              player.onGround = true;
+            }
+            player.animTimer++;
+            if (player.animTimer % 5 === 0) {
+              player.animFrame = (player.animFrame + 1) % 3;
+            }
+            const castleDoorX = flagpole.castleX + 52;
+            if (player.x >= castleDoorX) {
+              player.clearPhase = 3;
+              const timeBonus = Math.max(0, Math.floor(timeLeft)) * 10;
+              score += timeBonus;
+              addPopup(castleDoorX, GROUND_Y - 70, `TIME BONUS +${timeBonus}`, '#4ade80');
+              gameState = 'STAGE_CLEAR';
+              showModal('CLEAR');
+            }
+          }
+          return;
+        }
+
+        if (gameState !== 'PLAYING') return;
+
+        // 타이머 감소
+        timeAccumulator++;
+        if (timeAccumulator >= 60) {
+          timeAccumulator = 0;
+          timeLeft--;
+          if (timeLeft <= 0) {
+            timeLeft = 0;
+            triggerPlayerDeath();
+            return;
+          }
+        }
+
+        if (player.invincibleTimer > 0) player.invincibleTimer--;
+        if (player.transformTimer > 0) player.transformTimer--;
+        if (player.fireCooldown > 0) player.fireCooldown--;
+        if (player.starTimer > 0) {
+          player.starTimer--;
+          if (frameCount % 3 === 0) {
+            spawnDust(player.x + player.w / 2, player.y + player.h / 2, 1, '#facc15');
+          }
+        }
+
+        if (keys.fireJustPressed) {
+          tryShootFireball();
+          keys.fireJustPressed = false;
+        }
+
+        // ==========================================
+        // A. 플레이어 물리 이동
+        // ==========================================
+        const accel = player.onGround ? PHYSICS.accelGround : PHYSICS.accelAir;
+        const maxSpd = player.starTimer > 0 ? PHYSICS.maxSpeedX + PHYSICS.starSpeedBonus : PHYSICS.maxSpeedX;
+        player.isSkidding = false;
+
+        if (keys.left && !keys.right) {
+          if (player.vx > 0.6 && player.onGround) {
+            player.vx -= PHYSICS.decelSkid;
+            player.isSkidding = true;
+            if (frameCount % 4 === 0) spawnDust(player.x + player.w / 2, player.y + player.h, 2);
           } else {
-            // In Stage 2, only Mammoth (slot % 2 === 0 in Phase 5) walks; architectural monuments scroll with terrain
-            const isWalkingMammoth = (currentPhase === 5 && ml.slot % 2 === 0);
-            ml.x -= isWalkingMammoth ? (gameSpeed * 0.42 + ml.walkSpeed * 0.8) : (gameSpeed * 0.34);
+            player.vx -= accel;
           }
-          ml.anim++;
-          if (ml.x < -160) {
-            ml.x = W + 50 + Math.random() * 60;
-            ml.slot = (ml.slot + 1) % 6;
-          } else if (ml.x > W + 160) {
-            ml.x = -120 - Math.random() * 40;
-            ml.slot = (ml.slot + 1) % 6;
+          player.facing = -1;
+        } else if (keys.right && !keys.left) {
+          if (player.vx < -0.6 && player.onGround) {
+            player.vx += PHYSICS.decelSkid;
+            player.isSkidding = true;
+            if (frameCount % 4 === 0) spawnDust(player.x + player.w / 2, player.y + player.h, 2);
+          } else {
+            player.vx += accel;
           }
-        }
-
-        if (currentStage === 1) {
-          for (let rd of bgRoamingDinos) {
-            if (rd.dir === 1) {
-              rd.x += rd.speed;
-              if (rd.x > W + 120) rd.x = -110 - Math.random() * 60;
-            } else {
-              rd.x -= (gameSpeed * 0.38 + rd.speed);
-              if (rd.x < -120) rd.x = W + 80 + Math.random() * 80;
-            }
-            rd.anim++;
-          }
-        }
-
-        // Scroll Stage 2 Background Humans
-        if (currentStage === 2) {
-          for (let hm of bgHumans) {
-            hm.x -= (gameSpeed * 0.38 + hm.speedOffset);
-            hm.anim++;
-            if (hm.x < -50) {
-              hm.x = W + 30 + Math.random() * 55;
-              hm.role = (hm.role + 1) % 6;
-            } else if (hm.x > W + 60) {
-              hm.x = -40;
-            }
-          }
-        }
-
-        // Scroll Phase 8 Sci-Fi UFOs & Flying Cars
-        if (currentPhase === 8) {
-          for (let ufo of bgUfos) {
-            ufo.x -= ufo.speed;
-            ufo.phase += 0.07;
-            if (ufo.x < -90) {
-              ufo.x = W + 60 + Math.random() * 120;
-              ufo.y = ufo.kind === 'skycar' ? (85 + Math.random() * 45) : (26 + Math.random() * 52);
-            }
-          }
-        }
-
-        for (let ns of nearScenery) {
-          ns.x -= gameSpeed * 0.58;
-          if (ns.x < -70) {
-            ns.x = W + 30 + Math.random() * 35;
-            ns.variant = (ns.variant + 1) % 7;
-          }
-        }
-
-        if (currentSubPhase === '1B') {
-          if (ashParticles.length < 45) {
-            ashParticles.push({ x: W + 10, y: Math.random() * GROUND_Y, vx: -7 - Math.random() * 4, vy: (Math.random() - 0.5) * 0.8, size: 2, color: '#D97736' });
-          }
-        } else if (currentSubPhase === '2B') {
-          if (ashParticles.length < 30 && Math.random() < 0.35) {
-            ashParticles.push({ x: W + 10, y: 100 + Math.random() * (GROUND_Y - 110), vx: -1.5 - Math.random() * 1.5, vy: Math.sin(frameCount * 0.1) * 0.5, size: 3, color: '#BEF264' });
-          }
-        } else if (currentSubPhase === '5A') {
-          if (ashParticles.length < 55) {
-            ashParticles.push({ x: Math.random() * (W + 150), y: -8, vx: -2.2 - Math.random() * 2, vy: 1.5 + Math.random() * 1.8, size: 3, color: '#FFFFFF' });
-          }
-        } else if (currentPhase === 8) {
-          if (ashParticles.length < 35 && Math.random() < 0.4) {
-            ashParticles.push({ x: W + 10, y: Math.random() * GROUND_Y, vx: -6 - Math.random() * 4, vy: 0, size: 3, color: Math.random() < 0.5 ? '#22D3EE' : '#F472B6' });
-          }
-        } else if (currentPhase === 4) {
-          if (Math.random() < 0.08 && panicStampede.length < 12) {
-            const speciesPool = ['flyer', 'proto', 'parasaur', 'stego', 'tricera'];
-            const spType = speciesPool[Math.floor(Math.random() * speciesPool.length)];
-            panicStampede.push({
-              x: -60, y: spType === 'flyer' ? (75 + Math.random() * 75) : GROUND_Y,
-              vx: 3.2 + Math.random() * 3.2, spType, anim: Math.floor(Math.random() * 20)
-            });
-          }
-          for (let i = panicStampede.length - 1; i >= 0; i--) {
-            const d = panicStampede[i]; d.x += d.vx; d.anim++;
-            if (d.x > W + 90) panicStampede.splice(i, 1);
-          }
-          if (ashParticles.length < 80) {
-            for (let k = 0; k < 2; k++) {
-              const isEmber = Math.random() < 0.5;
-              ashParticles.push({
-                x: Math.random() * (W + 200), y: -10,
-                vx: -2.6 - Math.random() * 2.5, vy: 2.3 + Math.random() * 2.8,
-                size: Math.random() < 0.35 ? 3 : 2,
-                color: isEmber ? '#FF6D00' : 'rgba(210, 190, 195, 0.65)'
-              });
-            }
-          }
-        }
-
-        for (let i = ashParticles.length - 1; i >= 0; i--) {
-          const ap = ashParticles[i];
-          ap.x += ap.vx; ap.y += ap.vy;
-          if (ap.y > H || ap.x < -20) ashParticles.splice(i, 1);
-        }
-
-        for (let i = evolutionSparks.length - 1; i >= 0; i--) {
-          const sp = evolutionSparks[i];
-          sp.x += sp.vx; sp.y += sp.vy; sp.life--;
-          if (sp.life <= 0) evolutionSparks.splice(i, 1);
-        }
-
-        const pBox = player.getHitbox();
-
-        // Update UFO Mid-Boss if active
-        if (ufoBoss.active) {
-          const hitByLaser = updateUfoBoss(pBox);
-          if (hitByLaser) return;
+          player.facing = 1;
         } else {
-          obstacleSpawnTimer--;
-          if (obstacleSpawnTimer <= 0) {
-            spawnObstacleForSubPhase(currentSubPhase);
-            const stageDifficulty = currentStage === 1 ? currentPhase : (currentPhase - 4);
-            const minGap = Math.max(46, 84 - stageDifficulty * 7);
-            obstacleSpawnTimer = minGap + Math.floor(Math.random() * 40);
+          const friction = player.onGround ? PHYSICS.frictionGround : PHYSICS.frictionAir;
+          player.vx *= friction;
+          if (Math.abs(player.vx) < 0.08) player.vx = 0;
+        }
+
+        if (player.vx > maxSpd) player.vx = maxSpd;
+        if (player.vx < -maxSpd) player.vx = -maxSpd;
+
+        if (keys.jumpJustPressed && player.onGround) {
+          player.vy = PHYSICS.jumpInitialVy;
+          player.onGround = false;
+          player.jumpHoldTimer = PHYSICS.jumpHoldFramesMax;
+          keys.jumpJustPressed = false;
+          sound.jump(player.isSuper);
+          spawnDust(player.x + player.w / 2, player.y + player.h, 5);
+        }
+        keys.jumpJustPressed = false;
+
+        if (keys.jump && player.jumpHoldTimer > 0 && player.vy < 0) {
+          player.vy += PHYSICS.jumpHoldGravity;
+          player.jumpHoldTimer--;
+        } else {
+          if (!keys.jump && player.vy < -3.2 && player.jumpHoldTimer > 0) {
+            player.vy *= 0.55;
+          }
+          player.jumpHoldTimer = 0;
+          player.vy += PHYSICS.gravity;
+        }
+
+        if (player.vy > PHYSICS.maxFallSpeed) {
+          player.vy = PHYSICS.maxFallSpeed;
+        }
+
+        // ==========================================
+        // B. 플레이어 AABB 충돌 감지 (고정 지형 + 이동 플랫폼 + 스프링 점프대)
+        // ==========================================
+        const currentMaxW = currentZone === 'UNDERGROUND' ? UNDERGROUND_WIDTH : WORLD_WIDTH;
+
+        player.x += player.vx;
+        if (player.x < cameraX) {
+          player.x = cameraX;
+          if (player.vx < 0) player.vx = 0;
+        }
+        if (player.x + player.w > currentMaxW) {
+          player.x = currentMaxW - player.w;
+          player.vx = 0;
+        }
+
+        for (let i = 0; i < solids.length; i++) {
+          const s = solids[i];
+          if (aabbOverlap(player, s)) {
+            if (player.vx > 0) {
+              player.x = s.x - player.w;
+              player.vx = 0;
+              if (s.canExitRight && keys.right && player.onGround) {
+                startPipeWarp(s, 'RIGHT');
+                return;
+              }
+            } else if (player.vx < 0) {
+              player.x = s.x + s.w;
+              player.vx = 0;
+            }
           }
         }
 
-        for (let i = obstacles.length - 1; i >= 0; i--) {
-          const ob = obstacles[i];
+        const prevBottom = player.y + player.h;
+        player.y += player.vy;
+        player.onGround = false;
+        let standingPipe = null;
 
-          if (ob.type === 'METEOR_FRAGMENT') {
-            if (!ob.landed) {
-              ob.x -= (gameSpeed + ob.vxExtra);
-              ob.y += ob.vy;
-              if (ob.y >= GROUND_Y + 3) {
-                ob.y = GROUND_Y + 3;
-                ob.landed = true;
-                sound.playMeteorFragmentHit();
-              }
-            } else {
-              ob.x -= gameSpeed;
-            }
-          } else {
-            ob.x -= (gameSpeed + (ob.speedBonus || 0));
-            if (ob.swoop) {
-              ob.y = ob.baseY + Math.sin(frameCount * 0.08 + ob.x * 0.02) * 7;
+        for (let i = 0; i < solids.length; i++) {
+          const s = solids[i];
+          if (aabbOverlap(player, s)) {
+            if (player.vy > 0) {
+              player.y = s.y - player.h;
+              player.vy = 0;
+              player.onGround = true;
+              if (s.type === 'pipe' && s.canEnterDown) standingPipe = s;
+            } else if (player.vy < 0) {
+              player.y = s.y + s.h;
+              player.vy = 1.2;
+              player.jumpHoldTimer = 0;
+              triggerBlockHit(s);
             }
           }
+        }
 
-          const obBox = { x: ob.x + 5, y: ob.y - ob.h + 5, w: ob.w - 10, h: ob.h - 6 };
-
+        // 이동 리프트 플랫폼 착지 판정
+        for (let i = 0; i < platforms.length; i++) {
+          const pf = platforms[i];
           if (
-            !invincible &&
-            pBox.x < obBox.x + obBox.w &&
-            pBox.x + pBox.w > obBox.x &&
-            pBox.y < obBox.y + obBox.h &&
-            pBox.y + pBox.h > obBox.y
+            player.vy >= 0 &&
+            player.x + player.w > pf.x + 2 &&
+            player.x < pf.x + pf.w - 2 &&
+            prevBottom <= pf.y + 10 &&
+            player.y + player.h >= pf.y
           ) {
-            gameState = STATE.GAMEOVER;
-            deathReason = ob.label;
-            sound.stopBGM();
-            const badgeEl = document.getElementById('bgmTrackName');
-            if (badgeEl) badgeEl.textContent = 'BGM: 정지 (GAME OVER)';
-            if (score > highScore) {
-              highScore = Math.floor(score);
-              try { localStorage.setItem('dino_66m_hi', String(highScore)); } catch (e) {}
-            }
-            sound.playGameOver();
-            updateHeaderHUD();
+            player.y = pf.y - player.h;
+            player.vy = 0;
+            player.onGround = true;
+            player.x += pf.vx;
+          }
+        }
+
+        // 스프링 점프대(Trampoline) 충돌 시 초고도 슈퍼 점프!
+        for (let i = 0; i < springs.length; i++) {
+          const sp = springs[i];
+          if (aabbOverlap(player, sp) && player.vy >= 0) {
+            player.y = sp.y - player.h;
+            player.vy = keys.jump ? -15.2 : -13.2;
+            player.onGround = false;
+            player.jumpHoldTimer = PHYSICS.jumpHoldFramesMax;
+            sp.compressTimer = 14;
+            sound.spring();
+            spawnDust(sp.x + 12, sp.y + 20, 6, '#fde047');
+            addPopup(sp.x, sp.y - 10, 'SPRING BOOST!', '#4ade80');
+          }
+        }
+
+        // 배관 위에서 ▼ 키로 진입
+        if (standingPipe && keys.down) {
+          const playerCenter = player.x + player.w / 2;
+          if (playerCenter >= standingPipe.x + 8 && playerCenter <= standingPipe.x + standingPipe.w - 8) {
+            startPipeWarp(standingPipe, 'DOWN');
             return;
           }
-
-          if (ob.x + ob.w < -80) obstacles.splice(i, 1);
         }
-      }
 
-      function updateImpactCutscene() {
-        frameCount++;
-        cutscene.timer++;
-        player.x = lerp(player.x, 140, 0.08);
-        player.y = GROUND_Y;
-        player.lookingUp = true;
-
-        if (!cutscene.impacted) {
-          const progress = Math.min(1, cutscene.timer / 135);
-          const eased = progress * progress;
-          cutscene.meteorX = lerp(700, 440, eased);
-          cutscene.meteorY = lerp(16, GROUND_Y - 24, eased);
-          cutscene.meteorScale = lerp(2.6, 7.5, eased);
-
-          ashParticles.push({
-            x: cutscene.meteorX + (Math.random() - 0.5) * 60,
-            y: cutscene.meteorY + (Math.random() - 0.5) * 60,
-            vx: (Math.random() - 0.3) * 5, vy: -2 - Math.random() * 4,
-            size: 4, color: '#FF6D00'
-          });
-
-          if (progress >= 1) {
-            cutscene.impacted = true;
-            cutscene.whiteoutAlpha = 0.1;
-            cutscene.whiteoutHoldTimer = 0;
-            sound.playCataclysmicExplosion();
+        if (Math.abs(player.vx) > 0.25 && player.onGround) {
+          player.animTimer += Math.abs(player.vx) * 0.22;
+          if (player.animTimer >= 1) {
+            player.animTimer = 0;
+            player.animFrame = (player.animFrame + 1) % 2;
           }
         } else {
-          cutscene.shockwaveStep += 26;
-          if (cutscene.whiteoutAlpha < 1) {
-            cutscene.whiteoutAlpha = Math.min(1, cutscene.whiteoutAlpha + 0.09);
-          } else {
-            cutscene.whiteoutHoldTimer++;
-            if (cutscene.whiteoutHoldTimer >= 150) {
-              startStage1BuriedEnding();
-            }
-          }
-        }
-      }
-
-      function updateBuriedEnding() {
-        frameCount++;
-        buriedScene.timer++;
-        if (buriedScene.fadeFromWhite > 0) {
-          buriedScene.fadeFromWhite = Math.max(0, buriedScene.fadeFromWhite - 0.012);
-        }
-      }
-
-      function updateAwakenCutscene() {
-        frameCount++;
-        awakenScene.timer++;
-
-        const scale = 2.65;
-        const spriteH = SPRITES.SKEL_RUNFrames[0].length * scale; // ~47.7px
-
-        if (awakenScene.timer === 16) {
-          awakenScene.phase = 'DIGGING';
-          sound.playMeteorFragmentHit();
+          player.animFrame = 0;
+          player.animTimer = 0;
         }
 
-        // Phase 1 (timer 20 ~ 92): Dig upward through the underground soil toward surfaceY
-        if (awakenScene.timer >= 20 && awakenScene.timer < 92) {
-          awakenScene.phase = 'DIGGING';
-          const targetDigY = awakenScene.surfaceY - spriteH * 0.45;
-          awakenScene.fossilY = lerp(awakenScene.fossilY, targetDigY, 0.065);
-          awakenScene.dugPath.push({
-            x: awakenScene.fossilX + 28 + (Math.random() - 0.5) * 12,
-            y: awakenScene.fossilY + 6,
-            w: 76,
-            h: 32
-          });
-          if (awakenScene.timer % 3 === 0) {
-            sound.playMeteorFragmentHit();
-            for (let i = 0; i < 6; i++) {
-              awakenScene.dirtClods.push({
-                x: awakenScene.fossilX + 8 + Math.random() * 52,
-                y: Math.max(awakenScene.surfaceY - 4, awakenScene.fossilY),
-                vx: (Math.random() - 0.5) * 9.5,
-                vy: -3.5 - Math.random() * 6.0,
-                size: 4 + Math.floor(Math.random() * 5),
-                color: Math.random() < 0.5 ? '#5C4033' : '#8B5A2B'
-              });
-            }
-          }
+        if (player.y > VIEW_H + 36) {
+          triggerPlayerDeath();
+          return;
         }
 
-        // Phase 2 (timer === 92): Burst out of the ground into the air above the surface!
-        if (awakenScene.timer === 92) {
-          awakenScene.phase = 'LEAP_OUT';
-          awakenScene.vy = -8.8;
-          sound.playJump();
-          sound.playEvolution();
-          for (let i = 0; i < 24; i++) {
-            awakenScene.dirtClods.push({
-              x: awakenScene.fossilX + Math.random() * 64,
-              y: awakenScene.surfaceY,
-              vx: (Math.random() - 0.5) * 12,
-              vy: -4.5 - Math.random() * 8.0,
-              size: 5 + Math.floor(Math.random() * 5),
-              color: i % 3 === 0 ? '#E2E8F0' : (i % 2 === 0 ? '#5C4033' : '#8B5A2B')
-            });
-          }
-        }
-
-        // Phase 2B (timer 92 ~ 136): Arc through the air and land ON TOP OF the ground surface!
-        if (awakenScene.timer > 92 && awakenScene.timer < 136) {
-          const onSurfaceTopY = awakenScene.surfaceY - spriteH + 2;
-          awakenScene.fossilY += awakenScene.vy;
-          awakenScene.vy += 0.52;
-          if (awakenScene.fossilY >= onSurfaceTopY && awakenScene.vy > 0) {
-            awakenScene.fossilY = onSurfaceTopY;
-            awakenScene.vy = 0;
-            if (awakenScene.phase !== 'SURFACE_LANDED') {
-              awakenScene.phase = 'SURFACE_LANDED';
-              sound.playMeteorFragmentHit();
-            }
-          }
-        }
-
-        // Phase 3 (timer 136 ~ 188): After landing on the ground surface, camera smoothly lowers surfaceY -> GROUND_Y
-        // while the Skeleton T-Rex runs across the surface into the starting position (x = 92)!
-        if (awakenScene.timer >= 136) {
-          awakenScene.phase = 'SURFACE_RUN';
-          awakenScene.surfaceY = lerp(awakenScene.surfaceY, GROUND_Y, 0.095);
-          awakenScene.fossilX = lerp(awakenScene.fossilX, 92, 0.095);
-          awakenScene.fossilY = awakenScene.surfaceY - spriteH + 2;
-          for (let dp of awakenScene.dugPath) {
-            dp.y += (GROUND_Y - awakenScene.surfaceY) * 0.095;
-          }
-        }
-
-        for (let i = awakenScene.dirtClods.length - 1; i >= 0; i--) {
-          const dc = awakenScene.dirtClods[i];
-          dc.x += dc.vx;
-          dc.y += dc.vy;
-          dc.vy += 0.35;
-          if (dc.y > H) awakenScene.dirtClods.splice(i, 1);
-        }
-
-        if (awakenScene.timer >= 188) {
-          beginStage2Playing();
-        }
-      }
-
-      // Stage 2 Capture Cutscene: Pursuers come from behind (left), accelerate & overtake player, block the front, and surround!
-      function updateCaptureCutscene() {
-        frameCount++;
-        captureScene.timer++;
-
-        if (captureScene.timer < 75) {
-          // Phase 1: Everyone is still running! Pursuers behind (left) accelerate rapidly and overtake the Skeleton T-Rex!
-          captureScene.phase = 'OVERTAKE';
-          player.legFrame = Math.floor(frameCount / 3) % 4;
-          for (let p of groundPebbles) {
-            p.x -= 7.5;
-            if (p.x < -20) p.x = W + 20;
-          }
-          // Skeleton T-Rex runs forward toward center
-          captureScene.dinoX = lerp(captureScene.dinoX, W / 2 - 28, 0.045);
-          // Vanguard Mech & Hover Cruiser blast forward from behind (x=20) to ahead of the T-Rex (x = W/2 + 95)!
-          captureScene.overtakeMechX += 8.8;
-          if (captureScene.overtakeMechX > W / 2 + 88) captureScene.overtakeMechX = W / 2 + 88;
-
-          captureScene.overtakeCarX += 9.6;
-          if (captureScene.overtakeCarX > W / 2 + 150) captureScene.overtakeCarX = W / 2 + 150;
-
-          // Rear Mech closes in right behind T-Rex
-          captureScene.rearMechX = lerp(captureScene.rearMechX, W / 2 - 155, 0.06);
-
-          // Aerial Drones swoop from behind to overhead
-          captureScene.drone1X = lerp(captureScene.drone1X, W / 2 - 85, 0.07);
-          captureScene.drone2X = lerp(captureScene.drone2X, W / 2 + 35, 0.07);
+        // ==========================================
+        // C. 카메라 추적, 불꽃 탄환, 코인, 체크포인트
+        // ==========================================
+        if (currentZone === 'UNDERGROUND') {
+          cameraX = 0;
         } else {
-          // Phase 2: Vanguard units slam brakes in front, blocking the path! T-Rex halts surrounded on all sides!
-          captureScene.phase = 'BLOCK_STOP';
-          captureScene.dinoX = lerp(captureScene.dinoX, W / 2 - 28, 0.12);
-          captureScene.rearMechX = lerp(captureScene.rearMechX, W / 2 - 145, 0.12);
-          captureScene.overtakeMechX = lerp(captureScene.overtakeMechX, W / 2 + 85, 0.12);
-          captureScene.overtakeCarX = lerp(captureScene.overtakeCarX, W / 2 + 155, 0.12);
-          captureScene.droneY = lerp(captureScene.droneY, 68, 0.1);
-        }
-
-        if (captureScene.timer === 82) {
-          captureScene.stasisActive = true;
-          sound.playStasisBeamHum();
-        }
-        if (captureScene.stasisActive) {
-          captureScene.crystalAlpha = Math.min(1, captureScene.crystalAlpha + 0.015);
-        }
-        if (captureScene.timer > 180) {
-          captureScene.whiteoutAlpha = Math.min(1, captureScene.whiteoutAlpha + 0.04);
-          if (captureScene.whiteoutAlpha >= 1) {
-            startFinalEpilogue();
+          const targetCamX = player.x - VIEW_W * 0.36;
+          if (targetCamX > cameraX) {
+            cameraX += (targetCamX - cameraX) * 0.14;
+          } else if (player.x < cameraX + VIEW_W * 0.18) {
+            cameraX += (player.x - VIEW_W * 0.18 - cameraX) * 0.14;
           }
-        }
-      }
-
-      function updateFinalEpilogue() {
-        frameCount++;
-        epilogue.timer++;
-
-        if (epilogue.fadeFromWhite > 0) {
-          epilogue.fadeFromWhite = Math.max(0, epilogue.fadeFromWhite - 0.008);
+          if (cameraX < 0) cameraX = 0;
+          if (cameraX > WORLD_WIDTH - VIEW_W) cameraX = WORLD_WIDTH - VIEW_W;
         }
 
-        if (epilogue.timer > 60 && epilogue.timer % 3 === 0) {
-          if (epilogue.line1Shown.length < epilogue.line1Full.length) {
-            epilogue.line1Shown = epilogue.line1Full.slice(0, epilogue.line1Shown.length + 1);
-            sound.playTypewriterTick();
-          } else if (epilogue.timer > 155 && epilogue.line2Shown.length < epilogue.line2Full.length) {
-            epilogue.line2Shown = epilogue.line2Full.slice(0, epilogue.line2Shown.length + 1);
-            sound.playTypewriterTick();
+        updateFireballs();
+
+        for (let i = 0; i < fieldCoins.length; i++) {
+          const fc = fieldCoins[i];
+          if (!fc.collected && aabbOverlap(player, fc)) {
+            fc.collected = true;
+            gainCoin();
+            addPopup(fc.x, fc.y - 8, '+200', '#facc15');
+            spawnDust(fc.x + 9, fc.y + 11, 4, '#fef08a');
           }
         }
 
-        for (let v of epilogue.visitors) {
-          v.x += v.speed;
-          v.step += 0.12;
-          if (v.type === 'photographer') {
-            v.flashTimer--;
-            if (v.flashTimer <= -8) v.flashTimer = 140 + Math.floor(Math.random() * 90);
+        if (currentZone === 'OVERWORLD' && checkpoint && !checkpointReached) {
+          if (aabbOverlap(player, checkpoint)) {
+            checkpointReached = true;
+            sound.checkpoint();
+            score += 500;
+            addPopup(checkpoint.x, checkpoint.y - 12, 'CHECKPOINT! +500', '#38bdf8');
           }
-          if (v.x > W + 40) v.x = -40;
         }
-      }
 
-      function drawLeafBlob(ctx, cx, cy, rx, ry, color, highlightColor) {
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = highlightColor;
-        ctx.beginPath();
-        ctx.ellipse(cx - rx * 0.2, cy - ry * 0.3, rx * 0.5, ry * 0.4, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
+        // ==========================================
+        // D. 스테이지별 특수 장애물(가시, 회전 화염바, 쿵쿵이, 용암 화염구) 업데이트
+        // ==========================================
+        for (let i = 0; i < hazards.length; i++) {
+          const hz = hazards[i];
 
-      function drawTreeOrBuilding(tr, groundY, crownColor, trunkColor, style) {
-        const ix = Math.floor(tr.x);
-        const iy = Math.floor(groundY);
-        const trunkH = tr.h;
-        const crownW = tr.crownW;
-
-        // 1) MODERN & FAR FUTURE BUILDINGS (10 Varied Types: Bank, Billboard, Landmark Tower, Cafe/Shop, Broadcast Radar, Arch/Bio Dome, Hospital/Hotel, Twin Skybridge, Stepped Pyramid Corp, Cyber Skyscraper)
-        if (style === 'skyscraper') {
-          const isFuture = currentPhase === 8;
-          const isNight = currentSubPhase === '7B' || isFuture;
-          const bH = isFuture ? Math.floor(trunkH * 2.15 + 55) : Math.floor(trunkH + 34);
-          const bW = isFuture ? Math.floor(crownW * 1.15) : crownW;
-          const bx = ix - Math.floor(bW / 2);
-          const by = iy - bH;
-
-          if (tr.bType === 'CAFE_SHOP') {
-            // Low-to-mid boutique commercial building with striped awning & rooftop coffee/neon sign
-            const shopH = isFuture ? Math.floor(bH * 0.65) : Math.floor(bH * 0.72);
-            const sy = iy - shopH;
-            ctx.fillStyle = crownColor;
-            ctx.fillRect(bx - 2, sy, bW + 4, shopH);
-            // Upper apartment/office windows
-            ctx.fillStyle = isNight ? '#FDE047' : '#E0F2FE';
-            for (let wy = sy + 8; wy < iy - 24; wy += 10) {
-              for (let wx = bx + 4; wx < bx + bW - 4; wx += 9) {
-                ctx.fillRect(wx, wy, 5, 6);
+          if (hz.type === 'spikes') {
+            if (aabbOverlap(player, hz)) {
+              triggerPlayerDamage();
+            }
+          } else if (hz.type === 'firebar') {
+            hz.angle += hz.speed;
+            for (let b = 1; b <= hz.balls; b++) {
+              const bx = hz.cx + Math.cos(hz.angle) * (b * 18) - 6;
+              const by = hz.cy + Math.sin(hz.angle) * (b * 18) - 6;
+              const ballBox = { x: bx, y: by, w: 12, h: 12 };
+              if (aabbOverlap(player, ballBox)) {
+                triggerPlayerDamage();
+                break;
               }
             }
-            // Ground floor warm storefront glass
-            ctx.fillStyle = isFuture ? '#22D3EE' : '#FEF08A';
-            ctx.fillRect(bx + 3, iy - 15, bW - 6, 13);
-            // Striped Awning (차양막)
-            for (let ax = bx - 3; ax < bx + bW + 2; ax += 6) {
-              ctx.fillStyle = ((ax - bx) / 6) % 2 === 0 ? (isFuture ? '#F43F5E' : '#EF4444') : '#FFFFFF';
-              ctx.fillRect(ax, iy - 20, 3, 5);
-              ctx.fillStyle = '#F8FAFC';
-              ctx.fillRect(ax + 3, iy - 20, 3, 5);
-            }
-            // Rooftop Cup / Holo Sign
-            ctx.fillStyle = '#0F172A';
-            ctx.fillRect(ix - 12, sy - 11, 24, 11);
-            ctx.fillStyle = isFuture ? '#E879F9' : '#FB923C';
-            ctx.font = '700 8px "Inter", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(isFuture ? 'NEO' : 'CAFE', ix, sy - 3);
-            return;
-          }
-
-          if (tr.bType === 'ARCH_DOME') {
-            // Modern Museum/Planetarium Dome OR Future Bio-Sphere Arcology Dome!
-            const domeH = isFuture ? Math.floor(bH * 0.78) : Math.floor(bH * 0.75);
-            const dy = iy - domeH;
-            ctx.fillStyle = crownColor;
-            ctx.fillRect(bx - 4, dy + 16, bW + 8, domeH - 16);
-            // Rounded geodesic dome roof
-            ctx.fillStyle = isFuture ? 'rgba(34, 211, 238, 0.45)' : '#64748B';
-            ctx.beginPath();
-            ctx.arc(ix, dy + 18, Math.floor(bW * 0.58), Math.PI, 0);
-            ctx.fill();
-            // Geodesic lattice lines on dome
-            ctx.strokeStyle = isFuture ? '#5EEAD4' : '#CBD5E1';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.arc(ix, dy + 18, Math.floor(bW * 0.58), Math.PI, 0);
-            ctx.stroke();
-            // Glowing arched windows
-            ctx.fillStyle = isFuture ? '#A855F7' : (isNight ? '#38BDF8' : '#E0F2FE');
-            for (let wx = bx + 2; wx < bx + bW - 4; wx += 10) {
-              ctx.fillRect(wx, dy + 24, 6, domeH - 28);
-            }
-            return;
-          }
-
-          if (tr.bType === 'TWIN_BRIDGE_TOWER') {
-            // Twin Towers connected by an elevated Skybridge (트윈 타워 & 스카이브릿지)
-            const halfW = Math.max(10, Math.floor((bW - 8) / 2));
-            const leftX = bx - 2;
-            const rightX = bx + halfW + 6;
-            ctx.fillStyle = crownColor;
-            ctx.fillRect(leftX, by, halfW, bH);
-            ctx.fillRect(rightX, by, halfW, bH);
-            // Skybridge connecting the two towers
-            const bridgeY = by + Math.floor(bH * 0.35);
-            ctx.fillStyle = isFuture ? '#06B6D4' : '#475569';
-            ctx.fillRect(leftX + halfW, bridgeY, 8, 9);
-            ctx.fillStyle = isFuture ? '#CFFAFE' : '#FDE047';
-            ctx.fillRect(leftX + halfW, bridgeY + 2, 8, 4);
-            // Windows on both twin towers
-            ctx.fillStyle = isFuture ? '#22D3EE' : (isNight ? '#FACC15' : '#BAE6FD');
-            for (let wy = by + 8; wy < iy - 8; wy += 9) {
-              ctx.fillRect(leftX + 3, wy, halfW - 6, 4);
-              ctx.fillRect(rightX + 3, wy, halfW - 6, 4);
-            }
-            // Twin rooftop spires
-            ctx.fillStyle = isFuture ? '#F43F5E' : '#94A3B8';
-            ctx.fillRect(leftX + Math.floor(halfW / 2) - 1, by - 14, 2, 14);
-            ctx.fillRect(rightX + Math.floor(halfW / 2) - 1, by - 14, 2, 14);
-            return;
-          }
-
-          if (tr.bType === 'STEPPED_PYRAMID_CORP') {
-            // Terraced Ziggurat Corporate Headquarters / Cyber Mega-Pyramid
-            const tiers = 4;
-            const tierH = Math.floor(bH / tiers);
-            for (let t = 0; t < tiers; t++) {
-              const shrink = t * 4;
-              const tw = Math.max(12, bW + 8 - shrink * 2);
-              const tx = ix - Math.floor(tw / 2);
-              const ty = iy - (t + 1) * tierH;
-              ctx.fillStyle = crownColor;
-              ctx.fillRect(tx, ty, tw, tierH + 2);
-              // Horizontal neon/glass ribbon per tier
-              ctx.fillStyle = isFuture ? (t % 2 === 0 ? '#22D3EE' : '#F43F5E') : (isNight ? '#38BDF8' : '#E0F2FE');
-              ctx.fillRect(tx + 3, ty + 4, tw - 6, 4);
-              ctx.fillRect(tx + 3, ty + 11, tw - 6, 4);
-            }
-            // Glowing apex core
-            ctx.fillStyle = isFuture ? '#FACC15' : '#38BDF8';
-            ctx.beginPath();
-            ctx.moveTo(ix - 7, iy - tiers * tierH);
-            ctx.lineTo(ix, iy - tiers * tierH - 12);
-            ctx.lineTo(ix + 7, iy - tiers * tierH);
-            ctx.closePath();
-            ctx.fill();
-            return;
-          }
-
-          // Base rectangle for remaining building types
-          ctx.fillStyle = crownColor;
-          ctx.fillRect(bx, by, bW, bH);
-
-          if (tr.bType === 'BANK') {
-            ctx.fillStyle = isFuture ? '#0F766E' : '#475569';
-            ctx.fillRect(bx - 3, by, bW + 6, 8);
-            ctx.beginPath();
-            ctx.moveTo(bx - 4, by);
-            ctx.lineTo(ix, by - 14);
-            ctx.lineTo(bx + bW + 4, by);
-            ctx.closePath();
-            ctx.fill();
-            ctx.fillStyle = isFuture ? '#5EEAD4' : '#CBD5E1';
-            for (let cx = bx + 5; cx < bx + bW - 4; cx += 8) {
-              ctx.fillRect(cx, by + 18, 3, bH - 18);
-            }
-            ctx.fillStyle = '#0F172A';
-            ctx.fillRect(ix - 11, by + 4, 22, 11);
-            ctx.fillStyle = '#FACC15';
-            ctx.font = '8px "Press Start 2P", monospace';
-            ctx.textAlign = 'center';
-            ctx.fillText('$', ix, by + 13);
-          } else if (tr.bType === 'BILLBOARD') {
-            const winCol = isNight ? '#38BDF8' : '#E0F2FE';
-            ctx.fillStyle = winCol;
-            for (let wy = by + 32; wy < iy - 8; wy += 9) {
-              for (let wx = bx + 5; wx < bx + bW - 5; wx += 8) {
-                ctx.fillRect(wx, wy, 4, 5);
+          } else if (hz.type === 'thwomp') {
+            // 플레이어가 근처에 오면 쾅! 내려찍는 쿵쿵이(Thwomp)
+            if (hz.state === 'idle') {
+              if (Math.abs((player.x + player.w / 2) - (hz.x + hz.w / 2)) < 96) {
+                hz.state = 'falling';
+                hz.vy = 1.5;
+              }
+            } else if (hz.state === 'falling') {
+              hz.vy += 0.85;
+              hz.y += hz.vy;
+              if (hz.y + hz.h >= GROUND_Y) {
+                hz.y = GROUND_Y - hz.h;
+                hz.vy = 0;
+                hz.state = 'wait';
+                hz.timer = 42;
+                sound.thwompSlam();
+                spawnDust(hz.x + hz.w / 2, GROUND_Y, 8, '#cbd5e1');
+              }
+            } else if (hz.state === 'wait') {
+              hz.timer--;
+              if (hz.timer <= 0) hz.state = 'rising';
+            } else if (hz.state === 'rising') {
+              hz.y -= 1.6;
+              if (hz.y <= hz.homeY) {
+                hz.y = hz.homeY;
+                hz.state = 'idle';
               }
             }
-            const boardW = bW + 10;
-            const boardH = 22;
-            const boardX = ix - Math.floor(boardW / 2);
-            const boardY = by + 4;
-            ctx.fillStyle = '#090D16';
-            ctx.fillRect(boardX, boardY, boardW, boardH);
-            const borderBlink = Math.floor(frameCount / 10) % 2 === 0;
-            ctx.strokeStyle = isFuture ? (borderBlink ? '#F43F5E' : '#22D3EE') : (borderBlink ? '#FACC15' : '#38BDF8');
-            ctx.lineWidth = 2;
-            ctx.strokeRect(boardX, boardY, boardW, boardH);
-            const barShift = Math.floor(frameCount / 6);
-            for (let k = 0; k < 4; k++) {
-              const bh = 4 + ((k + barShift) % 4) * 3;
-              ctx.fillStyle = k % 2 === 0 ? '#34D399' : '#F43F5E';
-              ctx.fillRect(boardX + 5 + k * 7, boardY + boardH - bh - 3, 5, bh);
+
+            if (aabbOverlap(player, hz)) {
+              triggerPlayerDamage();
             }
-          } else if (tr.bType === 'LANDMARK_TOWER') {
-            ctx.fillStyle = crownColor;
-            ctx.fillRect(ix - Math.floor(bW * 0.35), by - 22, Math.floor(bW * 0.7), 22);
-            ctx.fillStyle = isFuture ? '#22D3EE' : '#FACC15';
-            ctx.fillRect(ix - Math.floor(bW * 0.55), by - 12, Math.floor(bW * 1.1), 5);
-            ctx.fillStyle = '#94A3B8';
-            ctx.fillRect(ix - 1, by - 44, 3, 22);
-            if (Math.floor(frameCount / 8) % 2 === 0) {
-              ctx.fillStyle = '#EF4444';
-              ctx.fillRect(ix - 3, by - 47, 7, 7);
+          } else if (hz.type === 'podoboo') {
+            // 용암에서 주기적으로 솟구치는 화염구
+            hz.timer++;
+            if (hz.timer === 1) {
+              hz.y = VIEW_H;
+              hz.vy = -11.4;
             }
-            ctx.fillStyle = isFuture ? '#F472B6' : '#38BDF8';
-            ctx.fillRect(ix - 2, by + 6, 4, bH - 12);
-          } else if (tr.bType === 'BROADCAST') {
-            // Communications / Radar Dish Tower (방송국 & 위성 레이더 타워)
-            ctx.fillStyle = isFuture ? '#67E8F9' : '#CBD5E1';
-            for (let wy = by + 10; wy < iy - 8; wy += 12) {
-              ctx.fillRect(bx + 4, wy, bW - 8, 4);
-            }
-            // Rooftop lattice mast & parabolic radar dish
-            ctx.fillStyle = '#94A3B8';
-            ctx.fillRect(ix - 4, by - 20, 2, 20);
-            ctx.fillRect(ix + 2, by - 20, 2, 20);
-            ctx.fillRect(ix - 4, by - 12, 8, 2);
-            // Rotating / blinking dish & signal waves
-            ctx.strokeStyle = isFuture ? '#22D3EE' : '#F8FAFC';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(ix + 5, by - 22, 8, Math.PI * 0.7, Math.PI * 1.7);
-            ctx.stroke();
-            if (Math.floor(frameCount / 7) % 2 === 0) {
-              ctx.fillStyle = isFuture ? '#22D3EE' : '#38BDF8';
-              ctx.fillRect(ix - 9, by - 28, 3, 3);
-            }
-          } else if (tr.bType === 'HOSPITAL_HOTEL') {
-            // Medical Center (+) / Luxury Hotel with Rooftop Helipad [H]
-            ctx.fillStyle = isFuture ? '#A5F3FC' : '#E2E8F0';
-            for (let wy = by + 22; wy < iy - 8; wy += 9) {
-              for (let wx = bx + 4; wx < bx + bW - 4; wx += 7) {
-                ctx.fillRect(wx, wy, 4, 5);
+            if (hz.y <= VIEW_H + 12) {
+              hz.y += hz.vy;
+              hz.vy += 0.36;
+              if (aabbOverlap(player, hz)) {
+                triggerPlayerDamage();
               }
             }
-            // Rooftop Helipad deck
-            ctx.fillStyle = '#334155';
-            ctx.fillRect(bx - 3, by - 4, bW + 6, 4);
-            // Illuminated Red Cross (+) or Cyber Med-Emblem
-            ctx.fillStyle = '#0F172A';
-            ctx.fillRect(ix - 7, by + 4, 14, 14);
-            ctx.fillStyle = isFuture ? '#22D3EE' : '#EF4444';
-            ctx.fillRect(ix - 2, by + 6, 4, 10);
-            ctx.fillRect(ix - 5, by + 9, 10, 4);
-          } else {
-            // Standard / Cyber Arcology Skyscraper
-            const winCol = isFuture ? (tr.seed % 2 === 0 ? '#22D3EE' : '#E879F9') : (isNight ? '#FDE047' : '#E0F2FE');
-            ctx.fillStyle = winCol;
-            for (let wy = by + 10; wy < iy - 10; wy += 10) {
-              for (let wx = bx + 5; wx < bx + bW - 5; wx += 8) {
-                if ((wy + wx + tr.seed) % 3 !== 0) {
-                  ctx.fillRect(wx, wy, 4, 5);
+            if (hz.timer >= 125) {
+              hz.timer = 0;
+            }
+          }
+        }
+
+        // ==========================================
+        // E. 아이템 물리 및 획득 처리 (아이템 획득 시 짧은 무적 보호 추가)
+        // ==========================================
+        for (let i = items.length - 1; i >= 0; i--) {
+          const it = items[i];
+
+          if (it.type === 'popCoin') {
+            it.y += it.vy;
+            it.vy += 0.48;
+            it.life--;
+            if (it.life <= 0) items.splice(i, 1);
+            continue;
+          }
+
+          if (it.state === 'rising') {
+            it.y -= 1.25;
+            if (it.y <= it.targetRiseY) {
+              it.y = it.targetRiseY;
+              it.state = 'active';
+            }
+          } else if (it.type === 'mushroom' || it.type === '1up' || it.type === 'star') {
+            it.x += it.vx;
+            for (let j = 0; j < solids.length; j++) {
+              const s = solids[j];
+              if (aabbOverlap(it, s)) {
+                if (it.vx > 0) {
+                  it.x = s.x - it.w;
+                  it.vx = -Math.abs(it.vx);
+                } else {
+                  it.x = s.x + s.w;
+                  it.vx = Math.abs(it.vx);
                 }
               }
             }
-            if (isFuture) {
-              ctx.fillStyle = 'rgba(34, 211, 238, 0.35)';
-              ctx.fillRect(bx - 18, by + 28, bW + 36, 5);
-              ctx.strokeStyle = '#F43F5E';
-              ctx.lineWidth = 1.5;
-              ctx.strokeRect(bx + 2, by + 2, bW - 4, 14);
+
+            it.vy += PHYSICS.gravity * (it.type === 'star' ? 0.65 : 0.85);
+            if (it.vy > 9) it.vy = 9;
+            it.y += it.vy;
+            for (let j = 0; j < solids.length; j++) {
+              const s = solids[j];
+              if (aabbOverlap(it, s)) {
+                if (it.vy > 0) {
+                  it.y = s.y - it.h;
+                  it.vy = it.type === 'star' ? -7.2 : 0;
+                } else if (it.vy < 0) {
+                  it.y = s.y + s.h;
+                  it.vy = 1;
+                }
+              }
             }
           }
-          return;
-        }
 
-        // 2) REQUIREMENT 1: EXTINCTION PHASE (Phase 4) -> Leafless dead trunks & Fallen trees!
-        if (style === 'extinction_dead') {
-          const isFallen = tr.seed % 3 === 0;
-          ctx.fillStyle = trunkColor;
-          if (isFallen) {
-            // Fallen Tree lying on the scorched ground with broken roots & embers!
-            ctx.fillRect(ix - 18, iy - 8, trunkH + 6, 7);
-            // Upturned jagged roots on the left
-            ctx.fillRect(ix - 22, iy - 14, 5, 14);
-            ctx.fillRect(ix - 26, iy - 10, 4, 8);
-            // Broken dead branch sticking up from the fallen trunk
-            ctx.fillRect(ix + 4, iy - 18, 4, 10);
-            ctx.fillRect(ix + 7, iy - 21, 5, 4);
-            // Glowing ember cracks on the fallen log
-            ctx.fillStyle = (frameCount + ix) % 10 < 5 ? '#FF4500' : '#FFCC00';
-            ctx.fillRect(ix - 6, iy - 6, 8, 3);
-            ctx.fillRect(ix + 12, iy - 5, 6, 2);
-          } else {
-            // Standing Leafless Dead Tree (앙상하고 부러진 나뭇가지만 남은 고사목, 나뭇잎 없음!)
-            ctx.fillRect(ix - 4, iy - trunkH, 8, trunkH + 2);
-            ctx.fillRect(ix - 8, iy - 5, 16, 5);
-            // Bare jagged branches left & right (NO leaf blobs!)
-            ctx.fillRect(ix - 14, iy - Math.floor(trunkH * 0.72), 10, 4);
-            ctx.fillRect(ix - 16, iy - Math.floor(trunkH * 0.72) - 7, 4, 8);
-            ctx.fillRect(ix + 4, iy - Math.floor(trunkH * 0.55), 11, 4);
-            ctx.fillRect(ix + 12, iy - Math.floor(trunkH * 0.55) - 6, 4, 7);
-            ctx.fillRect(ix - 9, iy - Math.floor(trunkH * 0.9), 6, 3);
-            // Ember glow in bark cracks
-            ctx.fillStyle = '#FF5500';
-            ctx.fillRect(ix - 1, iy - Math.floor(trunkH * 0.5), 3, 9);
-          }
-          return;
-        }
-
-        // 3) NORMAL LUSH TREES (Triassic, Jurassic, Cretaceous, Paleolithic, Ancient)
-        ctx.fillStyle = trunkColor;
-        ctx.fillRect(ix - 4, iy - trunkH, 8, trunkH + 2);
-        ctx.fillRect(ix - 8, iy - Math.floor(trunkH * 0.3), 16, 4);
-
-        const highlightCol = lerpColor(crownColor, '#FFFFFF', 0.28);
-
-        if (style === 'cycad') {
-          for (let b = -3; b <= 3; b++) {
-            const bx = ix + b * 6;
-            const by = iy - trunkH - 4;
-            drawLeafBlob(ctx, bx, by, 10, 6, crownColor, highlightCol);
-          }
-        } else if (style === 'araucaria') {
-          const cy = iy - trunkH;
-          drawLeafBlob(ctx, ix, cy - 6, crownW * 0.5, 9, crownColor, highlightCol);
-          drawLeafBlob(ctx, ix - crownW * 0.25, cy - 15, crownW * 0.38, 7, crownColor, highlightCol);
-          drawLeafBlob(ctx, ix + crownW * 0.25, cy - 15, crownW * 0.38, 7, crownColor, highlightCol);
-          drawLeafBlob(ctx, ix, cy - 25, crownW * 0.28, 6, crownColor, highlightCol);
-        } else if (style === 'magnolia') {
-          const cy = iy - trunkH;
-          drawLeafBlob(ctx, ix, cy - 10, crownW * 0.55, 14, crownColor, highlightCol);
-          drawLeafBlob(ctx, ix - crownW * 0.3, cy - 18, crownW * 0.4, 10, crownColor, highlightCol);
-          drawLeafBlob(ctx, ix + crownW * 0.3, cy - 18, crownW * 0.4, 10, crownColor, highlightCol);
-          drawLeafBlob(ctx, ix, cy - 26, crownW * 0.35, 9, crownColor, highlightCol);
-
-          ctx.fillStyle = '#F472B6';
-          ctx.fillRect(ix - Math.floor(crownW * 0.25), cy - 14, 5, 5);
-          ctx.fillRect(ix + Math.floor(crownW * 0.15), cy - 20, 5, 5);
-          ctx.fillRect(ix - 2, cy - 25, 5, 5);
-        } else if (style === 'snow_pine') {
-          const cy = iy - trunkH;
-          drawLeafBlob(ctx, ix, cy - 6, crownW * 0.5, 8, crownColor, highlightCol);
-          drawLeafBlob(ctx, ix, cy - 15, crownW * 0.38, 7, crownColor, highlightCol);
-          drawLeafBlob(ctx, ix, cy - 23, crownW * 0.25, 6, crownColor, highlightCol);
-
-          ctx.fillStyle = '#F8FAFC';
-          ctx.fillRect(ix - Math.floor(crownW * 0.4), cy - 7, Math.floor(crownW * 0.8), 3);
-          ctx.fillRect(ix - Math.floor(crownW * 0.3), cy - 16, Math.floor(crownW * 0.6), 3);
-        } else {
-          drawLeafBlob(ctx, ix, iy - trunkH - 8, crownW * 0.48, 12, crownColor, highlightCol);
-        }
-      }
-
-      // REQUIREMENT 7: Diverse human appearances, outfits, hairstyles, hats, and accessories in every era!
-      function drawBackgroundHumans() {
-        if (currentStage !== 2) return;
-
-        for (let hm of bgHumans) {
-          const hx = Math.floor(hm.x);
-          const stride = Math.floor((frameCount + hm.anim) / 5) % 2;
-          const bob = stride === 0 ? -1.5 : 0;
-          const hy = Math.floor(GROUND_Y + bob);
-          const r = hm.role; // 0..5
-
-          if (currentPhase === 5) {
-            // Paleolithic / Neolithic: 6 distinct tribal outfits (Leopard pelt, Shaman skull mask, Mammoth coat, Feather gatherer, Wolf-hood archer, Campfire roaster)
-            if (r === 5) {
-              ctx.fillStyle = '#5C4033';
-              ctx.fillRect(hx - 10, GROUND_Y - 4, 12, 4);
-              ctx.fillStyle = (frameCount + hx) % 6 < 3 ? '#FF5500' : '#FACC15';
-              ctx.fillRect(hx - 8, GROUND_Y - 12, 8, 8);
-              ctx.fillRect(hx - 6, GROUND_Y - 16, 4, 4);
-            }
-            const px = r === 5 ? hx + 8 : hx;
-            // Legs
-            ctx.fillStyle = hm.skin;
-            ctx.fillRect(px + (stride ? 0 : -2), hy - 6, 3, 6);
-            ctx.fillRect(px + (stride ? 5 : 3), hy - 6, 3, 6);
-
-            // Varied Tribal Outfits
-            if (r === 0) {
-              // Leopard spotted fur tunic + bone necklace
-              ctx.fillStyle = '#F59E0B';
-              ctx.fillRect(px - 1, hy - 16, 8, 10);
-              ctx.fillStyle = '#451A03';
-              ctx.fillRect(px + 1, hy - 14, 2, 2);
-              ctx.fillRect(px + 4, hy - 11, 2, 2);
-              ctx.fillStyle = '#F8FAFC';
-              ctx.fillRect(px, hy - 16, 6, 2); // Bone necklace
-            } else if (r === 1) {
-              // Tribal Shaman in crimson cloak + skull mask headdress
-              ctx.fillStyle = '#B91C1C';
-              ctx.fillRect(px - 2, hy - 16, 10, 11);
-              ctx.fillStyle = '#FDE047';
-              ctx.fillRect(px + 1, hy - 14, 4, 4);
-            } else if (r === 2) {
-              // White-trimmed Mammoth winter parka
-              ctx.fillStyle = '#5C4033';
-              ctx.fillRect(px - 2, hy - 16, 10, 10);
-              ctx.fillStyle = '#F8FAFC';
-              ctx.fillRect(px - 2, hy - 16, 10, 2);
-              ctx.fillRect(px - 2, hy - 8, 10, 2);
-            } else if (r === 3) {
-              // Neolithic woven emerald & ochre two-piece + basket
-              ctx.fillStyle = '#0D9488';
-              ctx.fillRect(px - 1, hy - 16, 8, 5);
-              ctx.fillStyle = '#B45309';
-              ctx.fillRect(px - 2, hy - 11, 10, 6);
-              ctx.fillStyle = '#D97706';
-              ctx.fillRect(px - 5, hy - 15, 4, 7); // Woven back-basket
-            } else {
-              // Dark wolf-pelt vest & leather kilt
-              ctx.fillStyle = '#334155';
-              ctx.fillRect(px - 1, hy - 16, 8, 6);
-              ctx.fillStyle = '#92400E';
-              ctx.fillRect(px - 1, hy - 10, 8, 5);
-            }
-
-            // Head & Varied Hair/Headdress
-            ctx.fillStyle = hm.skin;
-            ctx.fillRect(px, hy - 22, 6, 6);
-            if (r === 1) {
-              // Horned skull headdress
-              ctx.fillStyle = '#F8FAFC';
-              ctx.fillRect(px - 1, hy - 25, 8, 4);
-              ctx.fillRect(px - 3, hy - 28, 2, 4);
-              ctx.fillRect(px + 7, hy - 28, 2, 4);
-            } else if (r === 3) {
-              // Feathered headband
-              ctx.fillStyle = hm.hairCol;
-              ctx.fillRect(px - 1, hy - 24, 8, 3);
-              ctx.fillStyle = '#F43F5E';
-              ctx.fillRect(px + 1, hy - 28, 2, 4);
-              ctx.fillStyle = '#22D3EE';
-              ctx.fillRect(px + 4, hy - 27, 2, 3);
-            } else {
-              ctx.fillStyle = hm.hairCol;
-              ctx.fillRect(px - 1, hy - 24, 8, 3);
-              if (hm.hairStyle === 1) ctx.fillRect(px - 2, hy - 22, 2, 5); // Long hair
-              if (hm.hairStyle === 2) ctx.fillRect(px + 2, hy - 27, 3, 3); // Topknot bun
-            }
-
-            // Varied Tools (Spear, Torch, Stone Axe, Bow)
-            if (r === 0 || r === 4) {
-              ctx.fillStyle = '#451A03';
-              ctx.fillRect(px + 8, hy - 28, 2, 24);
-              ctx.fillStyle = '#E2E8F0';
-              ctx.fillRect(px + 7, hy - 31, 4, 4);
-            } else if (r === 1) {
-              ctx.fillStyle = '#78350F';
-              ctx.fillRect(px + 8, hy - 26, 2, 22);
-              ctx.fillStyle = '#38BDF8';
-              ctx.fillRect(px + 7, hy - 30, 4, 4);
-            } else if (r === 2) {
-              ctx.fillStyle = '#5C4033';
-              ctx.fillRect(px + 7, hy - 21, 2, 12);
-              ctx.fillStyle = '#94A3B8';
-              ctx.fillRect(px + 5, hy - 22, 6, 4);
-            }
-          } else if (currentPhase === 6) {
-            // Ancient (6A) & Medieval/Industrial (6B) with 6 distinct outfits!
-            ctx.fillStyle = '#451A03';
-            ctx.fillRect(hx + (stride ? -1 : 1), hy - 6, 3, 6);
-            ctx.fillRect(hx + (stride ? 5 : 3), hy - 6, 3, 6);
-
-            if (currentSubPhase === '6A') {
-              if (r === 0) {
-                // Egyptian Noble: White kilt + gold belt + blue/gold Pharaoh nemes headdress
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(hx - 1, hy - 14, 8, 8);
-                ctx.fillStyle = '#FACC15';
-                ctx.fillRect(hx - 1, hy - 16, 8, 3);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = '#1D4ED8';
-                ctx.fillRect(hx - 2, hy - 25, 10, 4);
-                ctx.fillStyle = '#FACC15';
-                ctx.fillRect(hx, hy - 25, 6, 2);
-              } else if (r === 1) {
-                // Greek Philosopher/Senator: Royal purple sash over white tunic + white beard
-                ctx.fillStyle = '#F8FAFC';
-                ctx.fillRect(hx - 1, hy - 16, 8, 10);
-                ctx.fillStyle = '#7C3AED';
-                ctx.fillRect(hx - 2, hy - 16, 6, 9);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = '#E2E8F0';
-                ctx.fillRect(hx, hy - 24, 6, 2);
-                ctx.fillRect(hx + 1, hy - 18, 5, 3); // Beard
-              } else if (r === 2) {
-                // Roman Centurion: Bronze cuirass + red tunic + red crested helmet
-                ctx.fillStyle = '#B91C1C';
-                ctx.fillRect(hx - 1, hy - 16, 8, 10);
-                ctx.fillStyle = '#D97706';
-                ctx.fillRect(hx - 1, hy - 16, 8, 6);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = '#F59E0B';
-                ctx.fillRect(hx - 1, hy - 24, 8, 3);
-                ctx.fillStyle = '#EF4444';
-                ctx.fillRect(hx - 2, hy - 28, 10, 4);
-              } else if (r === 3) {
-                // Silk Road Merchant: Emerald robe + gold trim + white/gold turban
-                ctx.fillStyle = '#059669';
-                ctx.fillRect(hx - 2, hy - 16, 10, 10);
-                ctx.fillStyle = '#FACC15';
-                ctx.fillRect(hx + 2, hy - 16, 2, 10);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = '#FEF08A';
-                ctx.fillRect(hx - 2, hy - 26, 10, 5);
-              } else if (r === 4) {
-                // Priestess / Dancer: Cyan dress + gold collar + long dark hair
-                ctx.fillStyle = '#06B6D4';
-                ctx.fillRect(hx - 2, hy - 16, 10, 11);
-                ctx.fillStyle = '#FACC15';
-                ctx.fillRect(hx - 1, hy - 16, 8, 2);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = '#1C1917';
-                ctx.fillRect(hx - 1, hy - 24, 8, 3);
-                ctx.fillRect(hx - 2, hy - 22, 2, 6);
+          if (aabbOverlap(player, it)) {
+            if (it.type === '1up') {
+              lives += 1;
+              score += 1000;
+              sound.oneUp();
+              addPopup(player.x, player.y - 16, '1-UP! LIFE +1', '#4ade80');
+            } else if (it.type === 'mushroom') {
+              sound.powerUp();
+              score += 1000;
+              if (player.powerLevel === 0) {
+                setPlayerPower(1);
+                player.transformTimer = 18;
+                player.invincibleTimer = Math.max(player.invincibleTimer, 45);
+                addPopup(player.x, player.y - 16, 'SUPER UP! +1000', '#4ade80');
               } else {
-                // Ancient Spearman with crimson cape
-                ctx.fillStyle = '#DC2626';
-                ctx.fillRect(hx - 3, hy - 16, 4, 10);
-                ctx.fillStyle = '#B45309';
-                ctx.fillRect(hx, hy - 16, 7, 10);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = hm.hairCol;
-                ctx.fillRect(hx - 1, hy - 24, 8, 3);
+                addPopup(player.x, player.y - 16, '+1000', '#facc15');
               }
-            } else {
-              // 6B: Medieval & Victorian Industrial Fashion!
-              if (r === 0) {
-                // Victorian Gentleman: Tall black Top Hat + navy tailcoat + cane
-                ctx.fillStyle = '#1E293B';
-                ctx.fillRect(hx - 1, hy - 16, 8, 10);
-                ctx.fillStyle = '#F8FAFC';
-                ctx.fillRect(hx + 2, hy - 16, 3, 5);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = '#090D16';
-                ctx.fillRect(hx - 2, hy - 24, 10, 2);
-                ctx.fillRect(hx, hy - 30, 6, 6);
-                ctx.fillStyle = '#B45309';
-                ctx.fillRect(hx + 8, hy - 14, 2, 14);
-              } else if (r === 1) {
-                // Noblewoman in Rose-Burgundy Gown + Bonnet/Hat
-                ctx.fillStyle = '#BE123C';
-                ctx.fillRect(hx - 1, hy - 16, 8, 5);
-                ctx.fillStyle = '#F43F5E';
-                ctx.fillRect(hx - 3, hy - 11, 12, 7);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = '#FDA4AF';
-                ctx.fillRect(hx - 2, hy - 25, 10, 3);
-              } else if (r === 2) {
-                // Medieval Wizard / Scholar in Blue Robe & Pointed Hat
-                ctx.fillStyle = '#2563EB';
-                ctx.fillRect(hx - 2, hy - 16, 10, 11);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = '#1D4ED8';
-                ctx.fillRect(hx - 3, hy - 24, 12, 2);
-                ctx.fillRect(hx - 1, hy - 28, 8, 4);
-                ctx.fillRect(hx + 1, hy - 31, 4, 3);
-              } else if (r === 3) {
-                // Royal Halberd Guard: Red & Gold Tabard + Silver Helmet
-                ctx.fillStyle = '#EF4444';
-                ctx.fillRect(hx - 1, hy - 16, 4, 10);
-                ctx.fillStyle = '#FACC15';
-                ctx.fillRect(hx + 3, hy - 16, 4, 10);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = '#CBD5E1';
-                ctx.fillRect(hx - 1, hy - 25, 8, 4);
-                ctx.fillStyle = '#991B1B';
-                ctx.fillRect(hx + 8, hy - 28, 2, 28);
-                ctx.fillRect(hx + 10, hy - 27, 7, 5);
-              } else if (r === 4) {
-                // Steampunk Inventor: Brown coat + brass goggles on forehead
-                ctx.fillStyle = '#78350F';
-                ctx.fillRect(hx - 1, hy - 16, 8, 10);
-                ctx.fillStyle = '#F59E0B';
-                ctx.fillRect(hx + 1, hy - 14, 4, 4);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = hm.hairCol;
-                ctx.fillRect(hx - 1, hy - 25, 8, 3);
-                ctx.fillStyle = '#38BDF8';
-                ctx.fillRect(hx, hy - 23, 6, 2); // Goggles
+            } else if (it.type === 'flower') {
+              sound.powerUp();
+              score += 1000;
+              setPlayerPower(2);
+              player.transformTimer = 20;
+              player.invincibleTimer = Math.max(player.invincibleTimer, 45);
+              addPopup(player.x, player.y - 18, 'FIRE MARIO! (Z/Shift)', '#fb923c');
+              spawnFireBurst(player.x + player.w / 2, player.y + player.h / 2);
+            } else if (it.type === 'star') {
+              sound.powerUp();
+              score += 1000;
+              player.starTimer = 540;
+              addPopup(player.x, player.y - 18, 'STAR INVINCIBLE!', '#fef08a');
+            }
+
+            spawnDust(player.x + player.w / 2, player.y + player.h / 2, 10);
+            items.splice(i, 1);
+            continue;
+          }
+
+          if (it.y > VIEW_H + 60) {
+            items.splice(i, 1);
+          }
+        }
+
+        // ==========================================
+        // F. 뻐끔플라워(Piranha Plant) 업데이트
+        // ==========================================
+        for (let i = 0; i < piranhas.length; i++) {
+          const pir = piranhas[i];
+          if (!pir.alive) continue;
+
+          const nearPlayer = Math.abs((player.x + player.w / 2) - (pir.x + pir.w / 2)) < 56;
+          if (!(nearPlayer && pir.y >= pir.baseY - 2)) {
+            pir.timer++;
+          }
+
+          const cycle = pir.timer % 180;
+          if (cycle < 45) pir.y = pir.baseY - (cycle / 45) * pir.h;
+          else if (cycle < 95) pir.y = pir.baseY - pir.h;
+          else if (cycle < 140) pir.y = pir.baseY - (1 - (cycle - 95) / 45) * pir.h;
+          else pir.y = pir.baseY;
+
+          if (pir.y < pir.baseY - 8) {
+            const hitbox = {
+              x: pir.x + 4,
+              y: pir.y + 4,
+              w: pir.w - 8,
+              h: pir.baseY - pir.y - 4
+            };
+            if (aabbOverlap(player, hitbox)) {
+              if (player.starTimer > 0) {
+                pir.alive = false;
+                sound.kick();
+                score += 300;
+                addPopup(pir.x, pir.y, 'STAR +300', '#fef08a');
               } else {
-                // Townsfolk in emerald vest & white shirt + flat cap
-                ctx.fillStyle = '#F8FAFC';
-                ctx.fillRect(hx - 2, hy - 16, 10, 9);
-                ctx.fillStyle = '#15803D';
-                ctx.fillRect(hx - 1, hy - 16, 8, 9);
-                ctx.fillStyle = hm.skin;
-                ctx.fillRect(hx, hy - 22, 6, 6);
-                ctx.fillStyle = '#44403C';
-                ctx.fillRect(hx - 1, hy - 24, 9, 3);
+                triggerPlayerDamage();
               }
             }
-          } else if (currentPhase === 7) {
-            // Modern Metropolis: 6 colorful, distinct street fashions!
-            if (r === 0) {
-              // Streetwear: Red Hoodie + Blue Jeans + White Headphones + Cap
-              ctx.fillStyle = '#1D4ED8';
-              ctx.fillRect(hx + (stride ? -1 : 1), hy - 6, 3, 6);
-              ctx.fillRect(hx + (stride ? 5 : 3), hy - 6, 3, 6);
-              ctx.fillStyle = '#EF4444';
-              ctx.fillRect(hx - 2, hy - 16, 10, 10);
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx, hy - 22, 6, 6);
-              ctx.fillStyle = '#1E293B';
-              ctx.fillRect(hx - 1, hy - 24, 9, 3);
-              ctx.fillStyle = '#F8FAFC';
-              ctx.fillRect(hx - 1, hy - 22, 2, 4); // Headphones
-            } else if (r === 1) {
-              // Business Suit: Navy Jacket + White Shirt + Red Tie + Briefcase
-              ctx.fillStyle = '#0F172A';
-              ctx.fillRect(hx + (stride ? -1 : 1), hy - 6, 3, 6);
-              ctx.fillRect(hx + (stride ? 5 : 3), hy - 6, 3, 6);
-              ctx.fillStyle = '#1E3A8A';
-              ctx.fillRect(hx - 1, hy - 16, 8, 10);
-              ctx.fillStyle = '#FFFFFF';
-              ctx.fillRect(hx + 2, hy - 16, 3, 6);
-              ctx.fillStyle = '#EF4444';
-              ctx.fillRect(hx + 3, hy - 15, 1, 5);
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx, hy - 22, 6, 6);
-              ctx.fillStyle = hm.hairCol;
-              ctx.fillRect(hx - 1, hy - 24, 8, 3);
-              ctx.fillStyle = '#78350F';
-              ctx.fillRect(hx + 6, hy - 10, 6, 5); // Briefcase
-            } else if (r === 2) {
-              // Fashionista: Pink/Magenta Dress + Blonde/Long Hair + Sunglasses + Handbag
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx + (stride ? 0 : 1), hy - 6, 2, 6);
-              ctx.fillRect(hx + (stride ? 5 : 4), hy - 6, 2, 6);
-              ctx.fillStyle = '#EC4899';
-              ctx.fillRect(hx - 1, hy - 16, 8, 5);
-              ctx.fillStyle = '#DB2777';
-              ctx.fillRect(hx - 3, hy - 11, 12, 6);
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx, hy - 22, 6, 6);
-              ctx.fillStyle = '#FACC15';
-              ctx.fillRect(hx - 2, hy - 24, 9, 3);
-              ctx.fillRect(hx - 2, hy - 21, 3, 6); // Long hair
-              ctx.fillStyle = '#090D16';
-              ctx.fillRect(hx + 2, hy - 20, 4, 2); // Sunglasses
-            } else if (r === 3) {
-              // Jogger / Athlete: Neon Mint Tracksuit + Shorts + Red Headband
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx + (stride ? -2 : 1), hy - 6, 3, 6);
-              ctx.fillRect(hx + (stride ? 6 : 3), hy - 6, 3, 6);
-              ctx.fillStyle = '#10B981';
-              ctx.fillRect(hx - 1, hy - 16, 8, 7);
-              ctx.fillStyle = '#0F172A';
-              ctx.fillRect(hx - 1, hy - 9, 8, 4);
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx, hy - 22, 6, 6);
-              ctx.fillStyle = hm.hairCol;
-              ctx.fillRect(hx, hy - 24, 6, 2);
-              ctx.fillStyle = '#EF4444';
-              ctx.fillRect(hx - 1, hy - 22, 8, 2); // Headband
-            } else if (r === 4) {
-              // Photographer / Student: Yellow Jacket + Orange Backpack + Beanie + Camera Flash!
-              ctx.fillStyle = '#334155';
-              ctx.fillRect(hx + (stride ? -1 : 1), hy - 6, 3, 6);
-              ctx.fillRect(hx + (stride ? 5 : 3), hy - 6, 3, 6);
-              ctx.fillStyle = '#F97316';
-              ctx.fillRect(hx - 4, hy - 15, 4, 8); // Backpack
-              ctx.fillStyle = '#FACC15';
-              ctx.fillRect(hx - 1, hy - 16, 8, 10);
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx, hy - 22, 6, 6);
-              ctx.fillStyle = '#06B6D4';
-              ctx.fillRect(hx - 1, hy - 25, 8, 4); // Beanie
-              if ((frameCount + hx) % 36 < 6) {
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(hx + 5, hy - 24, 9, 9);
+          }
+        }
+
+        // ==========================================
+        // G. 몬스터(굼바, 엉금엉금, 날개 엉금엉금, 딱정벌레, 가시돌이) AI 및 충돌 판정
+        // ==========================================
+        for (let i = enemies.length - 1; i >= 0; i--) {
+          const en = enemies[i];
+
+          if (en.state === 'squished') {
+            en.squishTimer--;
+            if (en.squishTimer <= 0) enemies.splice(i, 1);
+            continue;
+          }
+
+          if (currentZone === 'OVERWORLD' && en.x > cameraX + VIEW_W + 220) {
+            continue;
+          }
+
+          en.animTimer++;
+          en.x += en.vx;
+
+          // ★ 스폰킬 방지용 순찰 구역 경계 체크 (걷는 몬스터가 시작 스폰 구역으로 넘어오지 못하게 제한!)
+          if (en.state === 'walk') {
+            if (en.minX !== undefined && en.x < en.minX) {
+              en.x = en.minX;
+              en.vx = Math.abs(en.vx);
+            }
+            if (en.maxX !== undefined && en.x + en.w > en.maxX) {
+              en.x = en.maxX - en.w;
+              en.vx = -Math.abs(en.vx);
+            }
+          }
+
+          // 벽이나 토관에 부딪히면 방향 반전
+          for (let j = 0; j < solids.length; j++) {
+            const s = solids[j];
+            if (aabbOverlap(en, s)) {
+              if (en.vx > 0) {
+                en.x = s.x - en.w;
+                en.vx = -Math.abs(en.vx);
+                if (en.state === 'shell_moving') sound.bump();
+              } else if (en.vx < 0) {
+                en.x = s.x + s.w;
+                en.vx = Math.abs(en.vx);
+                if (en.state === 'shell_moving') sound.bump();
               }
-            } else {
-              // Varsity Jacket (Purple & White sleeves) + Khaki Pants
-              ctx.fillStyle = '#D97706';
-              ctx.fillRect(hx + (stride ? -1 : 1), hy - 6, 3, 6);
-              ctx.fillRect(hx + (stride ? 5 : 3), hy - 6, 3, 6);
-              ctx.fillStyle = '#F8FAFC';
-              ctx.fillRect(hx - 2, hy - 16, 10, 9);
-              ctx.fillStyle = '#7C3AED';
-              ctx.fillRect(hx, hy - 16, 6, 9);
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx, hy - 22, 6, 6);
-              ctx.fillStyle = hm.hairCol;
-              ctx.fillRect(hx - 1, hy - 25, 8, 4);
-            }
-          } else if (currentPhase === 8) {
-            // Far Future 3000: 6 Distinct Cyberpunk & Sci-Fi Fashions!
-            const hoverY = hy - 4 + Math.round(Math.sin(frameCount * 0.15 + hm.anim) * 2.5);
-            // Varied Hoverboards / Jet rings
-            const boardCols = ['#22D3EE', '#F43F5E', '#A855F7', '#FACC15', '#34D399', '#38BDF8'];
-            ctx.fillStyle = boardCols[r % boardCols.length];
-            ctx.fillRect(hx - 4, hoverY - 2, 14, 3);
-
-            if (r === 0) {
-              // Cyber Punk with Neon Pink Mohawk & Cyan Trenchcoat
-              ctx.fillStyle = '#0891B2';
-              ctx.fillRect(hx - 2, hoverY - 14, 10, 12);
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx, hoverY - 20, 6, 6);
-              ctx.fillStyle = '#F43F5E';
-              ctx.fillRect(hx + 1, hoverY - 25, 4, 5); // Mohawk
-              ctx.fillStyle = '#FACC15';
-              ctx.fillRect(hx - 1, hoverY - 18, 6, 2); // Visor
-            } else if (r === 1) {
-              // White/Silver Astronaut Exo-Suit + Cyan Bubble Helmet
-              ctx.fillStyle = '#F8FAFC';
-              ctx.fillRect(hx - 2, hoverY - 14, 10, 12);
-              ctx.fillStyle = '#38BDF8';
-              ctx.fillRect(hx, hoverY - 12, 6, 4);
-              ctx.fillStyle = '#67E8F9';
-              ctx.fillRect(hx - 2, hoverY - 22, 10, 8);
-              ctx.fillStyle = '#0F172A';
-              ctx.fillRect(hx, hoverY - 20, 6, 4);
-            } else if (r === 2) {
-              // Cyber-Samurai in Lime/Gold Jacket + Glowing Red Katana on back
-              ctx.fillStyle = '#F43F5E';
-              ctx.fillRect(hx - 4, hoverY - 24, 2, 18); // Neon Katana
-              ctx.fillStyle = '#84CC16';
-              ctx.fillRect(hx - 1, hoverY - 14, 8, 12);
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx, hoverY - 20, 6, 6);
-              ctx.fillStyle = '#FACC15';
-              ctx.fillRect(hx - 1, hoverY - 23, 8, 3);
-            } else if (r === 3) {
-              // Chrome Android Citizen with Glowing Amber Optics
-              ctx.fillStyle = '#94A3B8';
-              ctx.fillRect(hx - 1, hoverY - 14, 8, 12);
-              ctx.fillStyle = '#CBD5E1';
-              ctx.fillRect(hx, hoverY - 20, 6, 6);
-              ctx.fillStyle = '#22D3EE';
-              ctx.fillRect(hx + 1, hoverY - 11, 4, 4); // Core reactor
-              ctx.fillStyle = '#FACC15';
-              ctx.fillRect(hx - 1, hoverY - 18, 6, 2);
-            } else if (r === 4) {
-              // Holo-Noble in Magenta/Gold Plasma Cape
-              ctx.fillStyle = '#EC4899';
-              ctx.fillRect(hx - 3, hoverY - 14, 12, 12);
-              ctx.fillStyle = '#FACC15';
-              ctx.fillRect(hx - 1, hoverY - 14, 8, 3);
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx, hoverY - 20, 6, 6);
-              ctx.fillStyle = '#A855F7';
-              ctx.fillRect(hx - 1, hoverY - 23, 8, 4);
-            } else {
-              // Neon Orange Tech-Hoodie + Floating Holo-Screen
-              ctx.fillStyle = '#EA580C';
-              ctx.fillRect(hx - 2, hoverY - 14, 10, 12);
-              ctx.fillStyle = hm.skin;
-              ctx.fillRect(hx, hoverY - 20, 6, 6);
-              ctx.fillStyle = '#FB923C';
-              ctx.fillRect(hx - 2, hoverY - 22, 9, 3);
-              ctx.fillStyle = 'rgba(34, 211, 238, 0.75)';
-              ctx.fillRect(hx + 8, hoverY - 18, 5, 7); // Floating holo-pad
             }
           }
-        }
-      }
 
-      function drawSciFiSkyElements() {
-        if (currentPhase !== 8) return;
+          // 고속 회전 등껍질(shell_moving) 연쇄 처치
+          for (let k = enemies.length - 1; k >= 0; k--) {
+            if (i === k) continue;
+            const other = enemies[k];
+            if (!other || other.state === 'squished') continue;
 
-        // 1) Giant Ringed Planet (토성형 고리 행성) in the Far Future Sky
-        const px = 640;
-        const py = 54;
-        ctx.fillStyle = 'rgba(45, 212, 191, 0.22)';
-        ctx.fillRect(px - 22, py - 22, 44, 44);
-        ctx.fillStyle = 'rgba(15, 118, 110, 0.45)';
-        ctx.fillRect(px - 16, py - 16, 32, 32);
-        // Planetary Ring
-        ctx.strokeStyle = 'rgba(244, 114, 182, 0.55)';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(px - 38, py + 10);
-        ctx.lineTo(px + 38, py - 10);
-        ctx.stroke();
-
-        // 2) Flying UFOs, Motherships with Tractor Beams & Neon Skycars
-        for (let ufo of bgUfos) {
-          const ux = Math.floor(ufo.x);
-          const uy = Math.floor(ufo.y + Math.sin(ufo.phase) * 5);
-
-          if (ufo.kind === 'skycar') {
-            ctx.fillStyle = '#0F172A';
-            ctx.fillRect(ux, uy, 14, 5);
-            ctx.fillStyle = '#22D3EE';
-            ctx.fillRect(ux + 14, uy + 1, 10, 2); // Neon thruster trail
-            ctx.fillStyle = '#F43F5E';
-            ctx.fillRect(ux, uy + 1, 3, 2);
-          } else {
-            const w = ufo.kind === 'mothership' ? 46 : 28;
-            // Tractor beam cone shining down intermittently
-            if (ufo.hasBeam && Math.sin(ufo.phase * 0.7) > 0.1) {
-              ctx.fillStyle = 'rgba(34, 211, 238, 0.13)';
-              ctx.beginPath();
-              ctx.moveTo(ux + w * 0.3, uy + 8);
-              ctx.lineTo(ux + w * 0.7, uy + 8);
-              ctx.lineTo(ux + w * 1.25, GROUND_Y);
-              ctx.lineTo(ux - w * 0.25, GROUND_Y);
-              ctx.closePath();
-              ctx.fill();
-            }
-            // UFO Dome
-            ctx.fillStyle = '#67E8F9';
-            ctx.fillRect(ux + Math.floor(w * 0.25), uy - 5, Math.floor(w * 0.5), 5);
-            // UFO Saucer Body
-            ctx.fillStyle = '#334155';
-            ctx.fillRect(ux, uy, w, 6);
-            // Blinking Rim Lights
-            const blink = Math.floor(frameCount / 5) % 2 === 0;
-            ctx.fillStyle = blink ? '#F43F5E' : '#FACC15';
-            for (let lx = ux + 3; lx < ux + w - 3; lx += 7) {
-              ctx.fillRect(lx, uy + 2, 3, 2);
+            if (aabbOverlap(en, other)) {
+              if (en.state === 'shell_moving') {
+                other.state = 'squished';
+                other.squishTimer = 20;
+                score += 400;
+                sound.kick();
+                spawnFireBurst(other.x + other.w / 2, other.y + other.h / 2);
+                addPopup(other.x, other.y - 12, 'SHELL COMBO +400', '#38bdf8');
+              } else if (en.state === 'walk' && other.state === 'walk') {
+                en.vx = -en.vx;
+                en.x += en.vx * 2;
+              }
             }
           }
-        }
-      }
 
-      function drawPixelSun(x, y, scale) {
-        const pulseRay = Math.floor(frameCount / 20) % 2 === 0;
-        drawPixelMatrix(ctx, SPRITES.PIXEL_SUN, x, y, scale, {
-          '#': currentSubPhase === '1B' ? '#F97316' : '#FBBF24',
-          '2': '#FDE047',
-          '3': '#FFFBEB',
-          '4': pulseRay ? 'rgba(251, 191, 36, 0.75)' : 'rgba(251, 191, 36, 0.25)'
-        });
-      }
-
-      function drawPixelAsteroidInSky() {
-        let ax, ay, scale, tailBlocks;
-        if (gameState === STATE.IMPACT_CUTSCENE) {
-          ax = cutscene.meteorX;
-          ay = cutscene.meteorY;
-          scale = cutscene.meteorScale;
-          tailBlocks = 22;
-        } else {
-          const progress = Math.max(0, Math.min(1, (score - 2000) / 2000));
-          ax = lerp(720, 560, progress);
-          ay = lerp(24, 54, progress);
-          scale = lerp(1.1, 3.8, Math.pow(progress, 1.15));
-          tailBlocks = Math.floor(lerp(6, 18, progress));
-        }
-
-        const spriteW = SPRITES.PIXEL_ASTEROID[0].length * scale;
-        const spriteH = SPRITES.PIXEL_ASTEROID.length * scale;
-        const centerX = ax + spriteW * 0.5;
-        const centerY = ay + spriteH * 0.5;
-
-        for (let t = tailBlocks; t >= 1; t--) {
-          const frac = t / tailBlocks;
-          const stepX = Math.floor(centerX + t * scale * 2.8);
-          const stepY = Math.floor(centerY - t * scale * 1.35);
-          const boxSize = Math.max(4, Math.floor(spriteH * (1 - frac * 0.78)));
-          const snapSize = Math.ceil(boxSize / 4) * 4;
-          ctx.fillStyle = t % 2 === 0
-            ? `rgba(255, 69, 0, ${0.65 * (1 - frac * 0.7)})`
-            : `rgba(255, 204, 0, ${0.6 * (1 - frac * 0.7)})`;
-          ctx.fillRect(Math.floor(stepX - snapSize / 2), Math.floor(stepY - snapSize / 2), snapSize, snapSize);
-        }
-
-        const flicker = Math.floor(frameCount / 5) % 2 === 0;
-        drawPixelMatrix(ctx, SPRITES.PIXEL_ASTEROID, ax, ay, scale, {
-          '#': '#3B1114',
-          '2': '#FF4500',
-          '3': flicker ? '#FFFBEB' : '#FFE066',
-          '4': flicker ? '#FF5500' : '#FF8800'
-        });
-      }
-
-      function drawSkyAndEnvironment() {
-        const grad = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
-        grad.addColorStop(0, activeTheme.skyTop);
-        grad.addColorStop(1, activeTheme.skyBottom);
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, W, GROUND_Y);
-
-        if (currentPhase === 1 || currentPhase === 5 || currentPhase === 6) {
-          drawPixelSun(635, 24, 2.2);
-        } else if (currentPhase === 2) {
-          drawPixelSun(650, 24, 2.0);
-          ctx.fillStyle = currentSubPhase === '2B' ? 'rgba(180, 245, 225, 0.07)' : 'rgba(255, 255, 210, 0.08)';
-          for (let b = 0; b < 4; b++) {
-            const bx = 120 + b * 185;
-            ctx.beginPath();
-            ctx.moveTo(bx, 0); ctx.lineTo(bx + 45, 0);
-            ctx.lineTo(bx - 55, GROUND_Y); ctx.lineTo(bx - 100, GROUND_Y);
-            ctx.closePath(); ctx.fill();
+          // 수직 중력 및 바닥 착지
+          en.vy += PHYSICS.gravity * (en.type === 'paratroopa' ? 0.55 : 0.85);
+          if (en.vy > 9) en.vy = 9;
+          en.y += en.vy;
+          for (let j = 0; j < solids.length; j++) {
+            const s = solids[j];
+            if (aabbOverlap(en, s)) {
+              if (en.vy > 0) {
+                en.y = s.y - en.h;
+                en.onGround = true;
+                // 날개 엉금엉금(Paratroopa)은 바닥에 닿을 때마다 통통 점프!
+                if (en.type === 'paratroopa' && en.state === 'walk') {
+                  en.vy = -7.2;
+                } else {
+                  en.vy = 0;
+                }
+              }
+            }
           }
-        }
 
-        // Sci-Fi Planets, UFOs & Flying Traffic in Phase 8
-        drawSciFiSkyElements();
-
-        for (let cl of skyClouds) {
-          ctx.fillStyle = (currentPhase === 4 || currentPhase === 8) ? 'rgba(90, 20, 55, 0.5)' : 'rgba(255, 255, 255, 0.45)';
-          ctx.fillRect(Math.floor(cl.x), Math.floor(cl.y), cl.w, cl.h);
-          ctx.fillRect(Math.floor(cl.x + 10), Math.floor(cl.y - 6), cl.w - 20, 6);
-        }
-
-        for (let fl of distantFlocks) {
-          ctx.fillStyle = activeTheme.midSil;
-          for (let k = 0; k < fl.count; k++) {
-            const bx = fl.x + k * 16;
-            const by = fl.y + (k % 2) * 7 + Math.sin(frameCount * 0.15 + fl.phase + k) * 3;
-            const wingUp = Math.sin(frameCount * 0.22 + k) > 0;
-            ctx.fillRect(Math.floor(bx), Math.floor(by), 8, 2);
-            ctx.fillRect(Math.floor(bx + 2), Math.floor(wingUp ? by - 3 : by + 2), 4, 3);
+          if (en.y > VIEW_H + 60) {
+            enemies.splice(i, 1);
+            continue;
           }
-        }
 
-        for (let sm of volcanoSmoke) {
-          ctx.fillStyle = currentPhase === 4 ? `rgba(255, 100, 30, ${sm.alpha * 0.65})` : `rgba(135, 115, 105, ${sm.alpha * 0.45})`;
-          ctx.fillRect(Math.floor(sm.x - sm.r), Math.floor(sm.y - sm.r), Math.floor(sm.r * 2), Math.floor(sm.r * 2));
-        }
-
-        for (let lf of farLandforms) {
-          ctx.fillStyle = activeTheme.farSil;
-          if (currentPhase === 6 && lf.kind === 'mesa') {
-            ctx.beginPath();
-            ctx.moveTo(lf.x, GROUND_Y);
-            ctx.lineTo(lf.x + lf.w * 0.5, GROUND_Y - lf.h - 15);
-            ctx.lineTo(lf.x + lf.w, GROUND_Y);
-            ctx.closePath();
-            ctx.fill();
-          } else if (lf.kind === 'mesa') {
-            ctx.beginPath();
-            ctx.moveTo(lf.x, GROUND_Y);
-            ctx.lineTo(lf.x + 18, GROUND_Y - lf.h);
-            ctx.lineTo(lf.x + lf.w - 18, GROUND_Y - lf.h);
-            ctx.lineTo(lf.x + lf.w, GROUND_Y);
-            ctx.closePath();
-            ctx.fill();
-          } else {
-            ctx.beginPath();
-            ctx.moveTo(lf.x, GROUND_Y);
-            ctx.lineTo(lf.x + lf.w * 0.38, GROUND_Y - lf.h);
-            ctx.lineTo(lf.x + lf.w * 0.62, GROUND_Y - lf.h);
-            ctx.lineTo(lf.x + lf.w, GROUND_Y);
-            ctx.closePath();
-            ctx.fill();
-          }
-        }
-
-        let treeStyle = 'araucaria';
-        if (currentPhase === 1) treeStyle = 'cycad';
-        else if (currentPhase === 2) treeStyle = 'araucaria';
-        else if (currentPhase === 3) treeStyle = 'magnolia';
-        else if (currentPhase === 4) treeStyle = 'extinction_dead'; // Leafless & fallen trees!
-        else if (currentPhase === 5) treeStyle = currentSubPhase === '5A' ? 'snow_pine' : 'araucaria';
-        else if (currentPhase === 6) treeStyle = 'cycad';
-        else if (currentPhase >= 7) treeStyle = 'skyscraper';
-
-        for (let tr of forestTrees) {
-          const cCol = tr.layer === 0 ? activeTheme.farSil : activeTheme.midSil;
-          const tCol = tr.layer === 0 ? activeTheme.midSil : activeTheme.nearSil;
-          const styleToUse = (currentPhase === 2 && tr.seed % 3 === 0) ? 'cycad' : treeStyle;
-          drawTreeOrBuilding(tr, GROUND_Y, cCol, tCol, styleToUse);
-        }
-
-        // Midground Landmarks & Actively Roaming Dinosaurs (Requirement 1)
-        for (let ml of midLandmarks) {
-          const mx = Math.floor(ml.x);
-          const s = ml.slot;
-          const tick = frameCount + ml.anim * 3;
-          const faceLeft = ml.dir === -1;
-
-          if (currentPhase === 1) {
-            if (s % 3 === 0) {
-              const fIdx = Math.floor(tick / 4) % 4;
-              drawGroundAnchoredSprite(ctx, SPRITES.PROTO_RUNFrames[fIdx], mx, GROUND_Y, 1.4, { '#': activeTheme.nearSil, '2': activeTheme.midSil, '3': activeTheme.skyBottom }, 1, faceLeft);
-              drawGroundAnchoredSprite(ctx, SPRITES.PROTO_RUNFrames[(fIdx + 2) % 4], mx + 28, GROUND_Y, 1.15, { '#': activeTheme.nearSil, '2': activeTheme.midSil, '3': activeTheme.skyBottom }, 1, faceLeft);
-            } else if (s % 3 === 1) {
-              // Postosuchus natively faces left, so flipX when moving right!
-              drawAnimatedBgDino(ctx, SPRITES.POSTOSUCHUS_1, mx, GROUND_Y, 1.85, activeTheme.nearSil, tick, 2, 2, !faceLeft);
-            } else {
-              // Eoraptor pack actively darting across the desert!
-              const eSpr = (Math.floor(tick / 4) % 2 === 0) ? SPRITES.EORAPTOR_1 : SPRITES.EORAPTOR_2;
-              drawGroundAnchoredSprite(ctx, eSpr, mx, GROUND_Y, 1.65, { '#': activeTheme.nearSil, '2': activeTheme.midSil, '3': activeTheme.skyBottom }, 1, !faceLeft);
+          // 플레이어와 몬스터 충돌 판정
+          if (aabbOverlap(player, en)) {
+            if (player.starTimer > 0) {
+              en.state = 'squished';
+              en.squishTimer = 20;
+              score += 200;
+              sound.kick();
+              spawnFireBurst(en.x + en.w / 2, en.y + en.h / 2);
+              addPopup(en.x, en.y - 10, 'STAR +200', '#fef08a');
+              continue;
             }
-          } else if (currentPhase === 2) {
-            if (s % 3 === 0) {
-              drawAnimatedBgDino(ctx, SPRITES.BRACHIOSAURUS, mx, GROUND_Y, 3.1, activeTheme.nearSil, tick, 8, 4, faceLeft);
-              drawAnimatedBgDino(ctx, SPRITES.BRACHIOSAURUS, mx + 68, GROUND_Y, 1.7, activeTheme.nearSil, tick + 12, 8, 4, faceLeft);
-            } else if (s % 3 === 1) {
-              drawAnimatedBgDino(ctx, SPRITES.DIPLODOCUS, mx, GROUND_Y, 2.6, activeTheme.nearSil, tick, 4, 3, faceLeft);
-            } else {
-              // Stegosaurus natively faces left, so flipX when moving right!
-              drawAnimatedBgDino(ctx, SPRITES.STEGOSAURUS, mx, GROUND_Y, 2.5, activeTheme.nearSil, tick, 3, 2, !faceLeft);
+
+            if (en.state === 'shell_idle') {
+              sound.kick();
+              score += 100;
+              const kickDir = (player.x + player.w / 2) < (en.x + en.w / 2) ? 1 : -1;
+              en.state = 'shell_moving';
+              en.vx = kickDir * 7.6;
+              en.x += kickDir * 8;
+              if (player.vy > 0) player.vy = PHYSICS.stompBounceVy;
+              addPopup(en.x, en.y - 10, 'KICK +100', '#4ade80');
+              continue;
             }
-          } else if (currentPhase === 3) {
-            if (s % 4 === 0) {
-              drawAnimatedBgDino(ctx, SPRITES.PARASAUROLOPHUS, mx, GROUND_Y, 2.6, activeTheme.nearSil, tick, 4, 3, faceLeft);
-            } else if (s % 4 === 1) {
-              drawAnimatedBgDino(ctx, SPRITES.ANKYLOSAURUS, mx, GROUND_Y, 2.5, activeTheme.nearSil, tick, 2, 2, faceLeft);
-            } else if (s % 4 === 2) {
-              drawAnimatedBgDino(ctx, SPRITES.SPINOSAURUS, mx, GROUND_Y, 2.8, activeTheme.nearSil, tick, 3, 3, faceLeft);
-            } else {
-              drawAnimatedBgDino(ctx, SPRITES.BRACHIOSAURUS, mx, GROUND_Y, 2.7, activeTheme.nearSil, tick, 8, 4, faceLeft);
+
+            const playerBottom = player.y + player.h;
+            const enemyCenterY = en.y + en.h * 0.58;
+            const isFallingOnEnemy = player.vy > 0 && (playerBottom - player.vy <= enemyCenterY + 8);
+
+            // ★ 가시돌이(Spiny)는 등 위에 뾰족한 가시가 있어 위에서 밟으면 플레이어가 데미지를 입음!
+            if (en.type === 'spiny') {
+              triggerPlayerDamage();
+              continue;
             }
-          } else if (currentPhase === 5) {
-            if (s % 2 === 0) {
-              drawAnimatedBgDino(ctx, SPRITES.MAMMOTH_1, mx, GROUND_Y, 2.4, activeTheme.nearSil, tick, 2, 2, false);
-            } else {
-              // Stonehenge / Megalith Dolmen
-              ctx.fillStyle = activeTheme.nearSil;
-              ctx.fillRect(mx, GROUND_Y - 34, 48, 10);
-              ctx.fillRect(mx + 6, GROUND_Y - 24, 10, 24);
-              ctx.fillRect(mx + 32, GROUND_Y - 24, 10, 24);
-            }
-          } else if (currentPhase === 6) {
-            ctx.fillStyle = activeTheme.nearSil;
-            if (currentSubPhase === '6A') {
-              // Parthenon Temple or Obelisk
-              if (s % 2 === 0) {
-                ctx.fillRect(mx - 4, GROUND_Y - 48, 54, 7);
-                for (let c = 0; c < 4; c++) ctx.fillRect(mx + c * 14, GROUND_Y - 41, 6, 41);
+
+            if (isFallingOnEnemy) {
+              player.y = en.y - player.h;
+              player.vy = PHYSICS.stompBounceVy;
+              player.onGround = false;
+              sound.stomp();
+
+              if (en.type === 'paratroopa') {
+                // 날개 엉금엉금을 밟으면 날개가 떨어지고 일반 엉금엉금이 됨!
+                en.type = 'koopa';
+                en.vy = 0;
+                score += 200;
+                addPopup(en.x, en.y - 10, 'WINGS OFF +200', '#38bdf8');
+              } else if (en.type === 'koopa' || en.type === 'red_koopa' || en.type === 'beetle') {
+                if (en.state === 'walk') {
+                  en.state = 'shell_idle';
+                  en.vx = 0;
+                  en.h = 26;
+                  en.y += 10;
+                  score += 100;
+                  addPopup(en.x, en.y - 10, 'SHELL +100', '#4ade80');
+                } else if (en.state === 'shell_moving') {
+                  en.state = 'shell_idle';
+                  en.vx = 0;
+                  score += 100;
+                  addPopup(en.x, en.y - 10, 'STOP +100', '#fde047');
+                }
               } else {
-                // Tall Egyptian Obelisk
-                ctx.fillRect(mx + 12, GROUND_Y - 64, 12, 64);
-                ctx.beginPath();
-                ctx.moveTo(mx + 12, GROUND_Y - 64);
-                ctx.lineTo(mx + 18, GROUND_Y - 76);
-                ctx.lineTo(mx + 24, GROUND_Y - 64);
-                ctx.fill();
+                en.state = 'squished';
+                en.squishTimer = 32;
+                score += 100;
+                addPopup(en.x, en.y - 10, '+100', '#fde047');
               }
+              spawnDust(en.x + en.w / 2, en.y + en.h, 6);
             } else {
-              // 6B: Clocktower (Big Ben) or Rotating Windmill
-              if (s % 2 === 0) {
-                ctx.fillRect(mx + 6, GROUND_Y - 68, 26, 68);
-                ctx.fillStyle = '#FEF08A';
-                ctx.fillRect(mx + 12, GROUND_Y - 56, 14, 14);
-              } else {
-                ctx.fillRect(mx + 10, GROUND_Y - 44, 20, 44);
-                const ang = (frameCount * 0.04) + s;
-                ctx.strokeStyle = activeTheme.nearSil;
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(mx + 20 - Math.cos(ang) * 22, GROUND_Y - 34 - Math.sin(ang) * 22);
-                ctx.lineTo(mx + 20 + Math.cos(ang) * 22, GROUND_Y - 34 + Math.sin(ang) * 22);
-                ctx.stroke();
-              }
-            }
-          } else if (currentPhase === 7) {
-            // Modern Metropolis Landmarks: Giant Ferris Wheel, Suspension Bridge Tower, or Sports Stadium!
-            if (s % 3 === 0) {
-              // Giant Illuminated Ferris Wheel (대관람차)
-              const cx = mx + 24;
-              const cy = GROUND_Y - 48;
-              ctx.strokeStyle = currentSubPhase === '7B' ? '#F472B6' : activeTheme.nearSil;
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-              ctx.arc(cx, cy, 24, 0, Math.PI * 2);
-              ctx.stroke();
-              // Support legs
-              ctx.beginPath();
-              ctx.moveTo(cx - 14, GROUND_Y); ctx.lineTo(cx, cy); ctx.lineTo(cx + 14, GROUND_Y);
-              ctx.stroke();
-              // Rotating gondolas
-              for (let g = 0; g < 6; g++) {
-                const ga = frameCount * 0.02 + (g * Math.PI) / 3;
-                ctx.fillStyle = g % 2 === 0 ? '#FACC15' : '#38BDF8';
-                ctx.fillRect(Math.floor(cx + Math.cos(ga) * 24 - 2), Math.floor(cy + Math.sin(ga) * 24 - 2), 4, 4);
-              }
-            } else if (s % 3 === 1) {
-              // Suspension Bridge Pylon & Cables (현수교 주탑)
-              ctx.fillStyle = activeTheme.nearSil;
-              ctx.fillRect(mx + 16, GROUND_Y - 78, 8, 78);
-              ctx.fillRect(mx + 12, GROUND_Y - 56, 16, 4);
-              ctx.fillRect(mx + 12, GROUND_Y - 32, 16, 4);
-              ctx.strokeStyle = activeTheme.midSil;
-              ctx.lineWidth = 1.5;
-              ctx.beginPath();
-              ctx.moveTo(mx - 20, GROUND_Y - 14);
-              ctx.quadraticCurveTo(mx + 20, GROUND_Y - 74, mx + 60, GROUND_Y - 14);
-              ctx.stroke();
-            } else {
-              // Modern Domed Stadium / Concert Arena (돔 경기장)
-              ctx.fillStyle = activeTheme.nearSil;
-              ctx.fillRect(mx, GROUND_Y - 22, 56, 22);
-              ctx.beginPath();
-              ctx.arc(mx + 28, GROUND_Y - 22, 28, Math.PI, 0);
-              ctx.fill();
-              ctx.fillStyle = '#FDE047';
-              for (let lx = mx + 6; lx < mx + 50; lx += 9) {
-                ctx.fillRect(lx, GROUND_Y - 16, 5, 4);
-              }
-            }
-          } else if (currentPhase === 8) {
-            // Far Future Sci-Fi Mega-Structures: Orbital Elevator, Anti-Gravity Ring, or Cyber Torii/Holo-Gate
-            if (s % 3 === 0) {
-              // Anti-Gravity Levitating Reactor Ring (반중력 에너지 링)
-              const cx = mx + 24;
-              const cy = GROUND_Y - 62 + Math.sin(frameCount * 0.06 + s) * 4;
-              ctx.strokeStyle = '#22D3EE';
-              ctx.lineWidth = 3;
-              ctx.beginPath();
-              ctx.arc(cx, cy, 22, 0, Math.PI * 2);
-              ctx.stroke();
-              ctx.fillStyle = '#F43F5E';
-              ctx.fillRect(cx - 4, cy - 4, 8, 8);
-              // Base emitter pedestal
-              ctx.fillStyle = activeTheme.nearSil;
-              ctx.fillRect(cx - 12, GROUND_Y - 16, 24, 16);
-            } else if (s % 3 === 1) {
-              // Orbital Space Elevator Conduit (궤도 엘리베이터 타워)
-              ctx.fillStyle = 'rgba(34, 211, 238, 0.25)';
-              ctx.fillRect(mx + 18, 0, 10, GROUND_Y);
-              ctx.fillStyle = '#22D3EE';
-              const climbY = (GROUND_Y - ((frameCount * 3 + s * 40) % GROUND_Y));
-              ctx.fillRect(mx + 16, climbY, 14, 8);
-            } else {
-              // Giant Neon Hologram Portal Arch (홀로그램 포털 게이트)
-              ctx.fillStyle = activeTheme.nearSil;
-              ctx.fillRect(mx + 4, GROUND_Y - 64, 8, 64);
-              ctx.fillRect(mx + 38, GROUND_Y - 64, 8, 64);
-              ctx.fillStyle = '#F43F5E';
-              ctx.fillRect(mx, GROUND_Y - 68, 50, 6);
-              ctx.fillStyle = 'rgba(168, 85, 247, 0.28)';
-              ctx.fillRect(mx + 12, GROUND_Y - 62, 26, 62);
+              triggerPlayerDamage();
             }
           }
         }
 
-        // Draw additional fast-roaming background dinosaurs in Stage 1 (Phases 1~3)
-        if (currentStage === 1 && currentPhase <= 3) {
-          for (let rd of bgRoamingDinos) {
-            const rx = Math.floor(rd.x);
-            const rTick = frameCount + rd.anim * 2;
-            const fIdx = Math.floor(rTick / 4) % 4;
-            if (rd.species === 'sky_pterosaur') {
-              const py = GROUND_Y + rd.yOffset + Math.sin(rTick * 0.08) * 6;
-              const pSpr = (fIdx % 2 === 0) ? SPRITES.RHAMPHO_1 : SPRITES.RHAMPHO_2;
-              drawPixelMatrix(ctx, pSpr, rx, py, 1.5, { '#': activeTheme.nearSil, '2': activeTheme.midSil, '3': activeTheme.skyBottom }, rd.dir === 1);
-            } else if (rd.species === 'proto_pack') {
-              drawGroundAnchoredSprite(ctx, SPRITES.PROTO_RUNFrames[fIdx], rx, GROUND_Y, 1.3, { '#': activeTheme.nearSil, '2': activeTheme.midSil, '3': activeTheme.skyBottom }, 1, rd.dir === -1);
-            } else if (rd.species === 'raptor_dash') {
-              const rSpr = (fIdx % 2 === 0) ? SPRITES.RAPTOR_1 : SPRITES.RAPTOR_2;
-              drawGroundAnchoredSprite(ctx, rSpr, rx, GROUND_Y, 1.45, { '#': activeTheme.nearSil, '2': activeTheme.midSil, '3': activeTheme.skyBottom }, 1, rd.dir === 1);
-            } else {
-              drawAnimatedBgDino(ctx, SPRITES.PARASAUROLOPHUS, rx, GROUND_Y, 1.75, activeTheme.nearSil, rTick, 4, 3, rd.dir === -1);
-            }
-          }
-        }
+        // ==========================================
+        // H. 도착 지점 깃대(Flagpole) 접촉 판정
+        // ==========================================
+        if (currentZone === 'OVERWORLD' && flagpole) {
+          const poleHitbox = {
+            x: flagpole.x - 4,
+            y: flagpole.y,
+            w: flagpole.w + 8,
+            h: flagpole.h
+          };
+          if (aabbOverlap(player, poleHitbox)) {
+            gameState = 'CLEARING';
+            player.clearPhase = 1;
+            player.vx = 0;
+            player.vy = 0;
+            player.x = flagpole.x - player.w + 4;
 
-        // Draw Stage 2 Background Humans!
-        drawBackgroundHumans();
-
-        // REQUIREMENT 3: Keep nearScenery very low-profile and subtle (below GROUND_Y or tiny translucent pebbles)
-        // so background grass NEVER overlaps or confuses the player as a foreground bush/rock obstacle!
-        ctx.save();
-        ctx.globalAlpha = 0.25;
-        for (let ns of nearScenery) {
-          const nx = Math.floor(ns.x);
-          const v = ns.variant;
-          if (currentPhase < 7) {
-            ctx.fillStyle = activeTheme.midSil;
-            ctx.fillRect(nx, GROUND_Y - 3, 10 + (v % 3) * 4, 3);
-          }
-        }
-        ctx.restore();
-
-        if ((currentStage === 1 && currentPhase >= 3) || gameState === STATE.IMPACT_CUTSCENE) {
-          drawPixelAsteroidInSky();
-        }
-
-        if (currentPhase === 4 && gameState === STATE.PLAYING) {
-          for (let d of panicStampede) {
-            const silColor = '#1F0610';
-            if (d.spType === 'flyer') {
-              const spr = (Math.floor(d.anim / 6) % 2 === 0) ? SPRITES.ARCHAEO_1 : SPRITES.ARCHAEO_2;
-              drawPixelMatrix(ctx, spr, d.x, d.y, 1.5, { '#': silColor, '3': '#FF5500' });
-            } else if (d.spType === 'parasaur') {
-              drawAnimatedBgDino(ctx, SPRITES.PARASAUROLOPHUS, d.x, GROUND_Y, 1.8, silColor, d.anim * 2, 4, 3);
-            } else if (d.spType === 'stego') {
-              drawAnimatedBgDino(ctx, SPRITES.STEGOSAURUS, d.x, GROUND_Y, 1.7, silColor, d.anim * 2, 3, 2);
-            } else {
-              const spr = SPRITES.PROTO_RUNFrames[Math.floor(d.anim / 4) % 4];
-              drawGroundAnchoredSprite(ctx, spr, d.x, GROUND_Y, 1.65, { '#': silColor, '2': silColor, '3': '#FF4400' }, 2);
-            }
-          }
-        }
-
-        // Ground Surface (Era-specific road/surface detail so it never feels repetitive!)
-        ctx.fillStyle = activeTheme.groundFill;
-        ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
-        ctx.fillStyle = activeTheme.groundSub;
-        ctx.fillRect(0, GROUND_Y + 14, W, H - GROUND_Y - 14);
-        ctx.fillStyle = currentPhase === 4 ? '#4A0E17' : 'rgba(0, 0, 0, 0.18)';
-        ctx.fillRect(0, GROUND_Y + 32, W, H - GROUND_Y - 32);
-        ctx.fillStyle = activeTheme.groundLine;
-        ctx.fillRect(0, GROUND_Y, W, 3);
-
-        if (currentPhase === 7) {
-          // Modern Asphalt Road Lane Dashes
-          ctx.fillStyle = '#FACC15';
-          for (let p of groundPebbles) {
-            if (p.w > 4) ctx.fillRect(Math.floor(p.x), GROUND_Y + 8, 18, 3);
-          }
-        } else if (currentPhase === 8) {
-          // Sci-Fi Cyber Grid Pulse Lines
-          ctx.fillStyle = '#22D3EE';
-          for (let p of groundPebbles) {
-            ctx.fillRect(Math.floor(p.x), GROUND_Y + 6, p.w * 3, 2);
-          }
-        } else {
-          ctx.fillStyle = activeTheme.groundLine;
-          for (let p of groundPebbles) {
-            ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.w, p.h);
-          }
-        }
-
-        for (let f of undergroundFossils) {
-          const fx = Math.floor(f.x);
-          const fy = Math.floor(f.y);
-          ctx.fillStyle = 'rgba(255, 250, 240, 0.35)';
-          if (f.kind === 'skull') {
-            drawPixelMatrix(ctx, SPRITES.FOSSIL_SKULL, fx, fy - 2, 1.1, { '#': 'rgba(255, 250, 240, 0.4)' });
-          } else {
-            ctx.fillRect(fx, fy + 2, 12, 3);
-          }
-        }
-
-        // REQUIREMENT 7: During SubPhase 8B (7,500 ~ 8,000 PTS), draw the pursuit force chasing from BEHIND (left side of player)!
-        if (gameState === STATE.PLAYING && currentStage === 2 && score >= 7550) {
-          const chaseProgress = Math.min(1, (score - 7550) / 450);
-          const chaseMechX = Math.floor(lerp(-35, 18, chaseProgress) + Math.sin(frameCount * 0.2) * 3);
-          const anim2 = Math.floor(frameCount / 5) % 2 === 0;
-          drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.CHRONO_MECHA_1 : SPRITES.CHRONO_MECHA_2, chaseMechX, GROUND_Y, 2.35, {
-            '#': '#0F172A', '2': '#22D3EE', '3': '#F43F5E'
-          }, 2);
-          drawPixelMatrix(ctx, anim2 ? SPRITES.FUTURE_DRONE_1 : SPRITES.FUTURE_DRONE_2, chaseMechX + 10, 62 + Math.sin(frameCount * 0.15) * 4, 2.0, {
-            '#': '#1E1B4B', '2': '#A855F7', '3': '#22D3EE'
-          });
-        }
-
-        for (let ap of ashParticles) {
-          ctx.fillStyle = ap.color || '#FF6D00';
-          ctx.fillRect(Math.floor(ap.x), Math.floor(ap.y), ap.size, ap.size);
-        }
-      }
-
-      function drawUfoBoss() {
-        if (!ufoBoss.active) return;
-
-        const ux = Math.floor(ufoBoss.x);
-        const uy = Math.floor(ufoBoss.y);
-        const scale = 3.2;
-
-        // Draw Aiming Telegraph OR 0.5s Firing Laser Beam!
-        if (ufoBoss.state === 'AIMING') {
-          const chargeRatio = ufoBoss.stateTimer / 40;
-          const blink = Math.floor(frameCount / 3) % 2 === 0;
-          ctx.fillStyle = blink ? 'rgba(244, 63, 94, 0.55)' : 'rgba(34, 211, 238, 0.35)';
-          ctx.fillRect(0, uy + 14, ux + 8, Math.max(2, Math.floor(chargeRatio * 8)));
-
-          // Charging energy orb at UFO muzzle
-          const orbR = Math.floor(4 + chargeRatio * 10);
-          ctx.fillStyle = '#F43F5E';
-          ctx.fillRect(ux - orbR, uy + 15 - orbR / 2, orbR * 2, orbR);
-
-          // Clear dodge cue label
-          ctx.font = '9px "Press Start 2P", monospace';
-          ctx.textAlign = 'center';
-          ctx.fillStyle = '#FACC15';
-          ctx.fillText(
-            ufoBoss.isHighLaser ? 'WARNING: 상단 레이저 조준! [↓ 숙이기]' : 'WARNING: 하단 레이저 조준! [SPACE 점프]',
-            W / 2 - 40,
-            uy - 10
-          );
-        } else if (ufoBoss.state === 'FIRING') {
-          // 0.5s (30 frames) High-Energy Plasma Laser Beam!
-          const beamTop = uy + 8;
-          ctx.fillStyle = 'rgba(244, 63, 94, 0.45)';
-          ctx.fillRect(0, beamTop - 5, ux + 12, 26);
-          ctx.fillStyle = '#F43F5E';
-          ctx.fillRect(0, beamTop, ux + 12, 16);
-          ctx.fillStyle = '#FFFBEB';
-          ctx.fillRect(0, beamTop + 4, ux + 12, 8);
-        }
-
-        // Draw UFO Boss Hull
-        const rimBlink = Math.floor(frameCount / 4) % 2 === 0;
-        drawPixelMatrix(ctx, SPRITES.UFO_BOSS, ux, uy, scale, {
-          '#': '#1E293B',
-          '2': '#38BDF8',
-          '3': '#E0F2FE',
-          '4': rimBlink ? '#F43F5E' : '#FACC15'
-        });
-
-        // Shot counter above UFO
-        ctx.font = '8px "Press Start 2P", monospace';
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#22D3EE';
-        ctx.fillText(`LASER ${ufoBoss.shotsFired}/${ufoBoss.maxShots}`, ux + 42, uy - 8);
-      }
-
-      function drawObstacles() {
-        const anim2 = Math.floor(frameCount / 6) % 2 === 0;
-
-        for (let ob of obstacles) {
-          // Subtle head-level wind stream indicator for all flying obstacles (Requirement 4)
-          if (!ob.isGround) {
-            ctx.fillStyle = 'rgba(250, 204, 21, 0.35)';
-            ctx.fillRect(Math.floor(ob.x - 10), Math.floor(ob.y - 3), ob.w + 18, 2);
-          }
-
-          if (ob.type === 'FERN_BUSH') {
-            // High-contrast outline + vivid emerald & bright amber/red berries so it never blends with background
-            drawGroundAnchoredSprite(ctx, SPRITES.FERN_BUSH, ob.x + 2, ob.y + 1, ob.scale, { '#': '#0F172A', '2': '#0F172A' }, 3);
-            drawGroundAnchoredSprite(ctx, SPRITES.FERN_BUSH, ob.x, ob.y, ob.scale, { '#': '#15803D', '2': '#FACC15' }, 3);
-          } else if (ob.type === 'DESERT_ROCKS') {
-            // REQUIREMENT 3: Distinct, high-contrast colors in Paleolithic (5A) & Neolithic (5B) so they never blend with grey/green grass!
-            drawGroundAnchoredSprite(ctx, SPRITES.DESERT_ROCKS, ob.x + 2, ob.y + 1, ob.scale, { '#': '#090D16', '2': '#090D16' }, 3);
-            if (currentSubPhase === '5A') {
-              // Warm fiery Amber-Flint & Red Ochre rock against cool grey snow background!
-              drawGroundAnchoredSprite(ctx, SPRITES.DESERT_ROCKS, ob.x, ob.y, ob.scale, {
-                '#': '#9A3412',
-                '2': '#FACC15'
-              }, 3);
-            } else if (currentSubPhase === '5B') {
-              // Deep Obsidian Indigo & Glowing Gold rune stone against green grass!
-              drawGroundAnchoredSprite(ctx, SPRITES.DESERT_ROCKS, ob.x, ob.y, ob.scale, {
-                '#': '#312E81',
-                '2': '#FDE047'
-              }, 3);
-            } else {
-              drawGroundAnchoredSprite(ctx, SPRITES.DESERT_ROCKS, ob.x, ob.y, ob.scale, {
-                '#': '#7A3826',
-                '2': '#FBBF24'
-              }, 3);
-            }
-          } else if (ob.type === 'POSTOSUCHUS') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.POSTOSUCHUS_1 : SPRITES.POSTOSUCHUS_2, ob.x, ob.y, ob.scale, { '#': '#5E2314', '2': '#D97736', '3': '#FFEE55' }, 3);
-          } else if (ob.type === 'EORAPTOR') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.EORAPTOR_1 : SPRITES.EORAPTOR_2, ob.x, ob.y, ob.scale, { '#': '#6E2C1B', '2': '#E09F67', '3': '#FFFFFF' }, 3);
-          } else if (ob.type === 'CONIFER_STUMP') {
-            drawGroundAnchoredSprite(ctx, SPRITES.CONIFER_STUMP, ob.x, ob.y, ob.scale, { '#': '#3B281E', '2': '#8C6246' }, 3);
-          } else if (ob.type === 'DILOPHOSAURUS') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.DILOPHO_1 : SPRITES.DILOPHO_2, ob.x, ob.y, ob.scale, { '#': '#1E4631', '2': '#EF4444', '3': '#FDE047' }, 3);
-          } else if (ob.type === 'STEGOSAURUS') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.STEGO_OB_1 : SPRITES.STEGO_OB_2, ob.x, ob.y, ob.scale, { '#': '#284B43', '2': '#D97706', '3': '#FEF08A' }, 3);
-          } else if (ob.type === 'ARCHAEOPTERYX') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.ARCHAEO_1 : SPRITES.ARCHAEO_2, ob.x, ob.y, ob.scale, { '#': '#263B2E', '3': '#FFCC00' }, 0);
-          } else if (ob.type === 'RHAMPHORHYNCHUS') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.RHAMPHO_1 : SPRITES.RHAMPHO_2, ob.x, ob.y, ob.scale, { '#': '#1D3A47', '2': '#38BDF8', '3': '#FDE047' }, 0);
-          } else if (ob.type === 'TRICERATOPS') {
-            drawGroundAnchoredSprite(ctx, (Math.floor(frameCount / 5) % 2 === 0) ? SPRITES.TRICERA_1 : SPRITES.TRICERA_2, ob.x, ob.y, ob.scale, { '#': currentPhase === 4 ? '#2A0B12' : '#3A3248', '3': '#FF3B30' }, 3);
-          } else if (ob.type === 'VELOCIRAPTOR') {
-            drawGroundAnchoredSprite(ctx, (Math.floor(frameCount / 4) % 2 === 0) ? SPRITES.RAPTOR_1 : SPRITES.RAPTOR_2, ob.x, ob.y, ob.scale, { '#': '#4A2538', '2': '#F59E0B', '3': '#FFFFFF' }, 3);
-          } else if (ob.type === 'ANKYLOSAURUS') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.ANKYLO_OB_1 : SPRITES.ANKYLO_OB_2, ob.x, ob.y, ob.scale, { '#': '#382E42', '2': '#9CA3AF', '3': '#FBBF24' }, 3);
-          } else if (ob.type === 'PACHYCEPHALO') {
-            drawGroundAnchoredSprite(ctx, (Math.floor(frameCount / 4) % 2 === 0) ? SPRITES.PACHY_1 : SPRITES.PACHY_2, ob.x, ob.y, ob.scale, { '#': '#3B2838', '2': '#FCD34D', '3': '#FF3B30' }, 3);
-          } else if (ob.type === 'QUETZALCOATLUS') {
-            drawGroundAnchoredSprite(ctx, (Math.floor(frameCount / 8) % 2 === 0) ? SPRITES.QUETZAL_1 : SPRITES.QUETZAL_2, ob.x, ob.y, ob.scale, { '#': '#3B234A', '3': '#FF9F1C' }, 0);
-          } else if (ob.type === 'METEOR_FRAGMENT') {
-            if (!ob.landed) {
-              ctx.fillStyle = 'rgba(255, 90, 20, 0.65)';
-              ctx.fillRect(Math.floor(ob.x + 14), Math.floor(ob.y - 34), 16, 16);
-            } else {
-              ctx.fillStyle = '#4A151B';
-              ctx.fillRect(Math.floor(ob.x - 6), GROUND_Y - 3, ob.w + 12, 6);
-            }
-            drawGroundAnchoredSprite(ctx, SPRITES.METEOR_OB, ob.x, ob.y, ob.scale, { '#': '#3B1114', '2': '#FF4500', '3': '#FFF3B0', '4': '#FF7B00' }, 2);
-          } else if (ob.type === 'LAVA_GEYSER') {
-            drawGroundAnchoredSprite(ctx, (Math.floor(frameCount / 4) % 2 === 0) ? SPRITES.LAVA_GEYSER_1 : SPRITES.LAVA_GEYSER_2, ob.x, ob.y, ob.scale, { '#': '#B91C1C', '2': '#FF5500', '3': '#FEF08A' }, 3);
-          } else if (ob.type === 'MAMMOTH') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.MAMMOTH_1 : SPRITES.MAMMOTH_2, ob.x, ob.y, ob.scale, { '#': '#5C3A21', '2': '#F8FAFC', '3': '#FDE047' }, 3);
-          } else if (ob.type === 'SMILODON') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.SMILODON_1 : SPRITES.SMILODON_2, ob.x, ob.y, ob.scale, { '#': '#D97706', '2': '#FFFFFF', '3': '#EF4444' }, 3);
-          } else if (ob.type === 'CHARIOT') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.CHARIOT_1 : SPRITES.CHARIOT_2, ob.x, ob.y, ob.scale, { '#': '#78350F', '2': '#F59E0B', '3': '#EF4444' }, 3);
-          } else if (ob.type === 'SPARTAN_PHALANX') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.SPARTAN_1 : SPRITES.SPARTAN_2, ob.x, ob.y, ob.scale, {
-              '#': '#78350F', '2': '#F59E0B', '3': '#EF4444'
-            }, 3);
-          } else if (ob.type === 'SIEGE_CANNON') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.CANNON_1 : SPRITES.CANNON_2, ob.x, ob.y, ob.scale, {
-              '#': '#1E293B', '2': '#92400E', '3': '#F97316'
-            }, 3);
-          } else if (ob.type === 'POLICE_CAR') {
-            const siren = Math.floor(frameCount / 5) % 2 === 0;
-            drawGroundAnchoredSprite(ctx, SPRITES.POLICE_CAR, ob.x, ob.y, ob.scale, {
-              '#': currentPhase === 8 ? '#311042' : '#1E293B',
-              '2': siren ? '#3B82F6' : '#EF4444',
-              '3': siren ? '#EF4444' : '#38BDF8'
-            }, 3);
-          } else if (ob.type === 'HELICOPTER') {
-            drawGroundAnchoredSprite(ctx, (Math.floor(frameCount / 3) % 2 === 0) ? SPRITES.HELICOPTER_1 : SPRITES.HELICOPTER_2, ob.x, ob.y, ob.scale, { '#': '#1E293B', '2': '#38BDF8', '3': '#FACC15' }, 0);
-          } else if (ob.type === 'CHRONO_MECHA') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.CHRONO_MECHA_1 : SPRITES.CHRONO_MECHA_2, ob.x, ob.y, ob.scale, { '#': '#0F172A', '2': '#22D3EE', '3': '#F43F5E' }, 3);
-          } else if (ob.type === 'FUTURE_DRONE') {
-            drawGroundAnchoredSprite(ctx, anim2 ? SPRITES.FUTURE_DRONE_1 : SPRITES.FUTURE_DRONE_2, ob.x, ob.y, ob.scale, { '#': '#1E1B4B', '2': '#A855F7', '3': '#22D3EE' }, 0);
+            const heightRatio = Math.max(0, Math.min(1, 1 - (player.y - flagpole.y) / flagpole.h));
+            const polePoints = Math.round((200 + heightRatio * 1800) / 100) * 100;
+            score += polePoints;
+            sound.stageClear();
+            addPopup(flagpole.x - 10, player.y - 14, `FLAG +${polePoints}`, '#facc15');
           }
         }
       }
 
-      function drawPlayer() {
-        for (let fd of footstepDust) {
-          ctx.fillStyle = currentPhase === 4 ? '#FF6D00' : activeTheme.groundLine;
-          ctx.fillRect(Math.floor(fd.x), Math.floor(fd.y), fd.size, fd.size);
-        }
+      // ==========================================
+      // 12. Canvas 2D 렌더링 (네모 박스/이모지 깨짐 완전 제거!)
+      // ==========================================
+      function drawBackground() {
+        if (currentZone === 'UNDERGROUND') {
+          ctx.fillStyle = '#070b19';
+          ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-        const isFlashingWhite = player.evolveFlashTimer > 0 && Math.floor(player.evolveFlashTimer / 3) % 2 === 0;
-        const { sprite, scale } = player.getSpriteAndScale();
-        const strideBounce = (!player.isJumping && !player.lookingUp && (player.legFrame === 1 || player.legFrame === 3)) ? -2 : 0;
-
-        // If Skeleton T-Rex in Stage 2, draw dark outline shadow so white bones pop on bright/dark sky!
-        if (player.isSkeleton) {
-          drawGroundAnchoredSprite(ctx, sprite, player.x + 2, player.y + strideBounce + 2, scale, {
-            '#': '#0F172A', '2': '#0F172A', '3': '#0F172A'
-          }, 2);
-        }
-
-        const palette = {
-          '#': isFlashingWhite ? '#FFFBEB' : activeTheme.dinoPrimary,
-          '2': isFlashingWhite ? '#FDE68A' : activeTheme.dinoSecondary,
-          '3': activeTheme.dinoEye
-        };
-
-        drawGroundAnchoredSprite(ctx, sprite, player.x, player.y + strideBounce, scale, palette, 2);
-
-        for (let sp of evolutionSparks) {
-          ctx.fillStyle = sp.life % 2 === 0 ? '#FBBF24' : '#FEF08A';
-          ctx.fillRect(Math.floor(sp.x), Math.floor(sp.y), 4, 4);
-        }
-
-        if (invincible && gameState === STATE.PLAYING) {
-          ctx.strokeStyle = 'rgba(250, 204, 21, 0.75)';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(
-            Math.floor(player.x - 4),
-            Math.floor(player.y - player.getHeight() - 2),
-            Math.floor(player.getWidth() + 8),
-            Math.floor(player.getHeight() + 6)
-          );
-        }
-      }
-
-      function drawHUDAndBanners() {
-        ctx.save();
-        ctx.font = '12px "Press Start 2P", monospace';
-        ctx.textAlign = 'right';
-        ctx.fillStyle = activeTheme.uiText;
-
-        const hiStr = String(highScore).padStart(5, '0');
-        const scStr = String(Math.min(STAGE2_END_SCORE, Math.floor(score))).padStart(5, '0');
-        ctx.fillText(`HI ${hiStr}  ${scStr}`, W - 18, 28);
-
-        if (invincible) {
-          ctx.textAlign = 'left';
-          ctx.font = '9px "Press Start 2P", monospace';
-          ctx.fillStyle = '#FBBF24';
-          ctx.fillText('[INVINCIBLE ON]', 16, 26);
-        }
-
-        if (banner.timer > 0 && banner.alpha > 0) {
-          ctx.globalAlpha = banner.alpha;
-          ctx.textAlign = 'center';
-          if (banner.isWarning) {
-            const blink = Math.floor(frameCount / 6) % 2 === 0;
-            ctx.fillStyle = blink ? '#FF2A2A' : '#FFE4E6';
-            ctx.font = '13px "Press Start 2P", monospace';
-            ctx.fillText(banner.text, W / 2, 54);
-          } else {
-            ctx.fillStyle = activeTheme.uiText;
-            ctx.font = '13px "Press Start 2P", monospace';
-            ctx.fillText(banner.text, W / 2, 54);
-          }
-          ctx.font = '600 12px "Inter", sans-serif';
-          ctx.fillText(banner.subtext, W / 2, 76);
-        }
-
-        if (gameState === STATE.READY) {
-          ctx.fillStyle = 'rgba(15, 20, 28, 0.82)';
-          ctx.fillRect(W / 2 - 250, H / 2 - 60, 500, 118);
-          ctx.strokeStyle = '#F59E0B';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(W / 2 - 250, H / 2 - 60, 500, 118);
-
-          ctx.textAlign = 'center';
-          ctx.fillStyle = '#FBBF24';
-          ctx.font = '13px "Press Start 2P", monospace';
-          ctx.fillText('DINO : 66,000,000 (2-STAGE EPIC)', W / 2, H / 2 - 24);
-
-          ctx.fillStyle = '#F3F4F6';
-          ctx.font = '600 11px "Inter", sans-serif';
-          ctx.fillText('1부: 중생대 공룡 진화 & 매장(4000) → 2부: 백골 각성, 인류 역사, UFO보스 & 박제(8000)', W / 2, H / 2 + 4);
-
-          if (Math.floor(frameCount / 25) % 2 === 0) {
-            ctx.fillStyle = '#34D399';
-            if (isMobileMode) {
-              ctx.font = '700 13px "Inter", sans-serif';
-              ctx.fillText('화면 터치 또는 하단 [▲ 점프 / 시작] 대형 버튼을 누르세요!', W / 2, H / 2 + 34);
-            } else {
-              ctx.font = '10px "Press Start 2P", monospace';
-              ctx.fillText('PRESS [SPACE] OR [↑] TO START', W / 2, H / 2 + 34);
-            }
-          }
-        }
-
-        if (gameState === STATE.GAMEOVER) {
-          ctx.fillStyle = 'rgba(12, 15, 22, 0.88)';
-          ctx.fillRect(W / 2 - 230, H / 2 - 64, 460, 126);
-          ctx.strokeStyle = '#EF4444';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(W / 2 - 230, H / 2 - 64, 460, 126);
-
-          ctx.textAlign = 'center';
-          ctx.fillStyle = '#F87171';
-          ctx.font = '15px "Press Start 2P", monospace';
-          ctx.fillText('G A M E   O V E R', W / 2, H / 2 - 30);
-
-          ctx.fillStyle = '#E5E7EB';
-          ctx.font = '600 12px "Inter", sans-serif';
-          ctx.fillText(`충돌 요인: ${deathReason} (기록: ${Math.floor(score)} / 8000점)`, W / 2, H / 2 - 2);
-
-          ctx.fillStyle = '#FBBF24';
-          if (isMobileMode) {
-            ctx.font = '700 12px "Inter", sans-serif';
-            ctx.fillText('화면 또는 [점프] 터치: 이어하기  /  우측 상단 [↻] 아이콘: 처음부터', W / 2, H / 2 + 30);
-          } else {
-            ctx.font = '10px "Press Start 2P", monospace';
-            ctx.fillText('[SPACE] 이어하기  /  [R] 1부 처음부터', W / 2, H / 2 + 30);
-          }
-        }
-
-        ctx.restore();
-      }
-
-      // 1) REQUIREMENT 2: STAGE 1 BURIED ENDING — Solid, completely packed soil layers without empty cavities!
-      function drawBuriedEndingScene() {
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, 105);
-        skyGrad.addColorStop(0, '#0F172A');
-        skyGrad.addColorStop(1, '#334155');
-        ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, W, 105);
-
-        // Ground surface boundary
-        ctx.fillStyle = '#FF4500';
-        ctx.fillRect(0, 105, W, 3);
-
-        // Dense, solid geological strata without any hollow cavity
-        const strata = [
-          { y: 108, h: 32, color: '#3A151D' }, // Ash and impact boundary layer
-          { y: 140, h: 42, color: '#4A2A1A' }, // Deep organic earth
-          { y: 182, h: 56, color: '#381E14' }, // Solid sedimentary stratum
-          { y: 238, h: 62, color: '#22100A' }  // Deep bedrock
-        ];
-        for (let st of strata) {
-          ctx.fillStyle = st.color;
-          ctx.fillRect(0, st.y, W, st.h);
-        }
-
-        // Texture particles tightly packed in soil
-        for (let g of buriedScene.soilGrains) {
-          ctx.fillStyle = g.tone === 0 ? '#5A3525' : (g.tone === 1 ? '#2E150D' : '#6A4030');
-          ctx.fillRect(g.x, g.y, g.w, g.h);
-        }
-
-        // Draw Skeleton T-Rex lying buried deep in the solid earth with CLOSED EYES
-        const scale = 2.9;
-        const fx = W / 2 - 34;
-        const fy = 168;
-
-        drawPixelMatrix(ctx, SPRITES.TREX_FOSSIL_SLEEP, fx + 2, fy + 2, scale, {
-          '#': '#2B140D', '2': '#140805'
-        });
-        drawPixelMatrix(ctx, SPRITES.TREX_FOSSIL_SLEEP, fx, fy, scale, {
-          '#': '#D6D3D1', '2': '#1F2937' // Closed dark eyelid
-        });
-
-        // Soil layers directly covering parts of the body (genuinely entombed in solid earth)
-        ctx.fillStyle = 'rgba(56, 30, 20, 0.72)';
-        ctx.fillRect(fx - 14, fy + 38, 92, 16);
-        ctx.fillStyle = 'rgba(74, 42, 26, 0.65)';
-        ctx.fillRect(fx + 10, fy + 22, 60, 12);
-
-        // Surrounding ancient fossil remnants in the solid rock
-        drawPixelMatrix(ctx, SPRITES.FOSSIL_SKULL, 120, 205, 1.4, { '#': '#4A2E24' });
-        drawPixelMatrix(ctx, SPRITES.FOSSIL_SKULL, 640, 190, 1.4, { '#': '#4A2E24' });
-
-        ctx.textAlign = 'center';
-        ctx.font = '13px "Press Start 2P", monospace';
-        ctx.fillStyle = '#FBBF24';
-        ctx.fillText('STAGE 1 CLEAR — BURIED IN SOLID EARTH', W / 2, 42);
-
-        ctx.font = '600 13px "Inter", sans-serif';
-        ctx.fillStyle = '#E2E8F0';
-        ctx.fillText('소행성 충돌 후 수천만 년... 빈 공간 없는 단단한 흙 지층 속에 눈을 감은 채 매장되었습니다.', W / 2, 72);
-
-        if (buriedScene.fadeFromWhite > 0) {
-          ctx.fillStyle = `rgba(255, 255, 255, ${buriedScene.fadeFromWhite})`;
-          ctx.fillRect(0, 0, W, H);
-        }
-      }
-
-      // 2) REQUIREMENT 2: STAGE 2 AWAKEN CUTSCENE — Digging up through soil, bursting out, and landing ON the ground surface!
-      function drawAwakenCutscene() {
-        const surfY = Math.floor(awakenScene.surfaceY);
-
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, surfY);
-        skyGrad.addColorStop(0, '#CBD5E1');
-        skyGrad.addColorStop(1, '#94A3B8');
-        ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, W, surfY);
-
-        // Distant Paleolithic mountains & snow pines on the surface horizon
-        ctx.fillStyle = '#64748B';
-        ctx.beginPath();
-        ctx.moveTo(60, surfY); ctx.lineTo(150, surfY - 48); ctx.lineTo(250, surfY);
-        ctx.moveTo(520, surfY); ctx.lineTo(620, surfY - 56); ctx.lineTo(730, surfY);
-        ctx.fill();
-
-        // Solid soil layers below surfY
-        ctx.fillStyle = '#4A2A1A';
-        ctx.fillRect(0, surfY + 4, W, 58);
-        ctx.fillStyle = '#381E14';
-        ctx.fillRect(0, surfY + 62, W, 58);
-        ctx.fillStyle = '#22100A';
-        ctx.fillRect(0, surfY + 120, W, H - surfY);
-
-        // Snow / Paleolithic ground surface line
-        ctx.fillStyle = '#E2E8F0';
-        ctx.fillRect(0, surfY, W, 6);
-        ctx.fillStyle = '#334155';
-        ctx.fillRect(0, surfY, W, 2);
-
-        // Hollow tunnel path excavated by the skeleton clawing upwards
-        ctx.fillStyle = '#180B07';
-        for (let dp of awakenScene.dugPath) {
-          if (dp.y > surfY - 4) {
-            ctx.fillRect(Math.floor(dp.x - dp.w / 2), Math.floor(Math.max(surfY + 2, dp.y)), dp.w, dp.h);
-          }
-        }
-        // Surface exit hole where the skeleton burst through
-        if (awakenScene.timer >= 70 && awakenScene.timer < 165) {
-          ctx.fillStyle = '#180B07';
-          ctx.fillRect(Math.floor(W / 2 - 42), surfY, 84, 12);
-          ctx.fillStyle = '#5C4033';
-          ctx.fillRect(Math.floor(W / 2 - 50), surfY - 5, 14, 7);
-          ctx.fillRect(Math.floor(W / 2 + 36), surfY - 5, 14, 7);
-        }
-
-        const scale = 2.65;
-        const fx = Math.floor(awakenScene.fossilX);
-        const fy = Math.floor(awakenScene.fossilY);
-
-        if (awakenScene.timer < 18) {
-          // Closed eye before awakening
-          drawPixelMatrix(ctx, SPRITES.TREX_FOSSIL_SLEEP, fx, fy, scale, {
-            '#': '#D6D3D1', '2': '#1F2937'
-          });
-        } else {
-          // Eyes blazing red, clawing arms, jumping onto the ground, and running forward!
-          const digFrame = Math.floor(awakenScene.timer / 3) % 4;
-          const spr = SPRITES.SKEL_RUNFrames[digFrame];
-          drawPixelMatrix(ctx, spr, fx + 2, fy + 2, scale, { '#': '#0F172A', '3': '#0F172A' });
-          drawPixelMatrix(ctx, spr, fx, fy, scale, {
-            '#': '#FFFFFF',
-            '3': (awakenScene.timer % 4 < 2) ? '#FF2A2A' : '#FACC15'
-          });
-        }
-
-        // Flying clods of dirt and rubble flying up to the surface
-        for (let dc of awakenScene.dirtClods) {
-          ctx.fillStyle = dc.color;
-          ctx.fillRect(Math.floor(dc.x), Math.floor(dc.y), dc.size, dc.size);
-        }
-
-        ctx.textAlign = 'center';
-        ctx.font = '13px "Press Start 2P", monospace';
-        ctx.fillStyle = awakenScene.timer >= 92 ? '#0F172A' : '#EF4444';
-        ctx.fillText(
-          awakenScene.timer < 92
-            ? '[ SKELETON AWAKENING : DIGGING UP! ]'
-            : '[ EMERGED ON SURFACE : 구석기 지상 착지 완료! ]',
-          W / 2, 34
-        );
-
-        ctx.font = '600 12px "Inter", sans-serif';
-        ctx.fillStyle = '#1E293B';
-        ctx.fillText(
-          awakenScene.timer < 92
-            ? '눈을 뜬 백골 티렉스가 단단한 흙 지층을 직접 파헤치며 올라옵니다!'
-            : '땅을 뚫고 지상으로 솟구쳐 올라와 구석기 설원 위를 질주하기 시작합니다!',
-          W / 2, 56
-        );
-      }
-
-      // 3) REQUIREMENT 7: STAGE 2 CAPTURE CUTSCENE — Pursuers chase from behind, overtake to front, block, and surround!
-      function drawCaptureCutscene() {
-        drawSkyAndEnvironment();
-
-        const dx = Math.floor(captureScene.dinoX);
-        const groundSink = 2;
-
-        // Draw Skeleton T-Rex running or coming to a sudden halt
-        const spr = (captureScene.phase === 'OVERTAKE')
-          ? SPRITES.SKEL_RUNFrames[player.legFrame]
-          : SPRITES.TREX_FOSSIL;
-
-        drawGroundAnchoredSprite(ctx, spr, dx + 2, GROUND_Y + 2, 2.7, { '#': '#0F172A', '3': '#0F172A' }, groundSink);
-        drawGroundAnchoredSprite(ctx, spr, dx, GROUND_Y, 2.7, {
-          '#': '#F8FAFC',
-          '3': captureScene.crystalAlpha > 0.65 ? '#94A3B8' : '#FF3B30'
-        }, groundSink);
-
-        // Rear Mech right behind player
-        const rx = Math.floor(captureScene.rearMechX);
-        drawGroundAnchoredSprite(ctx, SPRITES.CHRONO_MECHA_1, rx, GROUND_Y, 2.6, {
-          '#': '#0F172A', '2': '#22D3EE', '3': '#F43F5E'
-        }, groundSink);
-
-        // Vanguard Mech that overtook and blocked the FRONT!
-        const fx = Math.floor(captureScene.overtakeMechX);
-        drawGroundAnchoredSprite(ctx, SPRITES.CHRONO_MECHA_2, fx, GROUND_Y, 2.7, {
-          '#': '#0F172A', '2': '#22D3EE', '3': '#F43F5E'
-        }, groundSink);
-
-        // Vanguard Hover Cruiser parked further ahead blocking escape
-        const cx = Math.floor(captureScene.overtakeCarX);
-        drawGroundAnchoredSprite(ctx, SPRITES.POLICE_CAR, cx, GROUND_Y, 2.7, {
-          '#': '#1E1B4B', '2': '#22D3EE', '3': '#F43F5E'
-        }, groundSink);
-
-        // Drones overhead
-        const d1x = Math.floor(captureScene.drone1X);
-        const d2x = Math.floor(captureScene.drone2X);
-        const dy = Math.floor(captureScene.droneY);
-        drawPixelMatrix(ctx, SPRITES.FUTURE_DRONE_1, d1x, dy, 2.2, { '#': '#1E1B4B', '2': '#A855F7', '3': '#22D3EE' });
-        drawPixelMatrix(ctx, SPRITES.FUTURE_DRONE_2, d2x, dy, 2.2, { '#': '#1E1B4B', '2': '#A855F7', '3': '#22D3EE' });
-
-        // Phase 2: Vanguard blocked front -> Stasis containment cage activates!
-        if (captureScene.stasisActive) {
-          // Laser containment walls
-          ctx.fillStyle = 'rgba(34, 211, 238, 0.4)';
-          // Left Mech to Dino
-          ctx.fillRect(rx + 45, GROUND_Y - 45, dx - rx - 40, 6);
-          // Right Vanguard Mech to Dino (Blocking laser!)
-          ctx.fillRect(dx + 52, GROUND_Y - 45, fx - dx - 45, 6);
-          // Overhead Drone Stasis Cone
-          ctx.fillRect(dx - 12, dy + 14, 80, GROUND_Y - dy - 14);
-
-          // Crystalline Stasis Mounting Block around the Skeleton ("박제 표본화")
-          ctx.strokeStyle = `rgba(250, 204, 21, ${captureScene.crystalAlpha})`;
-          ctx.lineWidth = 3;
-          ctx.strokeRect(dx - 12, GROUND_Y - 58, 80, 58);
-          ctx.fillStyle = `rgba(34, 211, 238, ${captureScene.crystalAlpha * 0.25})`;
-          ctx.fillRect(dx - 12, GROUND_Y - 58, 80, 58);
-        }
-
-        // Action Narrative Banner
-        ctx.textAlign = 'center';
-        ctx.font = '12px "Press Start 2P", monospace';
-        ctx.fillStyle = captureScene.phase === 'OVERTAKE' ? '#FACC15' : '#22D3EE';
-        ctx.fillText(
-          captureScene.phase === 'OVERTAKE'
-            ? '[ PURSUIT OVERTAKE : 앞길을 가로막는 추격대! ]'
-            : '[ CONTAINED & MOUNTED : 전방 차단 완료 및 박제! ]',
-          W / 2, 36
-        );
-
-        ctx.font = '600 12px "Inter", sans-serif';
-        ctx.fillStyle = '#F8FAFC';
-        ctx.fillText(
-          captureScene.phase === 'OVERTAKE'
-            ? '뒤에서 따라오던 크로노 부대가 급가속해 백골 티렉스를 앞질러 도주로를 차단합니다!'
-            : '앞뒤와 상공이 모두 차단된 백골 티렉스가 스테이시스 필드에 고정되어 영구 박제됩니다...',
-          W / 2, 58
-        );
-
-        if (captureScene.whiteoutAlpha > 0) {
-          ctx.fillStyle = `rgba(255, 255, 255, ${captureScene.whiteoutAlpha})`;
-          ctx.fillRect(0, 0, W, H);
-        }
-      }
-
-      // 4) FINAL ENDING: MODERN / FUTURE NATURAL HISTORY MUSEUM SCENE (With surrounding historical artifacts & small "준성 만듬" sign!)
-      function drawEpilogueMuseum() {
-        const wallGrad = ctx.createLinearGradient(0, 0, 0, H);
-        wallGrad.addColorStop(0, '#0D111A');
-        wallGrad.addColorStop(0.75, '#182030');
-        wallGrad.addColorStop(1, '#0F141D');
-        ctx.fillStyle = wallGrad;
-        ctx.fillRect(0, 0, W, H);
-
-        // Classical Museum Columns
-        ctx.fillStyle = '#131926';
-        for (let px = 40; px < W; px += 175) {
-          ctx.fillRect(px, 20, 22, GROUND_Y - 20);
-          ctx.fillStyle = '#1D2536';
-          ctx.fillRect(px - 4, 20, 30, 10);
-          ctx.fillRect(px - 4, GROUND_Y - 12, 30, 12);
-          ctx.fillStyle = '#131926';
-        }
-
-        // Framed Fossil & Era Paintings on the Museum Back Wall
-        const framePositions = [115, 625];
-        for (let idx = 0; idx < framePositions.length; idx++) {
-          const fx = framePositions[idx];
-          const fy = 112;
-          ctx.fillStyle = '#1E293B';
-          ctx.fillRect(fx, fy, 56, 38);
-          ctx.strokeStyle = '#B45309';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(fx, fy, 56, 38);
-          if (idx === 0) {
-            // Framed Asteroid Impact & Volcano Painting
-            ctx.fillStyle = '#7C2D12';
-            ctx.fillRect(fx + 4, fy + 4, 48, 30);
-            ctx.fillStyle = '#FACC15';
-            ctx.fillRect(fx + 34, fy + 10, 8, 8);
-            ctx.fillStyle = '#FF4500';
+          ctx.strokeStyle = 'rgba(30, 58, 138, 0.28)';
+          ctx.lineWidth = 1;
+          for (let x = 0; x < VIEW_W; x += 64) {
             ctx.beginPath();
-            ctx.moveTo(fx + 8, fy + 34); ctx.lineTo(fx + 22, fy + 16); ctx.lineTo(fx + 36, fy + 34);
-            ctx.fill();
-          } else {
-            // Framed Far Future Ringed Planet Painting
-            ctx.fillStyle = '#0F172A';
-            ctx.fillRect(fx + 4, fy + 4, 48, 30);
-            ctx.fillStyle = '#22D3EE';
-            ctx.beginPath();
-            ctx.arc(fx + 28, fy + 19, 8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = '#F472B6';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(fx + 14, fy + 24); ctx.lineTo(fx + 42, fy + 14);
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, VIEW_H);
             ctx.stroke();
           }
-        }
-
-        // Soft Museum Spotlights (Center + Left/Right Side Exhibits)
-        ctx.fillStyle = 'rgba(255, 238, 185, 0.11)';
-        for (let sy = 0; sy < GROUND_Y + 8; sy += 8) {
-          const halfW = 40 + (sy / GROUND_Y) * 135;
-          ctx.fillRect(Math.floor(W / 2 - halfW), sy, Math.floor(halfW * 2), 8);
-        }
-        ctx.fillStyle = 'rgba(186, 230, 253, 0.06)';
-        ctx.fillRect(32, 90, 200, GROUND_Y - 84);
-        ctx.fillRect(568, 90, 200, GROUND_Y - 84);
-
-        // Museum Floor
-        ctx.fillStyle = '#121622';
-        ctx.fillRect(0, GROUND_Y + 6, W, H - GROUND_Y);
-        ctx.fillStyle = '#2A3346';
-        ctx.fillRect(0, GROUND_Y + 6, W, 2);
-
-        // =====================================================================
-        // SIDE EXHIBITS (공룡 말고도 근처에 함께 전시된 시대별 유물·전시품들!)
-        // =====================================================================
-
-        // [Left Exhibit 1] K-Pg Meteorite Fragment & Ammonite Fossil in Glass Case (x = 42)
-        const ex1X = 42, ex1W = 68, ex1PedH = 26, ex1PedY = GROUND_Y - ex1PedH + 6;
-        ctx.fillStyle = '#262F3F';
-        ctx.fillRect(ex1X, ex1PedY, ex1W, ex1PedH);
-        ctx.strokeStyle = '#475569';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(ex1X, ex1PedY, ex1W, ex1PedH);
-        // Glass dome
-        ctx.fillStyle = 'rgba(186, 230, 253, 0.14)';
-        ctx.fillRect(ex1X + 4, ex1PedY - 34, ex1W - 8, 34);
-        ctx.strokeStyle = 'rgba(186, 230, 253, 0.45)';
-        ctx.strokeRect(ex1X + 4, ex1PedY - 34, ex1W - 8, 34);
-        // Glowing Meteorite specimen inside
-        drawPixelMatrix(ctx, SPRITES.METEOR_OB, ex1X + 10, ex1PedY - 26, 1.6, {
-          '#': '#451A03', '2': '#EA580C', '3': '#FDE047', '4': '#F97316'
-        });
-        // Spiral Ammonite shell next to meteorite
-        ctx.fillStyle = '#D6D3D1';
-        ctx.beginPath();
-        ctx.arc(ex1X + 48, ex1PedY - 12, 9, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#57534E';
-        ctx.beginPath();
-        ctx.arc(ex1X + 48, ex1PedY - 12, 5, 0, Math.PI * 1.5);
-        ctx.stroke();
-        ctx.fillStyle = '#94A3B8';
-        ctx.font = '600 8px "Inter", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('운석·암모나이트', ex1X + ex1W / 2, ex1PedY + 16);
-
-        // [Left Exhibit 2] Prehistoric Fossil Skull & Paleolithic Stone Spear (x = 132)
-        const ex2X = 132, ex2W = 74, ex2PedH = 26, ex2PedY = GROUND_Y - ex2PedH + 6;
-        ctx.fillStyle = '#262F3F';
-        ctx.fillRect(ex2X, ex2PedY, ex2W, ex2PedH);
-        ctx.strokeStyle = '#475569';
-        ctx.strokeRect(ex2X, ex2PedY, ex2W, ex2PedH);
-        // Fossil Skull on mount
-        drawPixelMatrix(ctx, SPRITES.FOSSIL_SKULL, ex2X + 10, ex2PedY - 20, 2.2, { '#': '#E2E8F0' });
-        // Crossed Paleolithic flint spear & stone axe on stand
-        ctx.strokeStyle = '#92400E';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(ex2X + 48, ex2PedY - 2); ctx.lineTo(ex2X + 64, ex2PedY - 28);
-        ctx.stroke();
-        ctx.fillStyle = '#CBD5E1';
-        ctx.fillRect(ex2X + 61, ex2PedY - 32, 6, 6);
-        ctx.fillStyle = '#94A3B8';
-        ctx.font = '600 8px "Inter", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('원시 화석·돌창', ex2X + ex2W / 2, ex2PedY + 16);
-
-        // [Right Exhibit 3] Ancient Golden Pharaoh Mask & Medieval Knight Shield/Sword (x = 594)
-        const ex3X = 594, ex3W = 74, ex3PedH = 26, ex3PedY = GROUND_Y - ex3PedH + 6;
-        ctx.fillStyle = '#262F3F';
-        ctx.fillRect(ex3X, ex3PedY, ex3W, ex3PedH);
-        ctx.strokeStyle = '#475569';
-        ctx.strokeRect(ex3X, ex3PedY, ex3W, ex3PedH);
-        // Glass case
-        ctx.fillStyle = 'rgba(186, 230, 253, 0.14)';
-        ctx.fillRect(ex3X + 4, ex3PedY - 34, ex3W - 8, 34);
-        ctx.strokeStyle = 'rgba(186, 230, 253, 0.45)';
-        ctx.strokeRect(ex3X + 4, ex3PedY - 34, ex3W - 8, 34);
-        // Golden Pharaoh Mask / Crown
-        ctx.fillStyle = '#FACC15';
-        ctx.fillRect(ex3X + 12, ex3PedY - 24, 18, 18);
-        ctx.fillStyle = '#1D4ED8';
-        ctx.fillRect(ex3X + 10, ex3PedY - 26, 22, 4);
-        ctx.fillStyle = '#0F172A';
-        ctx.fillRect(ex3X + 15, ex3PedY - 18, 4, 3);
-        ctx.fillRect(ex3X + 23, ex3PedY - 18, 4, 3);
-        // Medieval Red/Gold Shield & Silver Sword
-        ctx.fillStyle = '#E2E8F0';
-        ctx.fillRect(ex3X + 51, ex3PedY - 30, 3, 26);
-        ctx.fillStyle = '#DC2626';
-        ctx.fillRect(ex3X + 44, ex3PedY - 20, 16, 16);
-        ctx.strokeStyle = '#FACC15';
-        ctx.strokeRect(ex3X + 44, ex3PedY - 20, 16, 16);
-        ctx.fillStyle = '#94A3B8';
-        ctx.font = '600 8px "Inter", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('고대 황금관·성검', ex3X + ex3W / 2, ex3PedY + 16);
-
-        // [Right Exhibit 4] Captured Future Mini-UFO & Cyber Drone in Stasis Tube (x = 686)
-        const ex4X = 686, ex4W = 72, ex4PedH = 26, ex4PedY = GROUND_Y - ex4PedH + 6;
-        ctx.fillStyle = '#262F3F';
-        ctx.fillRect(ex4X, ex4PedY, ex4W, ex4PedH);
-        ctx.strokeStyle = '#475569';
-        ctx.strokeRect(ex4X, ex4PedY, ex4W, ex4PedH);
-        // Glowing Cyan Stasis Cylinder
-        ctx.fillStyle = 'rgba(34, 211, 238, 0.16)';
-        ctx.fillRect(ex4X + 8, ex4PedY - 38, ex4W - 16, 38);
-        ctx.strokeStyle = '#22D3EE';
-        ctx.strokeRect(ex4X + 8, ex4PedY - 38, ex4W - 16, 38);
-        const hoverFloat = Math.sin(frameCount * 0.08) * 2.5;
-        drawPixelMatrix(ctx, SPRITES.FUTURE_DRONE_1, ex4X + 16, ex4PedY - 26 + hoverFloat, 1.8, {
-          '#': '#1E1B4B', '2': '#F43F5E', '3': '#22D3EE'
-        });
-        ctx.fillStyle = '#94A3B8';
-        ctx.font = '600 8px "Inter", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('초미래 UFO 드론', ex4X + ex4W / 2, ex4PedY + 16);
-
-        // =====================================================================
-        // CENTRAL T-REX EXHIBITION PEDESTAL
-        // =====================================================================
-        const pedW = 230;
-        const pedH = 38;
-        const pedX = W / 2 - pedW / 2;
-        const pedY = GROUND_Y - pedH + 6;
-
-        ctx.fillStyle = '#2B3344';
-        ctx.fillRect(pedX, pedY, pedW, pedH);
-        ctx.strokeStyle = '#4B5568';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(pedX, pedY, pedW, pedH);
-
-        // Gold Plaque (Natural Korean)
-        ctx.fillStyle = '#1A1E29';
-        ctx.fillRect(W / 2 - 106, pedY + 9, 212, 20);
-        ctx.strokeStyle = '#D97706';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(W / 2 - 106, pedY + 9, 212, 20);
-
-        ctx.font = '700 10px "Inter", sans-serif';
-        ctx.fillStyle = '#FBBF24';
-        ctx.textAlign = 'center';
-        ctx.fillText('[ 티라노사우루스 렉스 · 기원전 6,600만 년 ]', W / 2, pedY + 23);
-
-        // Mounted Skeleton Fossil
-        const fossilScale = 3.2;
-        const fossilW = 22 * fossilScale;
-        const fossilH = SPRITES.TREX_FOSSIL.length * fossilScale;
-        const fossilX = W / 2 - fossilW / 2 + 6;
-        const fossilY = pedY - fossilH + 2;
-
-        drawPixelMatrix(ctx, SPRITES.TREX_FOSSIL, fossilX + 2, fossilY + 2, fossilScale, { '#': '#475569', '3': '#475569' });
-        drawPixelMatrix(ctx, SPRITES.TREX_FOSSIL, fossilX, fossilY, fossilScale, { '#': '#F8FAFC', '3': '#1E293B' });
-
-        // Museum Guide Ropes
-        ctx.fillStyle = '#9CA3AF';
-        ctx.fillRect(pedX - 30, pedY + 12, 4, 26);
-        ctx.fillRect(pedX + pedW + 26, pedY + 12, 4, 26);
-        ctx.fillStyle = '#991B1B';
-        ctx.fillRect(pedX - 26, pedY + 18, 26, 3);
-        ctx.fillRect(pedX + pedW, pedY + 18, 26, 3);
-
-        // =====================================================================
-        // SMALL, COMPACT CREATOR SIGN ("준성 만듬") NEXT TO THE CENTRAL EXHIBIT
-        // (Requirement 3: 표지판 사이즈는 크게 하지마!)
-        // =====================================================================
-        const signX = pedX + pedW + 36; // Right beside the central T-Rex guide rope
-        const signBoardW = 46;
-        const signBoardH = 15;
-        const signBoardY = GROUND_Y - 21;
-        // Thin wooden/brass post
-        ctx.fillStyle = '#78350F';
-        ctx.fillRect(signX + Math.floor(signBoardW / 2) - 1, signBoardY + signBoardH, 3, 13);
-        ctx.fillRect(signX + Math.floor(signBoardW / 2) - 5, GROUND_Y + 3, 11, 3);
-        // Modest sign board
-        ctx.fillStyle = '#FEF3C7';
-        ctx.fillRect(signX, signBoardY, signBoardW, signBoardH);
-        ctx.strokeStyle = '#B45309';
-        ctx.lineWidth = 1.2;
-        ctx.strokeRect(signX, signBoardY, signBoardW, signBoardH);
-        // Cute small Korean text "준성 만듬"
-        ctx.font = '700 9px "Inter", sans-serif';
-        ctx.fillStyle = '#451A03';
-        ctx.textAlign = 'center';
-        ctx.fillText('준성 만듬', signX + signBoardW / 2, signBoardY + 11);
-
-        // Visiting Spectators with diverse colorful outfits, hats & accessories!
-        for (let v of epilogue.visitors) {
-          const bob = Math.sin(v.step) * 2;
-          const vx = Math.floor(v.x);
-          const vy = Math.floor(H - 6 + bob);
-
-          if (v.type === 'child_hat') {
-            ctx.fillStyle = v.botCol || '#1D4ED8';
-            ctx.fillRect(vx + 1, vy - 8, 3, 8);
-            ctx.fillRect(vx + 6, vy - 8, 3, 8);
-            ctx.fillStyle = v.topCol || '#EF4444';
-            ctx.fillRect(vx, vy - 22, 10, 14);
-            ctx.fillRect(vx + 8, vy - 20, 6, 3);
-            ctx.fillStyle = v.skin || '#FDE68A';
-            ctx.fillRect(vx + 1, vy - 30, 8, 8);
-            ctx.fillStyle = v.hatCol || '#FACC15';
-            ctx.fillRect(vx, vy - 33, 12, 3);
-          } else if (v.type === 'photographer') {
-            ctx.fillStyle = v.botCol || '#1E293B';
-            ctx.fillRect(vx + 2, vy - 12, 3, 12);
-            ctx.fillRect(vx + 7, vy - 12, 3, 12);
-            ctx.fillStyle = v.topCol || '#10B981';
-            ctx.fillRect(vx, vy - 32, 12, 20);
-            ctx.fillStyle = v.skin || '#FDBA74';
-            ctx.fillRect(vx + 2, vy - 41, 8, 9);
-            ctx.fillStyle = v.hairCol || '#78350F';
-            ctx.fillRect(vx + 1, vy - 44, 10, 3);
-            ctx.fillStyle = '#090D16';
-            ctx.fillRect(vx + 11, vy - 35, 6, 5);
-            if (v.flashTimer <= 0) {
-              ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-              ctx.fillRect(vx + 7, vy - 43, 20, 20);
-              ctx.fillRect(vx + 3, vy - 37, 28, 8);
-              ctx.fillRect(vx + 13, vy - 47, 8, 28);
-            }
-          } else if (v.type === 'fashion_dress') {
-            ctx.fillStyle = v.skin || '#FFE4E6';
-            ctx.fillRect(vx + 2, vy - 10, 3, 10);
-            ctx.fillRect(vx + 7, vy - 10, 3, 10);
-            ctx.fillStyle = v.botCol || '#BE185D';
-            ctx.fillRect(vx - 2, vy - 22, 16, 12);
-            ctx.fillStyle = v.topCol || '#EC4899';
-            ctx.fillRect(vx, vy - 33, 12, 11);
-            ctx.fillStyle = v.skin || '#FFE4E6';
-            ctx.fillRect(vx + 2, vy - 42, 8, 9);
-            ctx.fillStyle = v.hairCol || '#FACC15';
-            ctx.fillRect(vx, vy - 45, 11, 4);
-            ctx.fillRect(vx, vy - 41, 3, 9);
-          } else {
-            ctx.fillStyle = v.botCol || '#0F172A';
-            ctx.fillRect(vx + 2, vy - 12, 3, 12);
-            ctx.fillRect(vx + 7, vy - 12, 3, 12);
-            ctx.fillStyle = v.topCol || '#3B82F6';
-            ctx.fillRect(vx, vy - 34, 12, 22);
-            ctx.fillStyle = v.skin || '#E0A96D';
-            ctx.fillRect(vx + 2, vy - 43, 8, 9);
-            ctx.fillStyle = v.hatCol || v.hairCol || '#1C1917';
-            ctx.fillRect(vx + 1, vy - 46, 10, 4);
+          for (let y = 0; y < VIEW_H; y += 64) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(VIEW_W, y);
+            ctx.stroke();
           }
+
+          ctx.save();
+          ctx.font = '900 15px "Courier New", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('UNDERGROUND SECRET BONUS ROOM', VIEW_W / 2, 102);
+          ctx.font = 'bold 12px "Courier New", monospace';
+          ctx.fillStyle = '#93c5fd';
+          ctx.fillText('아이템과 코인을 획득한 뒤 오른쪽 초록 배관(EXIT)으로 이동하세요!', VIEW_W / 2, 122);
+          ctx.restore();
+          return;
         }
 
-        ctx.textAlign = 'center';
-        ctx.font = '700 15px "Inter", sans-serif';
-        ctx.fillStyle = '#FDE68A';
-        ctx.fillText(epilogue.line1Shown, W / 2, 46);
+        const theme = STAGE_THEMES[currentStage] || STAGE_THEMES[1];
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, VIEW_H);
+        skyGrad.addColorStop(0, theme.skyTop);
+        skyGrad.addColorStop(0.72, theme.skyMid);
+        skyGrad.addColorStop(1, theme.skyBot);
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-        ctx.font = '600 13px "Inter", sans-serif';
-        ctx.fillStyle = '#E2E8F0';
-        ctx.fillText(epilogue.line2Shown, W / 2, 74);
+        // 쿠파 성채(Stage 5) 또는 사막(Stage 4) 바닥 용암/유사 연출
+        if (theme.pitType === 'lava') {
+          ctx.fillStyle = '#dc2626';
+          ctx.fillRect(0, VIEW_H - 28, VIEW_W, 28);
+          ctx.fillStyle = '#facc15';
+          for (let lx = 0; lx < VIEW_W; lx += 32) {
+            const waveY = Math.sin(frameCount * 0.12 + lx) * 3;
+            ctx.fillRect(lx, VIEW_H - 28 + waveY, 20, 6);
+          }
+        } else if (theme.pitType === 'quicksand') {
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(0, VIEW_H - 22, VIEW_W, 22);
+        }
 
-        if (epilogue.fadeFromWhite > 0) {
-          ctx.fillStyle = `rgba(255, 255, 255, ${epilogue.fadeFromWhite})`;
-          ctx.fillRect(0, 0, W, H);
+        for (let i = 0; i < decors.length; i++) {
+          const d = decors[i];
+          const parallax = d.type === 'cloud' ? 0.45 : 0.72;
+          const sx = Math.floor(d.x - cameraX * parallax);
+
+          if (sx + d.w < -80 || sx > VIEW_W + 80) continue;
+
+          if (d.type === 'cloud') {
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(sx + 22, d.y + 18, 16, 0, Math.PI * 2);
+            ctx.arc(sx + d.w * 0.5, d.y + 12, 21, 0, Math.PI * 2);
+            ctx.arc(sx + d.w - 22, d.y + 18, 15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillRect(sx + 20, d.y + 16, d.w - 40, 18);
+          } else if (d.type === 'hill') {
+            ctx.fillStyle = '#15803d';
+            ctx.beginPath();
+            ctx.moveTo(sx, d.y);
+            ctx.quadraticCurveTo(sx + d.w / 2, d.y - d.h * 1.65, sx + d.w, d.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#052e16';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          } else if (d.type === 'pyramid') {
+            ctx.fillStyle = '#d97706';
+            ctx.beginPath();
+            ctx.moveTo(sx, d.y);
+            ctx.lineTo(sx + d.w / 2, d.y - d.h);
+            ctx.lineTo(sx + d.w, d.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#78350f';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          } else if (d.type === 'crystal') {
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+            ctx.beginPath();
+            ctx.moveTo(sx, d.y);
+            ctx.lineTo(sx + d.w / 2, d.y + d.h);
+            ctx.lineTo(sx + d.w, d.y);
+            ctx.closePath();
+            ctx.fill();
+          } else if (d.type === 'chain') {
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 3;
+            for (let cy = d.y; cy < d.y + d.h; cy += 14) {
+              ctx.strokeRect(sx + 4, cy, 8, 10);
+            }
+          }
         }
       }
 
-      // =========================================================================
-      // 12. MAIN ANIMATION LOOP & INPUT HANDLERS
-      // =========================================================================
+      function drawPiranhas() {
+        for (let i = 0; i < piranhas.length; i++) {
+          const pir = piranhas[i];
+          if (!pir.alive || pir.y >= pir.baseY - 2) continue;
+
+          const px = Math.floor(pir.x - cameraX);
+          const py = Math.floor(pir.y);
+          if (px + pir.w < -20 || px > VIEW_W + 20) continue;
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(px - 8, py - 10, pir.w + 16, pir.baseY - py + 10);
+          ctx.clip();
+
+          ctx.fillStyle = '#16a34a';
+          ctx.fillRect(px + 12, py + 20, 8, pir.h - 20);
+          ctx.fillStyle = '#4ade80';
+          ctx.fillRect(px + 4, py + 26, 8, 5);
+          ctx.fillRect(px + 20, py + 26, 8, 5);
+
+          ctx.fillStyle = '#dc2626';
+          ctx.beginPath();
+          ctx.arc(px + 16, py + 13, 13, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#450a0a';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(px + 8, py + 10, 4, 4);
+          ctx.fillRect(px + 20, py + 12, 4, 4);
+          ctx.fillRect(px + 14, py + 16, 4, 4);
+
+          const mouthOpen = Math.floor(frameCount / 8) % 2 === 0;
+          ctx.fillStyle = '#090d16';
+          ctx.beginPath();
+          ctx.moveTo(px + 16, py + 12);
+          ctx.lineTo(px + (mouthOpen ? 6 : 11), py);
+          ctx.lineTo(px + (mouthOpen ? 26 : 21), py);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(px + (mouthOpen ? 6 : 11), py + 1);
+          ctx.lineTo(px + 16, py + 12);
+          ctx.lineTo(px + (mouthOpen ? 26 : 21), py + 1);
+          ctx.stroke();
+
+          ctx.restore();
+        }
+      }
+
+      function drawSolidsAndPlatforms() {
+        const theme = STAGE_THEMES[currentStage] || STAGE_THEMES[1];
+        const qPulse = Math.floor(frameCount / 12) % 3;
+        const qColors = ['#facc15', '#f59e0b', '#fbbf24'];
+
+        for (let i = 0; i < solids.length; i++) {
+          const s = solids[i];
+          const sx = Math.floor(s.x - cameraX);
+          const sy = Math.floor(s.y);
+
+          if (sx + s.w < -10 || sx > VIEW_W + 10) continue;
+
+          if (s.type === 'ground' || s.type === 'ug_ground') {
+            const isUg = s.type === 'ug_ground';
+            ctx.fillStyle = isUg ? '#1e3a8a' : theme.groundMain;
+            ctx.fillRect(sx, sy, s.w, s.h);
+
+            ctx.fillStyle = isUg ? '#60a5fa' : theme.groundTop;
+            ctx.fillRect(sx, sy, s.w, 5);
+
+            ctx.strokeStyle = isUg ? '#0f172a' : theme.groundBorder;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(sx + 1, sy + 1, s.w - 2, TILE - 2);
+            ctx.strokeRect(sx + 1, sy + TILE + 1, s.w - 2, s.h - TILE - 2);
+          } else if (s.type === 'brick' || s.type === 'ug_brick') {
+            const isUg = s.type === 'ug_brick';
+            ctx.fillStyle = isUg ? '#1d4ed8' : theme.brickMain;
+            ctx.fillRect(sx, sy, s.w, s.h);
+
+            ctx.fillStyle = '#111827';
+            ctx.fillRect(sx, sy + 7, s.w, 2);
+            ctx.fillRect(sx, sy + 15, s.w, 2);
+            ctx.fillRect(sx, sy + 23, s.w, 2);
+            ctx.fillRect(sx + 15, sy, 2, 7);
+            ctx.fillRect(sx + 7, sy + 9, 2, 6);
+            ctx.fillRect(sx + 23, sy + 9, 2, 6);
+            ctx.fillRect(sx + 15, sy + 17, 2, 6);
+
+            ctx.fillStyle = isUg ? '#60a5fa' : theme.brickHighlight;
+            ctx.fillRect(sx + 1, sy + 1, s.w - 2, 2);
+            ctx.strokeStyle = '#111827';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(sx + 0.5, sy + 0.5, s.w - 1, s.h - 1);
+          } else if (s.type === 'question') {
+            ctx.fillStyle = qColors[qPulse];
+            ctx.fillRect(sx, sy, s.w, s.h);
+
+            ctx.strokeStyle = '#78350f';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(sx + 1, sy + 1, s.w - 2, s.h - 2);
+
+            ctx.fillStyle = '#78350f';
+            ctx.fillRect(sx + 3, sy + 3, 3, 3);
+            ctx.fillRect(sx + s.w - 6, sy + 3, 3, 3);
+            ctx.fillRect(sx + 3, sy + s.h - 6, 3, 3);
+            ctx.fillRect(sx + s.w - 6, sy + s.h - 6, 3, 3);
+
+            ctx.font = 'bold 20px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#78350f';
+            ctx.fillText('?', sx + s.w / 2 + 1.5, sy + s.h / 2 + 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('?', sx + s.w / 2, sy + s.h / 2 + 0.5);
+          } else if (s.type === 'empty') {
+            ctx.fillStyle = '#78350f';
+            ctx.fillRect(sx, sy, s.w, s.h);
+            ctx.strokeStyle = '#292524';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(sx + 1, sy + 1, s.w - 2, s.h - 2);
+          } else if (s.type === 'hard') {
+            ctx.fillStyle = theme.hardMain;
+            ctx.fillRect(sx, sy, s.w, s.h);
+
+            ctx.fillStyle = theme.hardHighlight;
+            ctx.fillRect(sx + 2, sy + 2, s.w - 4, 3);
+            ctx.fillRect(sx + 2, sy + 2, 3, s.h - 4);
+
+            ctx.strokeStyle = '#111827';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(sx + 1, sy + 1, s.w - 2, s.h - 2);
+          } else if (s.type === 'pipe') {
+            const lipH = 26;
+            const bodyX = sx + 4;
+            const bodyW = s.w - 8;
+
+            ctx.fillStyle = '#16a34a';
+            ctx.fillRect(bodyX, sy + lipH, bodyW, s.h - lipH);
+            ctx.fillStyle = '#86efac';
+            ctx.fillRect(bodyX + 6, sy + lipH, 8, s.h - lipH);
+            ctx.fillStyle = '#14532d';
+            ctx.fillRect(bodyX + bodyW - 10, sy + lipH, 6, s.h - lipH);
+            ctx.strokeStyle = '#052e16';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(bodyX, sy + lipH, bodyW, s.h - lipH);
+
+            const lipY = s.isCeilingPipe ? sy + s.h - lipH : sy;
+            ctx.fillStyle = '#16a34a';
+            ctx.fillRect(sx, lipY, s.w, lipH);
+            ctx.fillStyle = '#86efac';
+            ctx.fillRect(sx + 8, lipY + 2, 10, lipH - 4);
+            ctx.fillStyle = '#14532d';
+            ctx.fillRect(sx + s.w - 12, lipY + 2, 8, lipH - 4);
+            ctx.strokeRect(sx + 1, lipY + 1, s.w - 2, lipH - 2);
+
+            if (s.label) {
+              const floatY = Math.sin(frameCount * 0.1) * 3;
+              ctx.save();
+              ctx.font = '900 11px "Courier New", monospace';
+              ctx.textAlign = 'center';
+              ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+              ctx.fillRect(sx - 18, sy - 26 + floatY, s.w + 36, 18);
+              ctx.strokeStyle = '#4ade80';
+              ctx.lineWidth = 1;
+              ctx.strokeRect(sx - 18, sy - 26 + floatY, s.w + 36, 18);
+              ctx.fillStyle = '#fde047';
+              ctx.fillText(s.label, sx + s.w / 2, sy - 13 + floatY);
+              ctx.restore();
+            }
+          }
+        }
+
+        // 이동 리프트 플랫폼 렌더링
+        for (let i = 0; i < platforms.length; i++) {
+          const pf = platforms[i];
+          const px = Math.floor(pf.x - cameraX);
+          const py = Math.floor(pf.y);
+          if (px + pf.w < -20 || px > VIEW_W + 20) continue;
+
+          ctx.fillStyle = currentStage === 3 ? '#ffffff' : '#f59e0b';
+          ctx.fillRect(px, py, pf.w, pf.h);
+          ctx.strokeStyle = '#111827';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(px, py, pf.w, pf.h);
+          ctx.fillStyle = currentStage === 3 ? '#bae6fd' : '#fde68a';
+          ctx.fillRect(px + 4, py + 3, pf.w - 8, 4);
+        }
+
+        // 스프링 점프대 렌더링
+        for (let i = 0; i < springs.length; i++) {
+          const sp = springs[i];
+          const sx = Math.floor(sp.x - cameraX);
+          const sy = Math.floor(sp.y);
+          const comp = sp.compressTimer > 0 ? 8 : 0;
+
+          // 바닥 받침
+          ctx.fillStyle = '#475569';
+          ctx.fillRect(sx, sy + 20, sp.w, 6);
+          // 코일 지그재그
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(sx + 4, sy + 20);
+          ctx.lineTo(sx + sp.w - 4, sy + 12 + comp / 2);
+          ctx.lineTo(sx + 4, sy + 6 + comp);
+          ctx.stroke();
+          // 상단 빨간 쿠션
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(sx - 2, sy + comp, sp.w + 4, 7);
+          ctx.strokeStyle = '#7f1d1d';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(sx - 2, sy + comp, sp.w + 4, 7);
+        }
+
+        // 특수 위험 장애물(가시, 회전 화염바, 쿵쿵이, 용암 화염구) 렌더링
+        for (let i = 0; i < hazards.length; i++) {
+          const hz = hazards[i];
+
+          if (hz.type === 'spikes') {
+            const sx = Math.floor(hz.x - cameraX);
+            const sy = Math.floor(hz.y);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1.5;
+            for (let x = 0; x < hz.w; x += 16) {
+              ctx.beginPath();
+              ctx.moveTo(sx + x, sy + hz.h);
+              ctx.lineTo(sx + x + 8, sy);
+              ctx.lineTo(sx + x + 16, sy + hz.h);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+            }
+          } else if (hz.type === 'firebar') {
+            const cx = Math.floor(hz.cx - cameraX);
+            const cy = Math.floor(hz.cy);
+            if (cx < -120 || cx > VIEW_W + 120) continue;
+
+            for (let b = 0; b <= hz.balls; b++) {
+              const bx = cx + Math.cos(hz.angle) * (b * 18);
+              const by = cy + Math.sin(hz.angle) * (b * 18);
+              ctx.fillStyle = b % 2 === 0 ? '#ef4444' : '#f97316';
+              ctx.beginPath();
+              ctx.arc(bx, by, 7, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#fef08a';
+              ctx.beginPath();
+              ctx.arc(bx, by, 3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          } else if (hz.type === 'thwomp') {
+            const tx = Math.floor(hz.x - cameraX);
+            const ty = Math.floor(hz.y);
+            if (tx + hz.w < -40 || tx > VIEW_W + 40) continue;
+
+            // 쿵쿵이 바위 몸체
+            ctx.fillStyle = '#64748b';
+            ctx.fillRect(tx, ty, hz.w, hz.h);
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(tx, ty, hz.w, hz.h);
+
+            // 테두리 가시 돌기
+            ctx.fillStyle = '#cbd5e1';
+            for (let sy = 6; sy < hz.h - 6; sy += 16) {
+              ctx.fillRect(tx - 4, ty + sy, 4, 8);
+              ctx.fillRect(tx + hz.w, ty + sy, 4, 8);
+            }
+
+            // 화난 눈과 이빨
+            ctx.fillStyle = '#111827';
+            ctx.fillRect(tx + 8, ty + 14, 12, 10);
+            ctx.fillRect(tx + 28, ty + 14, 12, 10);
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(tx + 12, ty + 18, 5, 5);
+            ctx.fillRect(tx + 31, ty + 18, 5, 5);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(tx + 10, ty + 36, 28, 10);
+            ctx.strokeStyle = '#111827';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(tx + 10, ty + 36, 28, 10);
+          } else if (hz.type === 'podoboo') {
+            const px = Math.floor(hz.x - cameraX);
+            const py = Math.floor(hz.y);
+            if (py > VIEW_H + 10) continue;
+
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(px + 10, py + 12, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.arc(px + 10, py + 12, 5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      function drawCheckpointAndFlagpole() {
+        if (currentZone !== 'OVERWORLD') return;
+
+        if (checkpoint) {
+          const cpx = Math.floor(checkpoint.x - cameraX);
+          const cpy = Math.floor(checkpoint.y);
+          if (cpx > -40 && cpx < VIEW_W + 40) {
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillRect(cpx + 6, cpy, 4, checkpoint.h);
+            ctx.fillStyle = checkpointReached ? '#22c55e' : '#f97316';
+            ctx.beginPath();
+            ctx.moveTo(cpx + 10, cpy + 4);
+            ctx.lineTo(cpx + 38, cpy + 14);
+            ctx.lineTo(cpx + 10, cpy + 24);
+            ctx.closePath();
+            ctx.fill();
+            ctx.font = 'bold 10px "Courier New", monospace';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(checkpointReached ? 'SAVED' : 'CHECK', cpx - 2, cpy - 6);
+          }
+        }
+
+        if (!flagpole) return;
+
+        const cx = Math.floor(flagpole.castleX - cameraX);
+        const cy = Math.floor(flagpole.castleY);
+
+        if (cx + 160 > -20 && cx < VIEW_W + 20) {
+          ctx.fillStyle = currentStage === 5 ? '#334155' : '#b45309';
+          ctx.fillRect(cx + 16, cy + 48, 112, 80);
+          ctx.fillRect(cx + 34, cy + 16, 76, 36);
+
+          for (let i = 0; i < 5; i++) ctx.fillRect(cx + 16 + i * 24, cy + 36, 16, 12);
+          for (let i = 0; i < 3; i++) ctx.fillRect(cx + 34 + i * 28, cy + 4, 18, 12);
+
+          ctx.fillStyle = '#111827';
+          ctx.beginPath();
+          ctx.arc(cx + 72, cy + 98, 18, Math.PI, 0);
+          ctx.lineTo(cx + 90, cy + 128);
+          ctx.lineTo(cx + 54, cy + 128);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillRect(cx + 48, cy + 24, 10, 18);
+          ctx.fillRect(cx + 86, cy + 24, 10, 18);
+
+          ctx.strokeStyle = '#111827';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(cx + 16, cy + 48, 112, 80);
+        }
+
+        const px = Math.floor(flagpole.x - cameraX);
+        const py = Math.floor(flagpole.y);
+        if (px < -60 || px > VIEW_W + 60) return;
+
+        ctx.fillStyle = '#d9f99d';
+        ctx.fillRect(px, py, flagpole.w, flagpole.h);
+        ctx.strokeStyle = '#14532d';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(px, py, flagpole.w, flagpole.h);
+
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.arc(px + flagpole.w / 2, py, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        const fy = Math.floor(flagpole.flagY);
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(px + flagpole.w, fy);
+        ctx.lineTo(px - 44, fy + 16);
+        ctx.lineTo(px + flagpole.w, fy + 32);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#7f1d1d';
+        ctx.stroke();
+      }
+
+      function drawFieldCoinsAndItems() {
+        const coinScale = Math.abs(Math.cos(frameCount * 0.1));
+        for (let i = 0; i < fieldCoins.length; i++) {
+          const fc = fieldCoins[i];
+          if (fc.collected) continue;
+          const cx = Math.floor(fc.x - cameraX);
+          const cy = Math.floor(fc.y);
+          if (cx < -20 || cx > VIEW_W + 20) continue;
+
+          ctx.fillStyle = '#facc15';
+          ctx.beginPath();
+          ctx.ellipse(cx + 9, cy + 11, Math.max(3, 8 * coinScale), 11, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#b45309';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+
+        for (let i = 0; i < items.length; i++) {
+          const it = items[i];
+          const ix = Math.floor(it.x - cameraX);
+          const iy = Math.floor(it.y);
+
+          if (it.type === 'popCoin') {
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.ellipse(ix + 8, iy + 11, 7, 11, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#b45309';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          } else if (it.type === 'mushroom' || it.type === '1up') {
+            const is1Up = it.type === '1up';
+            ctx.fillStyle = '#fde68a';
+            ctx.fillRect(ix + 6, iy + 15, 16, 12);
+            ctx.strokeStyle = '#78350f';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(ix + 6, iy + 15, 16, 12);
+
+            ctx.fillStyle = '#111827';
+            ctx.fillRect(ix + 10, iy + 18, 2, 5);
+            ctx.fillRect(ix + 16, iy + 18, 2, 5);
+
+            ctx.fillStyle = is1Up ? '#22c55e' : '#ef4444';
+            ctx.beginPath();
+            ctx.arc(ix + 14, iy + 14, 13, Math.PI, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(ix + 14, iy + 7, 4, 0, Math.PI * 2);
+            ctx.arc(ix + 7, iy + 11, 3, 0, Math.PI * 2);
+            ctx.arc(ix + 21, iy + 11, 3, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (it.type === 'flower') {
+            const pulse = Math.floor(frameCount / 5) % 2 === 0;
+            ctx.fillStyle = '#22c55e';
+            ctx.fillRect(ix + 12, iy + 16, 4, 11);
+            ctx.fillRect(ix + 6, iy + 21, 6, 4);
+            ctx.fillRect(ix + 16, iy + 21, 6, 4);
+
+            ctx.fillStyle = pulse ? '#ef4444' : '#f97316';
+            ctx.beginPath();
+            ctx.ellipse(ix + 14, iy + 10, 12, 9, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#7c2d12';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.fillStyle = pulse ? '#facc15' : '#fde047';
+            ctx.beginPath();
+            ctx.ellipse(ix + 14, iy + 10, 8, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(ix + 10, iy + 7, 8, 6);
+            ctx.fillStyle = '#111827';
+            ctx.fillRect(ix + 11, iy + 8, 2, 4);
+            ctx.fillRect(ix + 15, iy + 8, 2, 4);
+          } else if (it.type === 'star') {
+            const starColor = frameCount % 6 < 3 ? '#facc15' : '#fef08a';
+            ctx.save();
+            ctx.translate(ix + 14, iy + 14);
+            ctx.fillStyle = starColor;
+            ctx.strokeStyle = '#b45309';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            for (let p = 0; p < 5; p++) {
+              const outerA = (p * 72 - 90) * (Math.PI / 180);
+              const innerA = ((p * 72 + 36) - 90) * (Math.PI / 180);
+              const ox = Math.cos(outerA) * 13;
+              const oy = Math.sin(outerA) * 13;
+              const inx = Math.cos(innerA) * 6;
+              const iny = Math.sin(innerA) * 6;
+              if (p === 0) ctx.moveTo(ox, oy);
+              else ctx.lineTo(ox, oy);
+              ctx.lineTo(inx, iny);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#111827';
+            ctx.fillRect(-3, -2, 2, 5);
+            ctx.fillRect(2, -2, 2, 5);
+            ctx.restore();
+          }
+        }
+      }
+
+      function drawFireballs() {
+        for (let i = 0; i < fireballs.length; i++) {
+          const fb = fireballs[i];
+          const fx = Math.floor(fb.x - cameraX);
+          const fy = Math.floor(fb.y);
+
+          ctx.save();
+          ctx.translate(fx + 6, fy + 6);
+          ctx.rotate(frameCount * 0.45);
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(0, 0, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(-6, -2, 12, 4);
+          ctx.fillRect(-2, -6, 4, 12);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(-2, -2, 4, 4);
+          ctx.restore();
+        }
+      }
+
+      function drawEnemies() {
+        for (let i = 0; i < enemies.length; i++) {
+          const en = enemies[i];
+          const ex = Math.floor(en.x - cameraX);
+          const ey = Math.floor(en.y);
+
+          if (ex + en.w < -20 || ex > VIEW_W + 20) continue;
+
+          if (en.state === 'squished') {
+            ctx.fillStyle = '#92400e';
+            ctx.fillRect(ex, ey + 16, en.w, 8);
+            ctx.fillStyle = '#fde68a';
+            ctx.fillRect(ex + 4, ey + 24, en.w - 8, 4);
+          } else if (en.type === 'spiny') {
+            // ★ 사막/성채 전용 가시돌이(Spiny) 렌더링: 붉은 등껍질 + 날카로운 하얀 가시 3개
+            ctx.fillStyle = '#dc2626';
+            ctx.beginPath();
+            ctx.arc(ex + 14, ey + 18, 12, Math.PI, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#450a0a';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // 등 위의 날카로운 흰 가시
+            ctx.fillStyle = '#ffffff';
+            const spikesX = [6, 14, 22];
+            spikesX.forEach((sx) => {
+              ctx.beginPath();
+              ctx.moveTo(ex + sx - 4, ey + 10);
+              ctx.lineTo(ex + sx, ey + 1);
+              ctx.lineTo(ex + sx + 4, ey + 10);
+              ctx.closePath();
+              ctx.fill();
+            });
+
+            // 얼굴 & 다리
+            ctx.fillStyle = '#fde68a';
+            ctx.fillRect(ex + 4, ey + 18, 20, 6);
+            ctx.fillStyle = '#111827';
+            ctx.fillRect(ex + (en.vx < 0 ? 6 : 18), ey + 18, 3, 4);
+            ctx.fillRect(ex + 5, ey + 24, 6, 4);
+            ctx.fillRect(ex + 17, ey + 24, 6, 4);
+          } else if (en.type === 'beetle') {
+            // ★ 지하 동굴 전용 딱정벌레(Buzzy Beetle): 파이어볼 면역 네이비 금속 등껍질
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.arc(ex + 14, ey + 16, 13, Math.PI, 0);
+            ctx.lineTo(ex + 27, ey + 24);
+            ctx.lineTo(ex + 1, ey + 24);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#60a5fa';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(ex + (en.vx < 0 ? 5 : 19), ey + 16, 4, 4);
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(ex + 6, ey + 24, 5, 4);
+            ctx.fillRect(ex + 17, ey + 24, 5, 4);
+          } else if (en.type === 'koopa' || en.type === 'red_koopa' || en.type === 'paratroopa') {
+            const shellMain = en.type === 'koopa' ? '#16a34a' : '#dc2626';
+            const shellLight = en.type === 'koopa' ? '#86efac' : '#fca5a5';
+
+            if (en.state === 'shell_idle' || en.state === 'shell_moving') {
+              ctx.fillStyle = shellMain;
+              ctx.beginPath();
+              ctx.arc(ex + 14, ey + 14, 12, Math.PI, 0);
+              ctx.lineTo(ex + 26, ey + 22);
+              ctx.lineTo(ex + 2, ey + 22);
+              ctx.closePath();
+              ctx.fill();
+              ctx.strokeStyle = '#111827';
+              ctx.lineWidth = 2;
+              ctx.stroke();
+
+              ctx.fillStyle = '#fef08a';
+              ctx.fillRect(ex + 2, ey + 20, 24, 5);
+            } else {
+              const flip = en.vx > 0;
+              const headX = flip ? ex + 16 : ex + 2;
+              const shellX = flip ? ex + 2 : ex + 8;
+              const step = Math.floor(en.animTimer / 8) % 2 === 0 ? 0 : 3;
+
+              ctx.fillStyle = '#facc15';
+              ctx.fillRect(headX, ey + 2, 10, 12);
+              ctx.fillStyle = '#111827';
+              ctx.fillRect(flip ? headX + 6 : headX + 2, ey + 4, 3, 4);
+
+              ctx.fillStyle = shellMain;
+              ctx.fillRect(shellX, ey + 10, 18, 18);
+              ctx.strokeStyle = '#111827';
+              ctx.lineWidth = 1.5;
+              ctx.strokeRect(shellX, ey + 10, 18, 18);
+              ctx.fillStyle = shellLight;
+              ctx.fillRect(shellX + 4, ey + 13, 10, 8);
+
+              // 날개 엉금엉금(Paratroopa) 하얀 날개 렌더링
+              if (en.type === 'paratroopa') {
+                const wingFlap = Math.floor(frameCount / 6) % 2 === 0 ? -4 : 2;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(shellX + 4, ey + 4 + wingFlap, 10, 8);
+                ctx.strokeStyle = '#1e293b';
+                ctx.strokeRect(shellX + 4, ey + 4 + wingFlap, 10, 8);
+              }
+
+              ctx.fillStyle = '#facc15';
+              ctx.fillRect(ex + 5, ey + 28, 6, 8 - step);
+              ctx.fillRect(ex + 17, ey + 28, 6, 5 + step);
+            }
+          } else {
+            const sprite = Math.floor(en.animTimer / 10) % 2 === 0 ? SPRITE_GOOMBA_1 : SPRITE_GOOMBA_2;
+            const gPalette = (currentStage === 2 || currentZone === 'UNDERGROUND') ? GOOMBA_PALETTE_UNDERGROUND : GOOMBA_PALETTE_OVERWORLD;
+            drawPixelMatrix(ctx, sprite, gPalette, ex, ey, en.w, en.h, false);
+          }
+        }
+      }
+
+      // ★ 플레이어 렌더링: 아이템 획득 시 캐릭터 주변에 생기던 큰 네모 박스(strokeRect)를 완벽히 제거!
+      function drawPlayer() {
+        if (!player || player.clearPhase === 3) return;
+
+        if (player.invincibleTimer > 0 && Math.floor(frameCount / 3) % 2 === 0) {
+          return;
+        }
+
+        const px = Math.floor(player.x - cameraX);
+        const py = Math.floor(player.y);
+
+        let matrix = SPRITE_HERO_IDLE;
+        if (!player.onGround && gameState === 'PLAYING') {
+          matrix = SPRITE_HERO_JUMP;
+        } else if (Math.abs(player.vx) > 0.25) {
+          matrix = player.animFrame === 0 ? SPRITE_HERO_RUN1 : SPRITE_HERO_RUN2;
+        }
+
+        let drawH = player.h;
+        let drawY = py;
+        if (player.transformTimer > 0 && player.transformTimer % 4 < 2) {
+          drawH = player.isSuper ? 38 : 42;
+          drawY = py + (player.h - drawH);
+        }
+
+        // 상태에 따른 순수 픽셀 팔레트 변경 (네모 박스 테두리 없이 깔끔하게 캐릭터 자체 색상만 변화!)
+        let activePalette = HERO_PALETTE_NORMAL;
+        if (player.starTimer > 0) {
+          activePalette = STAR_PALETTES[Math.floor(frameCount / 3) % STAR_PALETTES.length];
+        } else if (player.powerLevel === 2) {
+          activePalette = HERO_PALETTE_FIRE;
+        } else if (player.powerLevel === 1) {
+          activePalette = HERO_PALETTE_SUPER;
+        }
+
+        drawPixelMatrix(ctx, matrix, activePalette, px - 2, drawY, player.w + 4, drawH, player.facing === -1);
+      }
+
+      function drawParticlesAndPopups() {
+        for (let i = 0; i < particles.length; i++) {
+          const pt = particles[i];
+          const sx = Math.floor(pt.x - cameraX);
+          const sy = Math.floor(pt.y);
+
+          ctx.save();
+          ctx.fillStyle = pt.color;
+          if (pt.type === 'brick') {
+            ctx.translate(sx + pt.size / 2, sy + pt.size / 2);
+            ctx.rotate(pt.angle || 0);
+            ctx.fillRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size);
+            ctx.strokeStyle = '#111827';
+            ctx.strokeRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size);
+          } else {
+            ctx.globalAlpha = Math.max(0.2, pt.life / 24);
+            ctx.fillRect(sx, sy, pt.size, pt.size);
+          }
+          ctx.restore();
+        }
+
+        for (let i = 0; i < popups.length; i++) {
+          const pp = popups[i];
+          const sx = Math.floor(pp.x - cameraX);
+          const sy = Math.floor(pp.y);
+
+          ctx.save();
+          ctx.font = 'bold 14px "Courier New", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#000000';
+          ctx.fillText(pp.text, sx + 14, sy + 1);
+          ctx.fillStyle = pp.color;
+          ctx.fillText(pp.text, sx + 13, sy);
+          ctx.restore();
+        }
+      }
+
+      // ★ 상단 HUD: 깨지는 유니코드 이모지(네모 박스)를 완전히 배제하고 순수 Canvas 도형(하트/동전)과 영문/숫자만 사용!
+      function drawPixelHeart(ctx, x, y, filled = true) {
+        ctx.fillStyle = filled ? '#ef4444' : '#475569';
+        ctx.beginPath();
+        ctx.arc(x + 4, y + 4, 4, Math.PI, 0);
+        ctx.arc(x + 11, y + 4, 4, Math.PI, 0);
+        ctx.lineTo(x + 15, y + 6);
+        ctx.lineTo(x + 7.5, y + 14);
+        ctx.lineTo(x, y + 6);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function drawHUD() {
+        ctx.save();
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.62)';
+        ctx.fillRect(12, 8, VIEW_W - 24, 48);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(12, 8, VIEW_W - 24, 48);
+
+        const drawHudCol = (label, value, x, valueColor = '#ffffff') => {
+          ctx.font = '900 12px "Courier New", monospace';
+          ctx.textAlign = 'left';
+          ctx.fillStyle = '#111827';
+          ctx.fillText(label, x + 2, 24);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText(label, x, 22);
+
+          ctx.font = '900 16px "Courier New", monospace';
+          ctx.fillStyle = '#111827';
+          ctx.fillText(value, x + 2, 45);
+          ctx.fillStyle = valueColor;
+          ctx.fillText(value, x, 43);
+        };
+
+        // 1) LIVES (목숨 3개 픽셀 하트 표시)
+        ctx.font = '900 12px "Courier New", monospace';
+        ctx.fillStyle = '#111827';
+        ctx.fillText('LIVES', 28, 24);
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillText('LIVES', 26, 22);
+
+        const maxHearts = Math.max(3, Math.min(5, lives));
+        for (let h = 0; h < maxHearts; h++) {
+          drawPixelHeart(ctx, 26 + h * 19, 31, h < lives);
+        }
+
+        // 2) SCORE
+        drawHudCol('SCORE', String(score).padStart(6, '0'), 145);
+
+        // 3) COINS
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.ellipse(294, 38, 6, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#78350f';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        drawHudCol('COINS', 'x ' + String(coins).padStart(2, '0'), 306);
+
+        // 4) STAGE
+        const zoneStr = currentZone === 'UNDERGROUND' ? `1-${currentStage}B` : `1-${currentStage}`;
+        drawHudCol('STAGE', zoneStr, 425, '#38bdf8');
+
+        // 5) POWER STATE (이모지 없이 순수 영문 텍스트만 사용하여 네모 깨짐 현상 원천 차단!)
+        let stateName = 'NORMAL';
+        let stateColor = '#e2e8f0';
+        if (player) {
+          if (player.starTimer > 0) {
+            stateName = 'STAR';
+            stateColor = '#fef08a';
+          } else if (player.powerLevel === 2) {
+            stateName = 'FIRE';
+            stateColor = '#fb923c';
+          } else if (player.powerLevel === 1) {
+            stateName = 'SUPER';
+            stateColor = '#4ade80';
+          }
+        }
+        drawHudCol('POWER', stateName, 540, stateColor);
+
+        // 6) TIME
+        const timeStr = String(Math.max(0, Math.ceil(timeLeft))).padStart(3, '0');
+        const timeColor = timeLeft <= 60 ? '#f87171' : '#ffffff';
+        drawHudCol('TIME', timeStr, 685, timeColor);
+
+        ctx.restore();
+      }
+
+      function renderGame() {
+        ctx.clearRect(0, 0, VIEW_W, VIEW_H);
+        drawBackground();
+        drawCheckpointAndFlagpole();
+        drawFieldCoinsAndItems();
+        drawPiranhas();
+
+        if (gameState === 'PIPE_WARP') {
+          drawPlayer();
+          drawSolidsAndPlatforms();
+        } else {
+          drawSolidsAndPlatforms();
+          drawPlayer();
+        }
+
+        drawEnemies();
+        drawFireballs();
+        drawParticlesAndPopups();
+        drawHUD();
+      }
+
+      // ==========================================
+      // 13. 게임 루프 및 리사이즈 대응
+      // ==========================================
       let rafId = null;
 
       function gameLoop() {
-        if (isPortraitLocked) {
-          rafId = requestAnimationFrame(gameLoop);
-          return;
-        }
-        if (gameState === STATE.PLAYING) updatePlaying();
-        else if (gameState === STATE.IMPACT_CUTSCENE) updateImpactCutscene();
-        else if (gameState === STATE.STAGE1_BURIED_ENDING) updateBuriedEnding();
-        else if (gameState === STATE.STAGE2_AWAKEN_CUTSCENE) updateAwakenCutscene();
-        else if (gameState === STATE.STAGE2_CAPTURE_CUTSCENE) updateCaptureCutscene();
-        else if (gameState === STATE.FINAL_EPILOGUE) updateFinalEpilogue();
-        else {
-          frameCount++;
-          if (gameState === STATE.READY) {
-            for (let ml of midLandmarks) {
-              ml.x += ml.dir * (ml.walkSpeed * 0.65);
-              ml.anim++;
-              if (ml.x < -140) ml.x = W + 50;
-              else if (ml.x > W + 140) ml.x = -100;
-            }
-            for (let rd of bgRoamingDinos) {
-              rd.x += rd.dir * (rd.speed * 0.7);
-              rd.anim++;
-              if (rd.x < -120) rd.x = W + 60;
-              else if (rd.x > W + 120) rd.x = -100;
-            }
-          }
-        }
-
-        ctx.save();
-
-        let shakeMag = 0;
-        if (gameState === STATE.PLAYING && currentPhase === 4) {
-          const progress4 = Math.max(0, (score - 3000) / 1000);
-          shakeMag = 1.4 + progress4 * 3.0;
-        } else if (gameState === STATE.IMPACT_CUTSCENE && cutscene.whiteoutAlpha < 1) {
-          shakeMag = 6.5;
-        } else if (gameState === STATE.STAGE2_AWAKEN_CUTSCENE && awakenScene.timer > 15 && awakenScene.timer < 120) {
-          shakeMag = 4.2;
-        }
-
-        if (shakeMag > 0) {
-          ctx.translate((Math.random() - 0.5) * shakeMag * 2, (Math.random() - 0.5) * shakeMag * 2);
-        }
-
-        if (gameState === STATE.STAGE1_BURIED_ENDING) {
-          drawBuriedEndingScene();
-        } else if (gameState === STATE.STAGE2_AWAKEN_CUTSCENE) {
-          drawAwakenCutscene();
-        } else if (gameState === STATE.STAGE2_CAPTURE_CUTSCENE) {
-          drawCaptureCutscene();
-        } else if (gameState === STATE.FINAL_EPILOGUE) {
-          drawEpilogueMuseum();
-        } else {
-          drawSkyAndEnvironment();
-          drawObstacles();
-          drawUfoBoss(); // Mid-boss UFO and Laser beam in Phase 8!
-          drawPlayer();
-          drawHUDAndBanners();
-
-          if (gameState === STATE.IMPACT_CUTSCENE) {
-            if (cutscene.impacted && cutscene.shockwaveStep > 0) {
-              const s = Math.floor(cutscene.shockwaveStep);
-              const cx = Math.floor(cutscene.meteorX + 40);
-              const cy = Math.floor(cutscene.meteorY + 40);
-              ctx.fillStyle = 'rgba(255, 250, 220, 0.9)';
-              ctx.fillRect(cx - s, cy - s, s * 2, 12);
-              ctx.fillRect(cx - s, cy + s - 12, s * 2, 12);
-              ctx.fillRect(cx - s, cy - s, 12, s * 2);
-              ctx.fillRect(cx + s - 12, cy - s, 12, s * 2);
-            }
-            if (cutscene.whiteoutAlpha > 0) {
-              ctx.fillStyle = `rgba(255, 255, 255, ${cutscene.whiteoutAlpha})`;
-              ctx.fillRect(-20, -20, W + 40, H + 40);
-            }
-          }
-        }
-
-        ctx.restore();
-        rafId = requestAnimationFrame(gameLoop);
+        updateGame();
+        renderGame();
+        rafId = window.requestAnimationFrame(gameLoop);
       }
 
-      function handleJumpAction() {
-        sound.init();
-        if (gameState === STATE.READY) {
-          resetGame(true);
-          player.isJumping = true;
-          player.vy = player.jumpForce;
-          sound.playJump();
-        } else if (gameState === STATE.STAGE1_BURIED_ENDING) {
-          startStage2AwakenCutscene();
-        } else if (gameState === STATE.PLAYING) {
-          if (!player.isJumping) {
-            player.isJumping = true;
-            player.isDucking = false;
-            player.vy = player.jumpForce;
-            sound.playJump();
-          }
-        } else if (gameState === STATE.GAMEOVER) {
-          if (currentStage === 2) {
-            beginStage2Playing();
-          } else {
-            resetGame(true);
-          }
-        }
-      }
-
-      function handleDuckStart() {
-        sound.init();
-        if (gameState === STATE.PLAYING) {
-          if (!player.isDucking) sound.playDuck();
-          player.isDucking = true;
-        }
-      }
-
-      function handleDuckEnd() {
-        player.isDucking = false;
-      }
-
-      function toggleInvincibleMode() {
-        invincible = !invincible;
-        updateHeaderHUD();
-      }
-
-      function jumpToNextSubPhase() {
-        const thresholds = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 3960, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 7960];
-        let nextScore = 500;
-        for (let t of thresholds) {
-          if (t > score + 25) {
-            nextScore = t;
-            break;
-          }
-        }
-        jumpToScoreCheat(nextScore);
-      }
-
-      window.addEventListener('keydown', (e) => {
-        if (['Space', 'ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
-
-        if (e.code === 'Space' || e.code === 'ArrowUp') {
-          handleJumpAction();
-        } else if (e.code === 'ArrowDown') {
-          handleDuckStart();
-        } else if (e.key === '1') jumpToScoreCheat(0);
-        else if (e.key === '2') jumpToScoreCheat(1000);
-        else if (e.key === '3') jumpToScoreCheat(2000);
-        else if (e.key === '4') jumpToScoreCheat(3000);
-        else if (e.key === '5') jumpToScoreCheat(3960);
-        else if (e.key === '6') jumpToScoreCheat(4000);
-        else if (e.key === '7') jumpToScoreCheat(5000);
-        else if (e.key === '8') jumpToScoreCheat(6000);
-        else if (e.key === '9') jumpToScoreCheat(7000);
-        else if (e.key === '0') jumpToScoreCheat(7960);
-        else if (e.key === 'n' || e.key === 'N' || e.key === '+') jumpToNextSubPhase();
-        else if (e.key === 'i' || e.key === 'I') toggleInvincibleMode();
-        else if (e.key === 'r' || e.key === 'R') resetGame(true);
-        else if (e.key === 'm' || e.key === 'M') {
-          const muted = sound.toggleMute();
-          updateMuteUI(muted);
-        }
+      window.addEventListener('resize', () => {
+        renderGame();
       });
 
-      window.addEventListener('keyup', (e) => {
-        if (e.code === 'ArrowDown') handleDuckEnd();
-      });
-
-      function updateMuteUI(muted) {
-        const icon = document.getElementById('muteIcon');
-        const label = document.getElementById('muteLabel');
-        if (icon) icon.textContent = muted ? '🔇' : '🔊';
-        if (label) label.textContent = muted ? 'MUTED' : 'SOUND ON';
-      }
-
-      const muteBtn = document.getElementById('muteBtn');
-      if (muteBtn) {
-        muteBtn.addEventListener('click', () => {
-          const muted = sound.toggleMute();
-          updateMuteUI(muted);
-          muteBtn.blur();
-        });
-      }
-
-      const awakenStage2Btn = document.getElementById('awakenStage2Btn');
-      if (awakenStage2Btn) {
-        awakenStage2Btn.addEventListener('click', () => {
-          startStage2AwakenCutscene();
-        });
-      }
-
-      const rewindBtn = document.getElementById('rewindBtn');
-      if (rewindBtn) {
-        rewindBtn.addEventListener('click', () => {
-          resetGame(true);
-        });
-      }
-
-      const replayStage2Btn = document.getElementById('replayStage2Btn');
-      if (replayStage2Btn) {
-        replayStage2Btn.addEventListener('click', () => {
-          startStage2AwakenCutscene();
-        });
-      }
-
-      // =====================================================================
-      // PC vs MOBILE LANDSCAPE-ONLY AUTO-DETECTION & ORIENTATION GUARD
-      // =====================================================================
-      let isPortraitLocked = false;
-
-      function detectIsMobileEnvironment() {
-        const uaMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
-        const coarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-        const smallSide = Math.min(window.innerWidth, window.innerHeight) < 768;
-        return Boolean(uaMobile || (coarsePointer && smallSide) || window.innerWidth < 768);
-      }
-
-      function checkMobileLandscapeLock() {
-        const lockOverlay = document.getElementById('portraitLockOverlay');
-        if (!lockOverlay) return;
-        // Do not block a shared-link player in portrait. In-app browsers and
-        // iframes frequently reject the Fullscreen/Screen Orientation APIs,
-        // which previously left this overlay on screen permanently.
-        isPortraitLocked = false;
-        lockOverlay.classList.add('hidden');
-      }
-
-      function syncAppViewport() {
-        // visualViewport reflects the usable area when a mobile browser's URL
-        // bar expands/collapses and when this page is embedded in a preview.
-        const viewport = window.visualViewport;
-        const height = viewport && viewport.height ? viewport.height : window.innerHeight;
-        if (height > 0) {
-          document.documentElement.style.setProperty('--app-height', `${Math.round(height * 100) / 100}px`);
+      window.onload = function () {
+        if (rafId) {
+          window.cancelAnimationFrame(rafId);
         }
-      }
-
-      function applyDeviceMode(mobileFlag, isAuto = false) {
-        isMobileMode = Boolean(mobileFlag);
-        document.body.classList.toggle('mode-mobile', isMobileMode);
-        document.body.classList.toggle('mode-pc', !isMobileMode);
-        checkMobileLandscapeLock();
-
-        const envBadge = document.getElementById('deviceEnvBadge');
-        const modeIcon = document.getElementById('deviceModeIcon');
-        const modeLabel = document.getElementById('deviceModeLabel');
-
-        if (envBadge) {
-          if (isMobileMode) {
-            envBadge.textContent = isAuto ? '📱 모바일 환경 (자동 최적화)' : '📱 모바일 대형키 모드';
-            envBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300';
-          } else {
-            envBadge.textContent = isAuto ? '💻 PC 환경 (키보드 최적화)' : '💻 PC 키보드 모드';
-            envBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-cyan-300';
-          }
-        }
-        if (modeIcon) modeIcon.textContent = isMobileMode ? '💻' : '📱';
-        if (modeLabel) modeLabel.textContent = isMobileMode ? 'PC 모드로 보기' : '모바일 대형키 켜기';
-      }
-
-      // Initialize Device Mode automatically on load
-      applyDeviceMode(detectIsMobileEnvironment(), true);
-
-      const deviceModeBtn = document.getElementById('deviceModeBtn');
-      if (deviceModeBtn) {
-        deviceModeBtn.addEventListener('click', () => {
-          userOverrodeDeviceMode = true;
-          applyDeviceMode(!isMobileMode, false);
-          deviceModeBtn.blur();
-        });
-      }
-
-      function bindJumpButton(btn) {
-        if (!btn) return;
-        const triggerJump = (e) => {
-          e.preventDefault();
-          btn.classList.add('is-pressed');
-          if (navigator.vibrate) { try { navigator.vibrate(10); } catch (_) {} }
-          handleJumpAction();
-        };
-        const releaseJump = () => btn.classList.remove('is-pressed');
-        btn.addEventListener('pointerdown', triggerJump);
-        btn.addEventListener('pointerup', releaseJump);
-        btn.addEventListener('pointercancel', releaseJump);
-        btn.addEventListener('pointerleave', releaseJump);
-      }
-
-      function bindDuckButton(btn) {
-        if (!btn) return;
-        const triggerDuck = (e) => {
-          e.preventDefault();
-          btn.classList.add('is-pressed');
-          if (navigator.vibrate) { try { navigator.vibrate(8); } catch (_) {} }
-          handleDuckStart();
-        };
-        const releaseDuck = (e) => {
-          if (e) e.preventDefault();
-          btn.classList.remove('is-pressed');
-          handleDuckEnd();
-        };
-        btn.addEventListener('pointerdown', triggerDuck);
-        btn.addEventListener('pointerup', releaseDuck);
-        btn.addEventListener('pointercancel', releaseDuck);
-        btn.addEventListener('pointerleave', releaseDuck);
-      }
-
-      // Bind both PC compact buttons and Mobile Giant Arcade Pads
-      bindJumpButton(document.getElementById('touchJumpBtn'));
-      bindJumpButton(document.getElementById('mobileJumpBtn'));
-      bindDuckButton(document.getElementById('touchDuckBtn'));
-      bindDuckButton(document.getElementById('mobileDuckBtn'));
-
-      // Pre-Game Intro Start Button & Upper-Right Diagonal Small Rotate/Reset Icon Button
-      const startIntroBtn = document.getElementById('startIntroBtn');
-      if (startIntroBtn) {
-        startIntroBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          handleJumpAction();
-        });
-      }
-
-      const topCornerResetBtn = document.getElementById('topCornerResetBtn');
-      if (topCornerResetBtn) {
-        topCornerResetBtn.addEventListener('click', () => {
-          resetGame(true);
-          topCornerResetBtn.blur();
-        });
-      }
-
-      const openGuideBtn = document.getElementById('openGuideBtn');
-      if (openGuideBtn) {
-        openGuideBtn.addEventListener('click', () => {
-          resetGame(false);
-          openGuideBtn.blur();
-        });
-      }
-
-      // Mobile utility buttons (Restart, Invincible, Collapsible Cheat Drawer)
-      const mobileRestartBtn = document.getElementById('mobileRestartBtn');
-      if (mobileRestartBtn) {
-        mobileRestartBtn.addEventListener('click', () => {
-          resetGame(true);
-          mobileRestartBtn.blur();
-        });
-      }
-
-      const mobileInvincibleBtn = document.getElementById('mobileInvincibleBtn');
-      if (mobileInvincibleBtn) {
-        mobileInvincibleBtn.addEventListener('click', () => {
-          toggleInvincibleMode();
-          mobileInvincibleBtn.blur();
-        });
-      }
-
-      const toggleMobileCheatDrawerBtn = document.getElementById('toggleMobileCheatDrawerBtn');
-      const cheatPanelWrapper = document.getElementById('cheatPanelWrapper');
-      const cheatDrawerArrow = document.getElementById('cheatDrawerArrow');
-      if (toggleMobileCheatDrawerBtn && cheatPanelWrapper) {
-        toggleMobileCheatDrawerBtn.addEventListener('click', () => {
-          const isCollapsed = cheatPanelWrapper.classList.toggle('mobile-collapsed');
-          if (cheatDrawerArrow) cheatDrawerArrow.textContent = isCollapsed ? '▼' : '▲';
-        });
-      }
-
-      // Fullscreen & Landscape Orientation Lock Helper
-      function requestLandscapeFullscreen() {
-        const docEl = document.documentElement;
-        if (docEl.requestFullscreen && !document.fullscreenElement) {
-          docEl.requestFullscreen().then(() => {
-            if (screen.orientation && screen.orientation.lock) {
-              screen.orientation.lock('landscape').catch(() => {});
-            }
-          }).catch(() => {});
-        } else if (screen.orientation && screen.orientation.lock) {
-          screen.orientation.lock('landscape').catch(() => {});
-        }
-      }
-
-      const lockLandscapeBtn = document.getElementById('lockLandscapeBtn');
-      if (lockLandscapeBtn) {
-        lockLandscapeBtn.addEventListener('click', () => {
-          requestLandscapeFullscreen();
-        });
-      }
-
-      // Fullscreen toggle button
-      const fullscreenBtn = document.getElementById('fullscreenBtn');
-      if (fullscreenBtn) {
-        fullscreenBtn.addEventListener('click', () => {
-          if (!document.fullscreenElement) {
-            requestLandscapeFullscreen();
-          } else {
-            document.exitFullscreen().catch(() => {});
-          }
-          fullscreenBtn.blur();
-        });
-      }
-
-      // Deploy & Standalone HTML Download Modal
-      const deployModal = document.getElementById('deployModal');
-      const deployModalBtn = document.getElementById('deployModalBtn');
-      const closeDeployModalBtn = document.getElementById('closeDeployModalBtn');
-      const downloadIndexHtmlBtn = document.getElementById('downloadIndexHtmlBtn');
-
-      if (deployModalBtn && deployModal) {
-        deployModalBtn.addEventListener('click', () => {
-          deployModal.classList.remove('hidden');
-        });
-      }
-      if (closeDeployModalBtn && deployModal) {
-        closeDeployModalBtn.addEventListener('click', () => {
-          deployModal.classList.add('hidden');
-        });
-      }
-      if (deployModal) {
-        deployModal.addEventListener('click', (e) => {
-          if (e.target === deployModal) deployModal.classList.add('hidden');
-        });
-      }
-      if (downloadIndexHtmlBtn) {
-        downloadIndexHtmlBtn.addEventListener('click', () => {
-          const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-          const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'index.html';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          setTimeout(() => URL.revokeObjectURL(url), 1500);
-        });
-      }
-
-      // Canvas direct touch/click: in Mobile Mode during PLAYING, touching left 35% of canvas ducks, right 65% jumps!
-      canvas.addEventListener('pointerdown', (e) => {
-        // Let a finger's vertical swipe bubble into page scrolling. GitHub's
-        // mobile preview is often an iframe, so preventing this event traps
-        // the player on the upper half of the game.
-        if (!isMobileMode || e.pointerType !== 'touch') e.preventDefault();
-        if (gameState === STATE.FINAL_EPILOGUE) {
-          resetGame(true);
-          return;
-        }
-        if (isMobileMode && gameState === STATE.PLAYING) {
-          const rect = canvas.getBoundingClientRect();
-          const relX = (e.clientX - rect.left) / Math.max(1, rect.width);
-          if (relX < 0.35) {
-            handleDuckStart();
-            return;
-          }
-        }
-        handleJumpAction();
-      });
-
-      canvas.addEventListener('pointerup', () => {
-        if (isMobileMode && player.isDucking) handleDuckEnd();
-      });
-      canvas.addEventListener('pointercancel', () => {
-        if (isMobileMode && player.isDucking) handleDuckEnd();
-      });
-
-      const cheatBtns = document.querySelectorAll('.cheat-btn');
-      cheatBtns.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const key = btn.getAttribute('data-cheat');
-          const scoreMap = {
-            '1': 0, '2': 1000, '3': 2000, '4': 3000, '5': 3960,
-            '6': 4000, '7': 5000, '8': 6000, '9': 7000, '0': 7960
-          };
-          if (scoreMap[key] !== undefined) {
-            jumpToScoreCheat(scoreMap[key]);
-            if (isMobileMode && cheatPanelWrapper) {
-              cheatPanelWrapper.classList.add('mobile-collapsed');
-              if (cheatDrawerArrow) cheatDrawerArrow.textContent = '▼';
-            }
-          }
-          btn.blur();
-        });
-      });
-
-      const nextSubPhaseBtn = document.getElementById('nextSubPhaseBtn');
-      if (nextSubPhaseBtn) {
-        nextSubPhaseBtn.addEventListener('click', () => {
-          jumpToNextSubPhase();
-          nextSubPhaseBtn.blur();
-        });
-      }
-
-      const toggleInvincibleBtn = document.getElementById('toggleInvincibleBtn');
-      if (toggleInvincibleBtn) {
-        toggleInvincibleBtn.addEventListener('click', () => {
-          toggleInvincibleMode();
-          toggleInvincibleBtn.blur();
-        });
-      }
-
-      function handleResize() {
-        syncAppViewport();
-        canvas.width = W;
-        canvas.height = H;
-        if (!userOverrodeDeviceMode) {
-          applyDeviceMode(detectIsMobileEnvironment(), true);
-        } else {
-          checkMobileLandscapeLock();
-        }
-      }
-
-      window.addEventListener('resize', handleResize);
-      window.addEventListener('orientationchange', handleResize);
-      if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', handleResize);
-        window.visualViewport.addEventListener('scroll', syncAppViewport);
-      }
-
-      // Force instant loop initialization regardless of document ready state
-      handleResize();
-      updateHeaderHUD();
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(gameLoop);
-
-      if (document.readyState === 'loading') {
-        window.addEventListener('DOMContentLoaded', () => {
-          handleResize();
-          updateHeaderHUD();
-        });
-      }
+        startFullNewGame(1);
+        rafId = window.requestAnimationFrame(gameLoop);
+      };
     })();
   </script>
 </body>
